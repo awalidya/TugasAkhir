@@ -1,3 +1,13 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import seaborn as sns
+import matplotlib.pyplot as plt
+from sklearn.cluster import MeanShift
+from sklearn.metrics import silhouette_score
+
+# Konfigurasi halaman
+st.set_page_config(page_title='trash-achievement', layout='wide')
 
 # Membuat tab menu di bagian atas
 menu = ["Upload Data", "Pengolahan Data", "Algoritma Clustering", "Visualisasi"]
