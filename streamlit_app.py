@@ -1,112 +1,80 @@
-import streamlit as st
-import pandas as pd
-import numpy as np
-import seaborn as sns
-import matplotlib.pyplot as plt
-from sklearn.cluster import MeanShift
-from sklearn.metrics import silhouette_score
 
-# Konfigurasi halaman
-st.set_page_config(page_title='trash-achievement', layout='wide')
+# Membuat tab menu di bagian atas
+menu = ["Upload Data", "Pengolahan Data", "Algoritma Clustering", "Visualisasi"]
+tabs = st.tabs(menu)
 
-# Sidebar Menu
-menu = st.sidebar.selectbox("Pilih Menu:", ["Data", "Pengolahan Data", "Algoritma", "Visualisasi"])
-
-def load_data(uploaded_file):
-    if uploaded_file is not None:
-        if uploaded_file.name.endswith('.csv'):
-            return pd.read_csv(uploaded_file)
-        elif uploaded_file.name.endswith('.xlsx'):
-            return pd.read_excel(uploaded_file)
-    return None
-
-# Menu Data
-if menu == "Data":
-    st.title("Upload Data")
-    uploaded_file = st.file_uploader("Upload file CSV atau Excel", type=["csv", "xlsx"])
-    df = load_data(uploaded_file)
-    if df is not None:
+# TAB 1: Upload Data
+with tabs[0]:
+    st.header("Upload Data")
+    uploaded_file = st.file_uploader("Unggah file CSV atau Excel", type=["csv", "xlsx"])
+    if uploaded_file:
+        if uploaded_file.name.endswith(".csv"):
+            df = pd.read_csv(uploaded_file)
+        else:
+            df = pd.read_excel(uploaded_file)
+        st.session_state['df'] = df  # Simpan dataframe di session_state
         st.write("Data yang diunggah:")
         st.dataframe(df.head())
 
-# Menu Pengolahan Data
-elif menu == "Pengolahan Data":
-    st.title("Exploratory Data Analysis (EDA) & Preprocessing")
-    if uploaded_file is not None:
-        df = load_data(uploaded_file)
-        df.rename(columns={
-            'Timbulan Sampah Harian(ton)': 'sampah_harian',
-            'Timbulan Sampah Tahunan (ton/tahun)(A)': 'sampah_tahunan',
-            'Pengurangan Sampah Tahunan (ton/tahun)(B)': 'pengurangan',
-            '%Pengurangan Sampah(B/A)': 'perc_pengurangan',
-            'Penanganan Sampah Tahunan (ton/tahun)(C)': 'penanganan',
-            '%Penanganan Sampah(C/A)': 'perc_penanganan',
-            'Sampah Terkelola Tahunan (ton/tahun)(B+C)': 'sampah_terkelola',
-            '%Sampah Terkelola(B+C)/A': 'perc_sampah_terkelola',
-            'Daur ulang Sampah Tahunan (ton/tahun)(D)': 'daur_ulang',
-            'Recycling Rate(D+E)/A': 'recycling_rate'
-        }, inplace=True)
-        st.write("Informasi Data:")
+# TAB 2: Pengolahan Data
+with tabs[1]:
+    st.header("Exploratory Data Analysis & Preprocessing")
+    if 'df' in st.session_state:
+        df = st.session_state['df']
+        st.subheader("Informasi Data")
         st.write(df.info())
-
-        st.write("Ringkasan Statistik:")
+        st.subheader("Statistik Data")
         st.write(df.describe())
-
-        # Visualisasi Distribusi Data
-        st.subheader("Distribusi Data")
-        numeric_columns = df.select_dtypes(include=['int', 'float']).columns
+        
+        # Visualisasi distribusi data
+        numeric_columns = df.select_dtypes(include=['int64', 'float64']).columns
         for column in numeric_columns:
+            st.subheader(f"Distribusi {column}")
             fig, ax = plt.subplots()
             sns.histplot(df[column], kde=True, ax=ax)
             st.pyplot(fig)
+        
+        # Handling Missing Values
+        df.fillna(df.median(), inplace=True)
+        st.session_state['df'] = df
+        st.success("Data preprocessing selesai!")
+    else:
+        st.warning("Harap unggah data terlebih dahulu.")
 
-        # Preprocessing (Mengisi Missing Value dengan Median)
-        for col in ['daur_ulang', 'pengurangan', 'perc_pengurangan', 'penanganan', 'perc_penanganan']:
-            df[col] = df[col].fillna(df[col].median())
-        st.write("Missing values setelah preprocessing:")
-        st.write(df.isnull().sum())
-
-# Menu Algoritma
-elif menu == "Algoritma":
-    st.title("Mean Shift Clustering")
-    if uploaded_file is not None:
-        df = load_data(uploaded_file)
+# TAB 3: Algoritma Clustering
+with tabs[2]:
+    st.header("Penerapan Mean Shift Clustering")
+    if 'df' in st.session_state:
+        df = st.session_state['df']
         X = df[['sampah_tahunan', 'perc_pengurangan', 'perc_penanganan', 'perc_sampah_terkelola']]
-
-        bandwidth_values = np.arange(0.5, 2.1, 0.5)
-        best_score = -1
-        best_bandwidth = None
-
-        for bandwidth in bandwidth_values:
-            ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
-            ms.fit(X)
-            labels = ms.labels_
-            n_clusters = len(np.unique(labels))
-            if n_clusters > 1:
-                sil_score = silhouette_score(X, labels)
-                if sil_score > best_score:
-                    best_score = sil_score
-                    best_bandwidth = bandwidth
-
-        st.write(f"Bandwidth terbaik: {best_bandwidth}, Silhouette Score: {best_score:.3f}")
-        ms = MeanShift(bandwidth=best_bandwidth, bin_seeding=True)
+        bandwidth = st.slider("Pilih Bandwidth", 0.5, 2.0, 1.5, 0.1)
+        ms = MeanShift(bandwidth=bandwidth, bin_seeding=True)
         ms.fit(X)
         df['cluster_labels'] = ms.labels_
+        st.session_state['df'] = df
+        
+        n_clusters = len(np.unique(ms.labels_))
+        st.write(f"Jumlah Cluster: {n_clusters}")
+        if n_clusters > 1:
+            sil_score = silhouette_score(X, ms.labels_)
+            st.write(f"Silhouette Score: {sil_score:.3f}")
+        
         st.write("Hasil Clustering:")
-        st.write(df[['sampah_tahunan', 'perc_pengurangan', 'perc_penanganan', 'perc_sampah_terkelola', 'cluster_labels']])
+        st.dataframe(df[['sampah_tahunan', 'perc_pengurangan', 'perc_penanganan', 'perc_sampah_terkelola', 'cluster_labels']])
+    else:
+        st.warning("Harap unggah data terlebih dahulu.")
 
-# Menu Visualisasi
-elif menu == "Visualisasi":
-    st.title("Visualisasi Hasil Clustering")
-    if uploaded_file is not None:
-        df = load_data(uploaded_file)
-        if 'cluster_labels' in df.columns:
-            cluster_counts = df['cluster_labels'].value_counts()
-            cluster_percentages = (cluster_counts / cluster_counts.sum()) * 100
-
-            fig, ax = plt.subplots()
-            ax.pie(cluster_percentages, labels=cluster_percentages.index, autopct='%1.1f%%', startangle=140)
-            ax.set_title('Persentase Tiap Cluster')
-            st.pyplot(fig)
-        else:
-            st.warning("Lakukan clustering terlebih dahulu di menu Algoritma.")
+# TAB 4: Visualisasi
+with tabs[3]:
+    st.header("Visualisasi Hasil Clustering")
+    if 'df' in st.session_state:
+        df = st.session_state['df']
+        cluster_counts = df['cluster_labels'].value_counts()
+        cluster_percentages = (cluster_counts / cluster_counts.sum()) * 100
+        
+        fig, ax = plt.subplots()
+        ax.pie(cluster_percentages, labels=cluster_percentages.index, autopct='%1.1f%%', startangle=140)
+        ax.set_title("Persentase Tiap Cluster")
+        st.pyplot(fig)
+    else:
+        st.warning("Harap unggah data terlebih dahulu.")
