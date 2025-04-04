@@ -25,86 +25,64 @@ with tabs[0]:
         st.dataframe(df)
 
 # Tab 2: Pengolahan Data
-with tabs[1]:
-    st.header("🔧 Pengolahan Data")
-    if 'df' in st.session_state:
-        df = st.session_state['df']
-        
-        numeric_columns = [
-            'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
-            'penanganan', 'perc_penanganan', 'sampah_terkelola',
-            'perc_sampah_terkelola', 'daur_ulang'
-        ]
+elif selected_tab == "Pengolahan Data":
+    st.header("Pengolahan Data")
 
-        st.subheader("📊 Histogram")
-        fig1 = df[numeric_columns].hist(bins=50, figsize=(15,10))
-        st.pyplot(plt.gcf())
-        plt.clf()
+    if uploaded_file is not None:
+        df = pd.read_csv(uploaded_file)
+        st.subheader("Data Asli")
+        st.write(df)
 
-        # Fungsi outlier
-        def jumlah_outlier(df, kolom):
-            Q1 = df[kolom].quantile(0.25)
-            Q3 = df[kolom].quantile(0.75)
-            IQR = Q3 - Q1
-            lower = Q1 - 1.5 * IQR
-            upper = Q3 + 1.5 * IQR
-            outliers = df[(df[kolom] < lower) | (df[kolom] > upper)]
-            return outliers.shape[0]
+        # Histogram
+        st.subheader("Histogram")
+        numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns
+        for col in numeric_columns:
+            fig, ax = plt.subplots()
+            df[col].hist(ax=ax, bins=20)
+            ax.set_title(f"Histogram: {col}")
+            st.pyplot(fig)
 
-        def persen_outlier(df, kolom):
-            total = df.shape[0]
-            jumlah = jumlah_outlier(df, kolom)
-            return (jumlah / total) * 100
+        # Boxplot Sebelum Penanganan Outlier
+        st.subheader("Boxplot Sebelum Penanganan Outlier")
+        for col in numeric_columns:
+            fig, ax = plt.subplots()
+            df.boxplot(column=col, ax=ax)
+            ax.set_title(f"Boxplot: {col}")
+            st.pyplot(fig)
 
-        st.subheader("📦 Boxplot Sebelum Penanganan Outlier")
-        fig, axs = plt.subplots(nrows=len(numeric_columns), figsize=(10, 15))
-        for i, col in enumerate(numeric_columns):
-            sns.boxplot(x=df[col], ax=axs[i])
-            axs[i].set_title(f'Boxplot of {col}')
-        plt.tight_layout()
-        st.pyplot(fig)
+        # Penanganan Outlier dengan Metode IQR
+        st.subheader("Penanganan Outlier dengan Metode IQR")
 
-        # Tangani nilai 0 dan NaN
-        kolom_ubah = ['daur_ulang', 'pengurangan', 'perc_pengurangan', 'penanganan',
-                      'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola']
-        for kolom in kolom_ubah:
-            median_val = df[kolom].replace(0.0, np.nan).median()
-            df[kolom] = df[kolom].replace(0.0, np.nan).fillna(median_val)
+        # Ambil hanya kolom numerik
+        numerical_df = df[numeric_columns]
 
-        st.subheader("❗ Jumlah & Persentase Outlier")
-        feature_outlier = ['sampah_harian', 'sampah_tahunan', 'pengurangan',
-                           'perc_pengurangan', 'penanganan', 'sampah_terkelola']
-        for feature in feature_outlier:
-            jml = jumlah_outlier(df, feature)
-            persen = persen_outlier(df, feature)
-            st.write(f"{feature}: {jml} data ({persen:.2f}%)")
+        # Hitung Q1, Q3, dan IQR
+        Q1 = numerical_df.quantile(0.25)
+        Q3 = numerical_df.quantile(0.75)
+        IQR = Q3 - Q1
 
-        # Penanganan Outlier
-        def handle_outliers_iqr(df, col):
-            Q1 = df[col].quantile(0.25)
-            Q3 = df[col].quantile(0.75)
-            IQR = Q3 - Q1
-            lower = Q1 - 1.5 * IQR
-            upper = Q3 + 1.5 * IQR
-            df[col] = np.where(df[col] < lower, lower, df[col])
-            df[col] = np.where(df[col] > upper, upper, df[col])
+        # Deteksi outlier
+        outliers = ((numerical_df < (Q1 - 1.5 * IQR)) | (numerical_df > (Q3 + 1.5 * IQR)))
+        jumlah_outlier = outliers.sum().sum()
+        persentase_outlier = (jumlah_outlier / numerical_df.size) * 100
 
-        for col in feature_outlier:
-            handle_outliers_iqr(df, col)
+        st.write(f"Jumlah total outlier yang terdeteksi: {jumlah_outlier}")
+        st.write(f"Persentase outlier: {persentase_outlier:.2f}%")
 
-        # Boxplot setelah outlier ditangani
-        st.subheader("📦 Boxplot Setelah Penanganan Outlier (Metode IQR)")
-        fig, axs = plt.subplots(nrows=len(feature_outlier), figsize=(10, 15))
-        for i, col in enumerate(feature_outlier):
-            sns.boxplot(x=df[col], ax=axs[i])
-            axs[i].set_title(f'Boxplot of {col}')
-        plt.tight_layout()
-        st.pyplot(fig)
+        # Hapus outlier
+        df_clean = df[~((numerical_df < (Q1 - 1.5 * IQR)) | (numerical_df > (Q3 + 1.5 * IQR))).any(axis=1)]
 
-        # Simpan kembali
-        st.session_state['df'] = df
-    else:
-        st.warning("Harap unggah data terlebih dahulu.")
+        st.subheader("Data Setelah Penanganan Outlier")
+        st.write(df_clean)
+
+        # Boxplot Setelah Penanganan Outlier
+        st.subheader("Boxplot Setelah Penanganan Outlier")
+        for col in numeric_columns:
+            fig, ax = plt.subplots()
+            df_clean.boxplot(column=col, ax=ax)
+            ax.set_title(f"Boxplot Setelah Penanganan Outlier: {col}")
+            st.pyplot(fig)
+
 
 # Tab 3: Algoritma Clustering
 with tabs[2]:
