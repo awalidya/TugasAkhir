@@ -46,7 +46,7 @@ def persen_outlier(df, kolom):
 if 'df' not in st.session_state:
     st.session_state.df = None
 
-tab1, tab2, tab3, tab4 = st.tabs(["Upload Data", "Pengolahan Data", "Algoritma Clustering", "Visualisasi"])
+tab1, tab2, tab3, tab4 = st.tabs(["Upload Data", "Pengolahan Data", "Algoritma Clustering", "Hasil Klastering"])
 
 # Tab Upload Data
 with tab1:
@@ -136,9 +136,6 @@ with tab3:
     else:
         st.warning("Silakan upload dan olah data terlebih dahulu.")
 
-# Tab Hasil Klastering
-# Ganti nama tab menjadi "Hasil Klastering"
-tab1, tab2, tab3, tab4 = st.tabs(["Upload Data", "Pengolahan Data", "Algoritma Clustering", "Hasil Klastering"])
 
 # Tab Hasil Klastering
 with tab4:
