@@ -136,7 +136,7 @@ with tab3:
     else:
         st.warning("Silakan upload dan olah data terlebih dahulu.")
 
-# Tab Visualisasi
+# Tab Hasil Klastering
 with tab4:
     if st.session_state.df is not None and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
@@ -148,21 +148,6 @@ with tab4:
         fig, ax = plt.subplots()
         ax.pie(cluster_pct, labels=cluster_pct.index, autopct='%1.1f%%', startangle=140)
         ax.set_title("Persentase Tiap Cluster")
-        st.pyplot(fig)
-
-        st.subheader("Visualisasi 3D Clustering")
-        X = df[scaling_columns]
-        centers = MeanShift(bandwidth=1.5, bin_seeding=True).fit(X).cluster_centers_
-
-        fig = plt.figure(figsize=(10, 6))
-        ax = fig.add_subplot(111, projection='3d')
-        ax.scatter(X['sampah_tahunan'], X['pengurangan'], X['penanganan'],
-                   c=df['cluster_labels'], cmap='plasma', marker='o')
-        ax.scatter(centers[:, 0], centers[:, 1], centers[:, 2], s=250, c='blue', marker='X')
-        ax.set_xlabel('Sampah Tahunan')
-        ax.set_ylabel('Pengurangan')
-        ax.set_zlabel('Penanganan')
-        ax.set_title("3D Mean Shift Clustering")
         st.pyplot(fig)
 
         st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
@@ -184,5 +169,16 @@ with tab4:
         ax.set_xlabel("Klaster")
         ax.set_ylabel("Rata-rata Persentase")
         st.pyplot(fig)
+
+        st.subheader("Statistik Deskriptif per Cluster")
+
+        st.write("📊 **Cluster 0**")
+        cluster_0_df = df[df['cluster_labels'] == 0]
+        st.dataframe(cluster_0_df.describe())
+
+        st.write("📊 **Cluster 1**")
+        cluster_1_df = df[df['cluster_labels'] == 1]
+        st.dataframe(cluster_1_df.describe())
+
     else:
         st.warning("Silakan lakukan clustering terlebih dahulu.")
