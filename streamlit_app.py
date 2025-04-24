@@ -5,12 +5,12 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import RobustScaler
 from sklearn.metrics import silhouette_score, davies_bouldin_score
-import joblib  # Untuk memuat model yang sudah disimpan
+import joblib
+from mpl_toolkits.mplot3d import Axes3D
 
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
-# Kolom numerik yang akan digunakan
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
     'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola', 'daur_ulang'
@@ -43,9 +43,7 @@ def persen_outlier(df, kolom):
     jumlah = jumlah_outlier(df, kolom)
     return (jumlah / df.shape[0]) * 100
 
-# Menangani missing value secara umum
 def handle_missing_values(df):
-    # Mengganti missing values dengan median (untuk kolom numerik)
     for col in df.select_dtypes(include=[np.number]).columns:
         median = df[col].median()
         df[col] = df[col].fillna(median)
@@ -60,97 +58,103 @@ if uploaded_file:
     st.success("Data berhasil diunggah!")
     st.dataframe(df.head())
 
-    # 1. Menampilkan Missing Value sebelum penanganan
-    st.subheader("Missing Value Sebelum Penanganan")
-    missing_values_before = df.isnull().sum()
-    st.write(missing_values_before)
+    st.subheader("\U0001F9E9 Missing Value Sebelum Penanganan")
+    missing_before = df.isnull().sum()
+    for col, count in missing_before.items():
+        if count > 0:
+            st.markdown(f"- **{col}**: {count} missing value")
+    if missing_before.sum() == 0:
+        st.success("Tidak ada missing value yang terdeteksi.")
 
-    # 2. Menangani missing values secara keseluruhan
     handle_missing_values(df)
     st.session_state.df = df
 
-    # 2. Menampilkan Missing Value setelah penanganan
-    st.subheader("Missing Value Setelah Penanganan")
-    missing_values_after = df.isnull().sum()
-    st.write(missing_values_after)
+    st.subheader("\U0001F9F9 Missing Value Setelah Penanganan")
+    missing_after = df.isnull().sum()
+    for col, count in missing_after.items():
+        if count > 0:
+            st.markdown(f"- **{col}**: {count} missing value")
+    if missing_after.sum() == 0:
+        st.success("Semua missing value telah berhasil ditangani!")
 
-    # 3. Plot Outlier sebelum penanganan
     st.subheader("Plot Outlier Sebelum Penanganan")
     for col in numeric_columns:
-        fig, ax = plt.subplots(1, 1, figsize=(6, 4))  # Lebih kecil ukuran visualisasi
+        fig, ax = plt.subplots(1, 1, figsize=(6, 4))
         sns.boxplot(x=df[col], ax=ax)
         ax.set_title(f"Boxplot {col}")
         st.pyplot(fig)
 
-    # 4. Plot Outlier setelah penanganan
     st.subheader("Plot Outlier Setelah Penanganan")
     for col in feature_outlier:
         handle_outliers_iqr(df, col)
-
     for col in feature_outlier:
-        fig, ax = plt.subplots(1, 1, figsize=(6, 4))  # Lebih kecil ukuran visualisasi
+        fig, ax = plt.subplots(1, 1, figsize=(6, 4))
         sns.boxplot(x=df[col], ax=ax)
         ax.set_title(f"Boxplot {col}")
         st.pyplot(fig)
 
-    # 5. Scaling Columns
     scaler = RobustScaler()
     df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
-    X = df[scaling_columns].values  # Menggunakan values agar menjadi array NumPy
+    X = df[scaling_columns].values
 
     st.subheader("Data Setelah Scaling")
     st.dataframe(df[scaling_columns].head())
 
-    # Memuat model MeanShift yang sudah disimpan
     model_filename = "mean_shift_model_bandwidth_1.5.joblib"
     ms_final = joblib.load(model_filename)
     st.success("Model Mean Shift berhasil dimuat!")
 
-    # Menggunakan model untuk melakukan prediksi cluster
     st.session_state.df['cluster_labels'] = ms_final.predict(X)
     st.success("Prediksi cluster selesai!")
 
-    # Hasil Klastering
     if 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
 
-        st.subheader("📋 Data Cluster 0 dan Cluster 1")
-
+        st.subheader("\ud83d\udccb Data Cluster 0 dan Cluster 1")
         cluster_0_df = df[df['cluster_labels'] == 0]
         cluster_1_df = df[df['cluster_labels'] == 1]
 
-        st.write("🔵 **Data Cluster 0**")
+        st.write("\ud83d\udd35 **Data Cluster 0**")
         st.dataframe(cluster_0_df)
 
-        st.write("🟠 **Data Cluster 1**")
+        st.write("\ud83d\dfe0 **Data Cluster 1**")
         st.dataframe(cluster_1_df)
 
-        st.subheader("📊 Statistik Deskriptif Cluster 0 dan Cluster 1")
-
-        st.write("🔵 **Statistik Deskriptif Cluster 0**")
+        st.subheader("\ud83d\udcca Statistik Deskriptif Cluster 0 dan Cluster 1")
+        st.write("\ud83d\udd35 **Statistik Deskriptif Cluster 0**")
         st.dataframe(cluster_0_df.describe())
 
-        st.write("🟠 **Statistik Deskriptif Cluster 1**")
+        st.write("\ud83d\udfe0 **Statistik Deskriptif Cluster 1**")
         st.dataframe(cluster_1_df.describe())
 
-        st.subheader("📈 Rata-rata Persentase Pengurangan & Penanganan per Cluster")
-
+        st.subheader("\ud83d\udcc8 Rata-rata Persentase Pengurangan & Penanganan per Cluster")
         cluster_0_avg = cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean()
         cluster_1_avg = cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
+        avg_df = pd.DataFrame({"Klaster 0": cluster_0_avg, "Klaster 1": cluster_1_avg})
 
-        avg_df = pd.DataFrame({
-            "Klaster 0": cluster_0_avg,
-            "Klaster 1": cluster_1_avg
-        })
-
-        fig, ax = plt.subplots(figsize=(8, 5))  # Lebih kecil ukuran visualisasi
+        fig, ax = plt.subplots(figsize=(8, 5))
         avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
-
         for i, cluster in enumerate(avg_df.columns):
             for j, val in enumerate(avg_df[cluster]):
                 ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
-
         ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan")
         ax.set_xlabel("Klaster")
         ax.set_ylabel("Rata-rata Persentase")
+        st.pyplot(fig)
+
+        st.subheader("\ud83d\udd0d Visualisasi Klaster 3D")
+        labels = df['cluster_labels']
+        cluster_centers = ms_final.cluster_centers_
+
+        fig = plt.figure(figsize=(10, 6))
+        ax = fig.add_subplot(111, projection='3d')
+        ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
+                   c=labels, cmap='plasma', marker='o', label='Data Points')
+        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+                   s=250, c='blue', marker='X', label='Cluster Centers')
+        ax.set_xlabel('Sampah Tahunan')
+        ax.set_ylabel('Pengurangan')
+        ax.set_zlabel('Penanganan')
+        ax.legend()
+        plt.title('3D Mean Shift Clustering')
         st.pyplot(fig)
