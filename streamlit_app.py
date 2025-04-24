@@ -61,22 +61,34 @@ with tab1:
         st.dataframe(df.head())
 
 with tab2:
-    st.subheader("🧾 Input Data Manual (Opsional)")
+    st.subheader("🧾 Input Data Manual")
+    
     with st.expander("Tambahkan Data Baru Secara Manual"):
         kabupaten_kota = st.text_input("Kabupaten/Kota")
         provinsi = st.text_input("Provinsi")
+        
+        # Input data numerik
         manual_data = {}
         for col in numeric_columns:
             manual_data[col] = st.number_input(f"{col.replace('_', ' ').title()}", min_value=0.0, step=1.0)
-
+        
         if st.button("Tambahkan Data"):
+            # Membuat dataframe dari inputan
             new_row = {"kabupaten_kota": kabupaten_kota, "provinsi": provinsi, **manual_data}
             new_df = pd.DataFrame([new_row])
-            if 'df' in st.session_state:
-                st.session_state.df = pd.concat([st.session_state.df, new_df], ignore_index=True)
-            else:
-                st.session_state.df = new_df
-            st.success("Data berhasil ditambahkan!")
+
+            # Lakukan scaling pada data yang baru dimasukkan
+            scaled_input = scaler.fit_transform(new_df[scaling_columns])
+            
+            # Prediksi cluster untuk data yang baru
+            cluster_label = ms_final.predict(scaled_input)
+
+            # Tampilkan hasil cluster
+            st.write(f"Data yang dimasukkan berada pada cluster: **Cluster {cluster_label[0]}**")
+            
+            # Menampilkan data yang dimasukkan
+            st.write("Data yang dimasukkan:")
+            st.dataframe(new_df)
 
 # Menambahkan pemeriksaan untuk memastikan `st.session_state.df` ada sebelum menjalankan operasi lainnya
 if 'df' in st.session_state:
