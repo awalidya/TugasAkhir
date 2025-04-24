@@ -50,17 +50,17 @@ def handle_missing_values(df):
 
 uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
 
-# Pilihan untuk upload atau input manual
-menu = st.radio("Pilih menu", ("Upload Data", "Input Data Manual"))
+# Membuat dua tab: Upload Data dan Input Data Manual
+tab1, tab2 = st.tabs(["Upload Data", "Input Data Manual"])
 
-if menu == "Upload Data":
+with tab1:
     if uploaded_file:
         df = load_data(uploaded_file)
         st.session_state.df = df
         st.success("Data berhasil diunggah!")
         st.dataframe(df.head())
 
-elif menu == "Input Data Manual":
+with tab2:
     st.subheader("🧾 Input Data Manual (Opsional)")
     with st.expander("Tambahkan Data Baru Secara Manual"):
         kabupaten_kota = st.text_input("Kabupaten/Kota")
