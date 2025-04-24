@@ -58,7 +58,7 @@ if uploaded_file:
     st.success("Data berhasil diunggah!")
     st.dataframe(df.head())
 
-    st.subheader("\U0001F9E9 Missing Value Sebelum Penanganan")
+    st.subheader("🧱 Missing Value Sebelum Penanganan")
     missing_before = df.isnull().sum()
     for col, count in missing_before.items():
         if count > 0:
@@ -69,7 +69,7 @@ if uploaded_file:
     handle_missing_values(df)
     st.session_state.df = df
 
-    st.subheader("\U0001F9F9 Missing Value Setelah Penanganan")
+    st.subheader("🧹 Missing Value Setelah Penanganan")
     missing_after = df.isnull().sum()
     for col, count in missing_after.items():
         if count > 0:
@@ -100,6 +100,23 @@ if uploaded_file:
     st.subheader("Data Setelah Scaling")
     st.dataframe(df[scaling_columns].head())
 
+    st.subheader("EDA")
+    st.dataframe(df[scaling_columns].describe().T)
+
+    for column in df[scaling_columns]:
+        fig, ax = plt.subplots(figsize=(8, 6))
+        sns.histplot(df[column], kde=True, ax=ax)
+        ax.set_title(f'Histogram of {column}')
+        ax.set_xlabel(column)
+        ax.set_ylabel('Density')
+        st.pyplot(fig)
+
+    correlation_matrix_selected = df[scaling_columns].corr()
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
+    ax.set_title("Correlation Heatmap for Selected Features")
+    st.pyplot(fig)
+
     model_filename = "mean_shift_model_bandwidth_1.5.joblib"
     ms_final = joblib.load(model_filename)
     st.success("Model Mean Shift berhasil dimuat!")
@@ -114,10 +131,10 @@ if uploaded_file:
         cluster_0_df = df[df['cluster_labels'] == 0]
         cluster_1_df = df[df['cluster_labels'] == 1]
 
-        st.write("**Data Cluster 0**")
+        st.write("🔵 **Data Cluster 0**")
         st.dataframe(cluster_0_df)
 
-        st.write("**Data Cluster 1**")
+        st.write("🟠 **Data Cluster 1**")
         st.dataframe(cluster_1_df)
 
         st.subheader("Statistik Deskriptif Cluster 0 dan Cluster 1")
