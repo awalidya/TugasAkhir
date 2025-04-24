@@ -114,20 +114,20 @@ if uploaded_file:
         cluster_0_df = df[df['cluster_labels'] == 0]
         cluster_1_df = df[df['cluster_labels'] == 1]
 
-        st.write("\ud83d\udd35 **Data Cluster 0**")
+        st.write("**Data Cluster 0**")
         st.dataframe(cluster_0_df)
 
-        st.write("\ud83d\dfe0 **Data Cluster 1**")
+        st.write("**Data Cluster 1**")
         st.dataframe(cluster_1_df)
 
-        st.subheader("\ud83d\udcca Statistik Deskriptif Cluster 0 dan Cluster 1")
-        st.write("\ud83d\udd35 **Statistik Deskriptif Cluster 0**")
+        st.subheader("Statistik Deskriptif Cluster 0 dan Cluster 1")
+        st.write("**Statistik Deskriptif Cluster 0**")
         st.dataframe(cluster_0_df.describe())
 
-        st.write("\ud83d\udfe0 **Statistik Deskriptif Cluster 1**")
+        st.write("**Statistik Deskriptif Cluster 1**")
         st.dataframe(cluster_1_df.describe())
 
-        st.subheader("\ud83d\udcc8 Rata-rata Persentase Pengurangan & Penanganan per Cluster")
+        st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
         cluster_0_avg = cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean()
         cluster_1_avg = cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
         avg_df = pd.DataFrame({"Klaster 0": cluster_0_avg, "Klaster 1": cluster_1_avg})
@@ -142,7 +142,7 @@ if uploaded_file:
         ax.set_ylabel("Rata-rata Persentase")
         st.pyplot(fig)
 
-        st.subheader("\ud83d\udd0d Visualisasi Klaster 3D")
+        st.subheader("Visualisasi Klaster 3D")
         labels = df['cluster_labels']
         cluster_centers = ms_final.cluster_centers_
 
