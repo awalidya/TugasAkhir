@@ -6,11 +6,11 @@ import matplotlib.pyplot as plt
 from sklearn.preprocessing import RobustScaler
 from sklearn.cluster import MeanShift
 from sklearn.metrics import silhouette_score
-from mpl_toolkits.mplot3d import Axes3D
 
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
+# Kolom numerik yang akan digunakan
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
     'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola', 'daur_ulang'
@@ -43,6 +43,13 @@ def persen_outlier(df, kolom):
     jumlah = jumlah_outlier(df, kolom)
     return (jumlah / df.shape[0]) * 100
 
+# Menangani missing value secara umum
+def handle_missing_values(df):
+    # Mengganti missing values dengan median (untuk kolom numerik)
+    for col in df.select_dtypes(include=[np.number]).columns:
+        median = df[col].median()
+        df[col] = df[col].fillna(median)
+
 if 'df' not in st.session_state:
     st.session_state.df = None
 
@@ -53,10 +60,22 @@ if uploaded_file:
     st.success("Data berhasil diunggah!")
     st.dataframe(df.head())
 
-    # Proses Pengolahan Data
-    df = st.session_state.df.copy()
+    # 1. Menampilkan Missing Value sebelum penanganan
+    st.subheader("Missing Value Sebelum Penanganan")
+    missing_values_before = df.isnull().sum()
+    st.write(missing_values_before)
 
-    st.subheader("Histogram dan Boxplot")
+    # 2. Menangani missing values secara keseluruhan
+    handle_missing_values(df)
+    st.session_state.df = df
+
+    # 2. Menampilkan Missing Value setelah penanganan
+    st.subheader("Missing Value Setelah Penanganan")
+    missing_values_after = df.isnull().sum()
+    st.write(missing_values_after)
+
+    # 3. Plot Outlier sebelum penanganan
+    st.subheader("Plot Outlier Sebelum Penanganan")
     for col in numeric_columns:
         fig, ax = plt.subplots(1, 2, figsize=(12, 4))
         sns.histplot(df[col], kde=True, ax=ax[0])
@@ -65,38 +84,28 @@ if uploaded_file:
         ax[1].set_title(f"Boxplot {col}")
         st.pyplot(fig)
 
-    st.subheader("Jumlah dan Persentase Outlier (Sebelum Penanganan)")
-    for col in numeric_columns:
-        st.write(f"{col}: {jumlah_outlier(df, col)} outlier ({persen_outlier(df, col):.2f}%)")
-
-    st.subheader("Handling Outlier dan Data Kosong")
-    kolom_ubah = ['daur_ulang', 'pengurangan', 'perc_pengurangan', 'penanganan',
-                  'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola']
-    for col in kolom_ubah:
-        median = df[col].replace(0.0, np.nan).median()
-        df[col] = df[col].replace(0.0, np.nan).fillna(median)
-
+    # 4. Plot Outlier setelah penanganan
+    st.subheader("Plot Outlier Setelah Penanganan")
     for col in feature_outlier:
         handle_outliers_iqr(df, col)
 
-    st.session_state.df = df
-    st.success("Outlier dan data kosong telah ditangani.")
-
-    st.subheader("Jumlah dan Persentase Outlier (Setelah Penanganan)")
     for col in feature_outlier:
-        st.write(f"{col}: {jumlah_outlier(df, col)} outlier ({persen_outlier(df, col):.2f}%)")
+        fig, ax = plt.subplots(1, 2, figsize=(12, 4))
+        sns.histplot(df[col], kde=True, ax=ax[0])
+        ax[0].set_title(f"Histogram {col}")
+        sns.boxplot(x=df[col], ax=ax[1])
+        ax[1].set_title(f"Boxplot {col}")
+        st.pyplot(fig)
 
-    st.subheader("Heatmap Korelasi")
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.heatmap(df[numeric_columns].corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-    st.pyplot(fig)
-
-    # Proses Clustering
+    # 5. Scaling Columns
     scaler = RobustScaler()
     df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
-    X = df[scaling_columns]
+    X = df[scaling_columns].values  # Menggunakan values agar menjadi array NumPy
 
-    st.subheader("Bandwidth Tuning dan Evaluasi Mean Shift")
+    st.subheader("Data Setelah Scaling")
+    st.dataframe(df[scaling_columns].head())
+
+    # 6. Bandwidth Tuning dan Evaluasi Mean Shift
     bandwidths = [1.0, 1.5, 2.0]
     for bw in bandwidths:
         ms = MeanShift(bandwidth=bw, bin_seeding=True)
@@ -106,7 +115,7 @@ if uploaded_file:
 
         st.write(f"Bandwidth = {bw}, Jumlah cluster = {len(np.unique(labels))}")
         fig, ax = plt.subplots()
-        ax.scatter(X['sampah_tahunan'], X['penanganan'], c=labels, cmap='plasma', marker='p')
+        ax.scatter(X[:, 0], X[:, 1], c=labels, cmap='plasma', marker='p')  # Memperbaiki scatter plot
         ax.scatter(centers[:, 0], centers[:, 1], s=250, c='blue', marker='X')
         ax.set_title(f'Mean Shift Clustering (Bandwidth = {bw})')
         st.pyplot(fig)
@@ -117,6 +126,7 @@ if uploaded_file:
         else:
             st.write("Silhouette Score tidak dapat dihitung karena hanya 1 cluster.")
 
+    # Final clustering dengan bandwidth terbaik
     ms_final = MeanShift(bandwidth=1.5, bin_seeding=True)
     ms_final.fit(X)
     st.session_state.df['cluster_labels'] = ms_final.labels_
