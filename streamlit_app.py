@@ -160,13 +160,19 @@ if 'df' in st.session_state:
     st.subheader("EDA")
     st.dataframe(df[scaling_columns].describe().T)
 
-    for column in df[scaling_columns]:
-        fig, ax = plt.subplots(1, 3, figsize=(8, 6))
-        sns.histplot(df[column], kde=True, ax=ax)
-        ax.set_title(f'Histogram of {column}')
-        ax.set_xlabel(column)
-        ax.set_ylabel('Density')
-        st.pyplot(fig)
+    # Membuat satu figure dengan 3 subplot
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1 baris, 3 kolom untuk subplot
+    axes = axes.flatten()  # Flatten untuk memudahkan akses subplot
+    
+    # Iterasi untuk menampilkan histogram untuk setiap kolom
+    for i, column in enumerate(df[scaling_columns][:3]):  # Mengambil 3 kolom pertama
+        sns.histplot(df[column], kde=True, ax=axes[i])  # Plot histogram pada subplot yang sesuai
+        axes[i].set_title(f'Histogram of {column}')
+        axes[i].set_xlabel(column)
+        axes[i].set_ylabel('Density')
+    
+    # Menampilkan figure
+    st.pyplot(fig)
 
     correlation_matrix_selected = df[scaling_columns].corr()
     fig, ax = plt.subplots(figsize=(10, 8))
