@@ -77,18 +77,24 @@ with tab2:
             new_row = {"kabupaten_kota": kabupaten_kota, "provinsi": provinsi, **manual_data}
             new_df = pd.DataFrame([new_row])
 
-            # Lakukan scaling pada data yang baru dimasukkan
-            scaled_input = scaler.fit_transform(new_df[scaling_columns])
-            
-            # Prediksi cluster untuk data yang baru
-            cluster_label = ms_final.predict(scaled_input)
+            # Pastikan semua kolom scaling ada di dataframe
+            for col in scaling_columns:
+                if col not in new_df.columns:
+                    st.error(f"Kolom '{col}' tidak ada dalam inputan.")
+                    break
+            else:
+                # Lakukan scaling pada data yang baru dimasukkan
+                scaled_input = scaler.fit_transform(new_df[scaling_columns])
 
-            # Tampilkan hasil cluster
-            st.write(f"Data yang dimasukkan berada pada cluster: **Cluster {cluster_label[0]}**")
-            
-            # Menampilkan data yang dimasukkan
-            st.write("Data yang dimasukkan:")
-            st.dataframe(new_df)
+                # Prediksi cluster untuk data yang baru
+                cluster_label = ms_final.predict(scaled_input)
+
+                # Tampilkan hasil cluster
+                st.write(f"Data yang dimasukkan berada pada cluster: **Cluster {cluster_label[0]}**")
+                
+                # Menampilkan data yang dimasukkan
+                st.write("Data yang dimasukkan:")
+                st.dataframe(new_df)
 
 # Menambahkan pemeriksaan untuk memastikan `st.session_state.df` ada sebelum menjalankan operasi lainnya
 if 'df' in st.session_state:
