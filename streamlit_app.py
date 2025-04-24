@@ -122,7 +122,7 @@ if 'df' in st.session_state:
 
     st.subheader("Plot Outlier Sebelum Penanganan")
     for col in numeric_columns:
-        fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+        fig, ax = plt.subplots(1, 4, figsize=(6, 4))
         sns.boxplot(x=df[col], ax=ax)
         ax.set_title(f"Boxplot {col}")
         st.pyplot(fig)
@@ -131,7 +131,7 @@ if 'df' in st.session_state:
     for col in feature_outlier:
         handle_outliers_iqr(df, col)
     for col in feature_outlier:
-        fig, ax = plt.subplots(1, 1, figsize=(6, 4))
+        fig, ax = plt.subplots(1, 4, figsize=(6, 4))
         sns.boxplot(x=df[col], ax=ax)
         ax.set_title(f"Boxplot {col}")
         st.pyplot(fig)
@@ -147,7 +147,7 @@ if 'df' in st.session_state:
     st.dataframe(df[scaling_columns].describe().T)
 
     for column in df[scaling_columns]:
-        fig, ax = plt.subplots(figsize=(8, 6))
+        fig, ax = plt.subplots(1, 3, figsize=(8, 6))
         sns.histplot(df[column], kde=True, ax=ax)
         ax.set_title(f'Histogram of {column}')
         ax.set_xlabel(column)
