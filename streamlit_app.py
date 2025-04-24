@@ -4,8 +4,8 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import RobustScaler
-from sklearn.cluster import MeanShift
 from sklearn.metrics import silhouette_score, davies_bouldin_score
+import joblib  # Untuk memuat model yang sudah disimpan
 
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
@@ -101,63 +101,14 @@ if uploaded_file:
     st.subheader("Data Setelah Scaling")
     st.dataframe(df[scaling_columns].head())
 
-    # 6. EDA (Exploratory Data Analysis)
-    st.subheader("Exploratory Data Analysis (EDA)")
+    # Memuat model MeanShift yang sudah disimpan
+    model_filename = "mean_shift_model_bandwidth_1.5.joblib"
+    ms_final = joblib.load(model_filename)
+    st.success("Model Mean Shift berhasil dimuat!")
 
-    # Menampilkan deskripsi statistik
-    st.write(df[scaling_columns].describe().T)
-
-    # Plot histogram untuk setiap kolom numerik
-    for column in df[scaling_columns]:
-        plt.figure(figsize=(6, 4))  # Lebih kecil ukuran visualisasi
-        sns.histplot(df[column], kde=True)
-        plt.title(f'Histogram of {column}')
-        plt.xlabel(column)
-        plt.ylabel('Density')
-        st.pyplot(plt)
-
-    # Plot heatmap untuk korelasi fitur
-    correlation_matrix_selected = df[scaling_columns].corr()
-    plt.figure(figsize=(8, 6))  # Lebih kecil ukuran visualisasi
-    sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f")
-    plt.title("Correlation Heatmap for Selected Features")
-    st.pyplot(plt)
-
-    # 7. Bandwidth Tuning dan Evaluasi Mean Shift
-    bandwidths = [1.0, 1.5, 2.0]
-    for bw in bandwidths:
-        ms = MeanShift(bandwidth=bw, bin_seeding=True)
-        ms.fit(X)
-        labels = ms.labels_
-        centers = ms.cluster_centers_
-    
-        st.write(f"Bandwidth = {bw}, Jumlah cluster = {len(np.unique(labels))}")
-        fig, ax = plt.subplots(figsize=(8, 4))  # Lebih kecil ukuran visualisasi
-        ax.scatter(X[:, 0], X[:, 1], c=labels, cmap='plasma', marker='p')
-        ax.scatter(centers[:, 0], centers[:, 1], s=250, c='blue', marker='X')
-        ax.set_title(f'Mean Shift Clustering (Bandwidth = {bw})')
-        st.pyplot(fig)
-        
-        # Menghitung dan menampilkan Davies-Bouldin Index (DBI)
-        if len(set(labels)) > 1:  # DBI hanya valid jika jumlah klaster > 1
-            dbi_score = davies_bouldin_score(X, labels)
-            st.write(f"Davies-Bouldin Index untuk Bandwidth {bw}: {dbi_score:.3f}")
-        else:
-            st.write(f"DBI tidak dapat dihitung karena hanya ada 1 cluster untuk Bandwidth {bw}.")
-        
-        # Menghitung dan menampilkan Silhouette Score
-        if len(set(labels)) > 1:
-            sil_score = silhouette_score(X, labels)
-            st.write(f"Silhouette Score untuk Bandwidth {bw}: {sil_score:.3f}")
-        else:
-            st.write(f"Silhouette Score tidak dapat dihitung karena hanya ada 1 cluster untuk Bandwidth {bw}.")
-
-
-    # Final clustering dengan bandwidth terbaik
-    ms_final = MeanShift(bandwidth=1.5, bin_seeding=True)
-    ms_final.fit(X)
-    st.session_state.df['cluster_labels'] = ms_final.labels_
-    st.success("Clustering selesai menggunakan bandwidth 1.5")
+    # Menggunakan model untuk melakukan prediksi cluster
+    st.session_state.df['cluster_labels'] = ms_final.predict(X)
+    st.success("Prediksi cluster selesai!")
 
     # Hasil Klastering
     if 'cluster_labels' in st.session_state.df.columns:
