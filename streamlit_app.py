@@ -11,176 +11,154 @@ from mpl_toolkits.mplot3d import Axes3D
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
-numeric_columns = [
-    'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
-    'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola', 'daur_ulang'
-]
-feature_outlier = ['sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan', 'penanganan', 'sampah_terkelola']
-scaling_columns = ['sampah_tahunan', 'pengurangan', 'penanganan']
+# Menampilkan sidebar untuk file upload
+st.sidebar.title('Upload Data')
+uploaded_file = st.sidebar.file_uploader("Pilih file CSV", type=["csv"])
 
-@st.cache_data
-def load_data(uploaded_file):
-    return pd.read_csv(uploaded_file)
+# Menu input untuk memilih fitur
+st.sidebar.subheader("Pilih Fitur untuk Analisis")
+sampah_tahunan = st.sidebar.number_input("Masukkan nilai Sampah Tahunan", min_value=0, value=1000)
+pengurangan = st.sidebar.number_input("Masukkan nilai Pengurangan", min_value=0, value=200)
+penanganan = st.sidebar.number_input("Masukkan nilai Penanganan", min_value=0, value=150)
 
-def handle_outliers_iqr(df, column):
-    Q1 = df[column].quantile(0.25)
-    Q3 = df[column].quantile(0.75)
-    IQR = Q3 - Q1
-    lower_bound = Q1 - 1.5 * IQR
-    upper_bound = Q3 + 1.5 * IQR
-    df[column] = np.where(df[column] < lower_bound, lower_bound, df[column])
-    df[column] = np.where(df[column] > upper_bound, upper_bound, df[column])
+# Fungsi untuk preprocessing data (mengganti missing values, outlier handling, dan scaling)
+def preprocess_data(df):
+    # Menangani missing values
+    kolom_ubah = ['daur_ulang', 'pengurangan', 'perc_pengurangan', 'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola']
+    for kolom in kolom_ubah:
+        median_value = df[kolom].replace(0.0, np.nan).median()
+        df[kolom] = df[kolom].replace(0.0, np.nan).fillna(median_value)
+    
+    # Handling Outliers menggunakan metode IQR
+    def handle_outliers_iqr(df, column):
+        Q1 = df[column].quantile(0.25)
+        Q3 = df[column].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        df[column] = np.where(df[column] < lower_bound, lower_bound, df[column])
+        df[column] = np.where(df[column] > upper_bound, upper_bound, df[column])
+    
+    feature_outlier = ['sampah_tahunan', 'pengurangan', 'penanganan']
+    for column in feature_outlier:
+        handle_outliers_iqr(df, column)
 
-def jumlah_outlier(df, kolom):
-    Q1 = df[kolom].quantile(0.25)
-    Q3 = df[kolom].quantile(0.75)
-    IQR = Q3 - Q1
-    lower = Q1 - 1.5 * IQR
-    upper = Q3 + 1.5 * IQR
-    return df[(df[kolom] < lower) | (df[kolom] > upper)].shape[0]
+    # Scaling data dengan RobustScaler
+    scaler = RobustScaler()
+    scaling_columns = ['sampah_tahunan', 'pengurangan', 'penanganan']
+    df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
+    
+    return df
 
-def persen_outlier(df, kolom):
-    jumlah = jumlah_outlier(df, kolom)
-    return (jumlah / df.shape[0]) * 100
+if uploaded_file is not None:
+    # Membaca data
+    df = pd.read_csv(uploaded_file)
+    
+    # Menampilkan data preview
+    st.write("Data Preview")
+    st.write(df.head())
+    
+    # Preprocessing data yang diunggah
+    df = preprocess_data(df)
 
-if 'df' not in st.session_state:
-    st.session_state.df = None
+    # Menyaring data untuk fitur yang ingin digunakan dalam clustering
+    X = df[['sampah_tahunan', 'pengurangan', 'penanganan']]
 
-tab1, tab2, tab3, tab4 = st.tabs(["Upload Data", "Pengolahan Data", "Algoritma Clustering", "Hasil Klastering"])
+    # Load model Mean Shift
+    ms = joblib.load('mean_shift_model_bandwidth_1.5.joblib')
 
-# Tab Upload Data
-with tab1:
-    uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
-    if uploaded_file:
-        df = load_data(uploaded_file)
-        st.session_state.df = df
-        st.success("Data berhasil diunggah!")
-        st.dataframe(df.head())
+    # Prediksi cluster menggunakan model
+    cluster_labels = ms.predict(X)
 
-# Tab Pengolahan Data
-with tab2:
-    if st.session_state.df is not None:
-        df = st.session_state.df.copy()
+    # Menambahkan hasil clustering ke dataframe
+    df['cluster_labels'] = cluster_labels
 
-        st.subheader("Histogram dan Boxplot")
-        for col in numeric_columns:
-            fig, ax = plt.subplots(1, 2, figsize=(12, 4))
-            sns.histplot(df[col], kde=True, ax=ax[0])
-            ax[0].set_title(f"Histogram {col}")
-            sns.boxplot(x=df[col], ax=ax[1])
-            ax[1].set_title(f"Boxplot {col}")
-            st.pyplot(fig)
+    # Menampilkan hasil clustering
+    st.write("Hasil Clustering")
+    st.write(df[['sampah_tahunan', 'pengurangan', 'penanganan', 'cluster_labels']].head())
 
-        st.subheader("Jumlah dan Persentase Outlier (Sebelum Penanganan)")
-        for col in numeric_columns:
-            st.write(f"{col}: {jumlah_outlier(df, col)} outlier ({persen_outlier(df, col):.2f}%)")
+    # Visualisasi 3D
+    st.subheader("Visualisasi 3D Mean Shift Clustering")
 
-        st.subheader("Handling Outlier dan Data Kosong")
-        kolom_ubah = ['daur_ulang', 'pengurangan', 'perc_pengurangan', 'penanganan',
-                      'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola']
-        for col in kolom_ubah:
-            median = df[col].replace(0.0, np.nan).median()
-            df[col] = df[col].replace(0.0, np.nan).fillna(median)
+    # Membuat figure dan subplot 3D
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(111, projection='3d')
 
-        for col in feature_outlier:
-            handle_outliers_iqr(df, col)
+    # Plot titik data berdasarkan hasil clustering
+    ax.scatter(X['sampah_tahunan'], X['pengurangan'], X['penanganan'],
+               c=cluster_labels, cmap='plasma', marker='o', label='Data Points')
 
-        st.session_state.df = df
-        st.success("Outlier dan data kosong telah ditangani.")
+    # Plot pusat klaster
+    cluster_centers = ms.cluster_centers_
+    ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+               s=250, c='blue', marker='X', label='Cluster Centers')
 
-        st.subheader("Jumlah dan Persentase Outlier (Setelah Penanganan)")
-        for col in feature_outlier:
-            st.write(f"{col}: {jumlah_outlier(df, col)} outlier ({persen_outlier(df, col):.2f}%)")
+    # Menambahkan label sumbu
+    ax.set_xlabel('Sampah Tahunan')
+    ax.set_ylabel('Pengurangan')
+    ax.set_zlabel('Penanganan')
 
-        st.subheader("Heatmap Korelasi")
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.heatmap(df[numeric_columns].corr(), annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-        st.pyplot(fig)
-    else:
-        st.warning("Silakan upload data terlebih dahulu.")
+    # Menambahkan judul dan legenda
+    plt.title('3D Mean Shift Clustering')
+    ax.legend()
 
-# Tab Clustering
-with tab3:
-    if st.session_state.df is not None:
-        df = st.session_state.df.copy()
+    # Menampilkan plot
+    st.pyplot(fig)
 
-        scaler = RobustScaler()
-        df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
-        X = df[scaling_columns]
+    # Filter berdasarkan klaster
+    cluster_0_df = df[df['cluster_labels'] == 0]
+    cluster_1_df = df[df['cluster_labels'] == 1]
 
-        st.subheader("Bandwidth Tuning dan Evaluasi Mean Shift")
-        bandwidths = [1.0, 1.5, 2.0]
-        for bw in bandwidths:
-            ms = MeanShift(bandwidth=bw, bin_seeding=True)
-            ms.fit(X)
-            labels = ms.labels_
-            centers = ms.cluster_centers_
+    # Menampilkan statistik deskriptif untuk masing-masing cluster
+    st.write("Descriptive Statistics for Cluster 0")
+    st.write(cluster_0_df.describe())
 
-            st.write(f"Bandwidth = {bw}, Jumlah cluster = {len(np.unique(labels))}")
-            fig, ax = plt.subplots()
-            ax.scatter(X['sampah_tahunan'], X['penanganan'], c=labels, cmap='plasma', marker='p')
-            ax.scatter(centers[:, 0], centers[:, 1], s=250, c='blue', marker='X')
-            ax.set_title(f'Mean Shift Clustering (Bandwidth = {bw})')
-            st.pyplot(fig)
+    st.write("Descriptive Statistics for Cluster 1")
+    st.write(cluster_1_df.describe())
 
-            if len(set(labels)) > 1:
-                sil_score = silhouette_score(X, labels)
-                st.write(f"Silhouette Score: {sil_score:.3f}")
-            else:
-                st.write("Silhouette Score tidak dapat dihitung karena hanya 1 cluster.")
+    # Rata-rata fitur untuk setiap cluster
+    avg_cluster_0 = cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean()
+    avg_cluster_1 = cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
 
-        ms_final = MeanShift(bandwidth=1.5, bin_seeding=True)
-        ms_final.fit(X)
-        st.session_state.df['cluster_labels'] = ms_final.labels_
-        st.success("Clustering selesai menggunakan bandwidth 1.5")
-    else:
-        st.warning("Silakan upload dan olah data terlebih dahulu.")
+    # Menampilkan rata-rata untuk masing-masing cluster
+    st.write("Rata-rata untuk Cluster 0:")
+    st.write(avg_cluster_0)
+
+    st.write("Rata-rata untuk Cluster 1:")
+    st.write(avg_cluster_1)
+
+    # Membuat dataframe dengan rata-rata setiap cluster
+    avg_df = pd.DataFrame({
+        "Klaster 1": avg_cluster_0,
+        "Klaster 2": avg_cluster_1
+    })
+
+    # Menampilkan rata-rata dalam tabel
+    st.write("Rata-rata Fitur untuk Masing-masing Cluster")
+    st.write(avg_df)
+
+# Menambahkan fungsi inputan untuk user
+st.sidebar.subheader("Input Data untuk Prediksi")
+input_data = {
+    'sampah_tahunan': sampah_tahunan,
+    'pengurangan': pengurangan,
+    'penanganan': penanganan
+}
+
+# Menampilkan inputan yang dimasukkan oleh user
+st.write("Input Data yang Dimasukkan:")
+st.write(input_data)
+
+# Jika tombol prediksi diklik
+if st.sidebar.button('Prediksi'):
+    # Membuat dataframe untuk inputan user
+    input_df = pd.DataFrame([input_data])
+
+    # Preprocessing inputan user (tanpa menampilkan detail preprocessing)
+    input_df = preprocess_data(input_df)
+
+    # Prediksi cluster menggunakan model
+    prediksi_cluster = ms.predict(input_df[['sampah_tahunan', 'pengurangan', 'penanganan']])
+    st.write(f"Cluster Prediksi: {prediksi_cluster[0]}")
 
 
-# Tab Hasil Klastering
-with tab4:
-    if st.session_state.df is not None and 'cluster_labels' in st.session_state.df.columns:
-        df = st.session_state.df.copy()
-
-        st.subheader("📋 Data Cluster 0 dan Cluster 1")
-
-        cluster_0_df = df[df['cluster_labels'] == 0]
-        cluster_1_df = df[df['cluster_labels'] == 1]
-
-        st.write("🔵 **Data Cluster 0**")
-        st.dataframe(cluster_0_df)
-
-        st.write("🟠 **Data Cluster 1**")
-        st.dataframe(cluster_1_df)
-
-        st.subheader("📊 Statistik Deskriptif Cluster 0 dan Cluster 1")
-
-        st.write("🔵 **Statistik Deskriptif Cluster 0**")
-        st.dataframe(cluster_0_df.describe())
-
-        st.write("🟠 **Statistik Deskriptif Cluster 1**")
-        st.dataframe(cluster_1_df.describe())
-
-        st.subheader("📈 Rata-rata Persentase Pengurangan & Penanganan per Cluster")
-
-        cluster_0_avg = cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean()
-        cluster_1_avg = cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
-
-        avg_df = pd.DataFrame({
-            "Klaster 0": cluster_0_avg,
-            "Klaster 1": cluster_1_avg
-        })
-
-        fig, ax = plt.subplots(figsize=(8, 5))
-        avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
-
-        for i, cluster in enumerate(avg_df.columns):
-            for j, val in enumerate(avg_df[cluster]):
-                ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
-
-        ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan")
-        ax.set_xlabel("Klaster")
-        ax.set_ylabel("Rata-rata Persentase")
-        st.pyplot(fig)
-    else:
-        st.warning("Silakan lakukan clustering terlebih dahulu.")
