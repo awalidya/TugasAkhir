@@ -110,7 +110,7 @@ if uploaded_file:
     if 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
 
-        st.subheader("\ud83d\udccb Data Cluster 0 dan Cluster 1")
+        st.subheader("📋 Data Cluster 0 dan Cluster 1")
         cluster_0_df = df[df['cluster_labels'] == 0]
         cluster_1_df = df[df['cluster_labels'] == 1]
 
