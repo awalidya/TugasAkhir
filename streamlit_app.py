@@ -77,11 +77,9 @@ if uploaded_file:
     # 3. Plot Outlier sebelum penanganan
     st.subheader("Plot Outlier Sebelum Penanganan")
     for col in numeric_columns:
-        fig, ax = plt.subplots(1, 2, figsize=(12, 4))
-        sns.histplot(df[col], kde=True, ax=ax[0])
-        ax[0].set_title(f"Histogram {col}")
-        sns.boxplot(x=df[col], ax=ax[1])
-        ax[1].set_title(f"Boxplot {col}")
+        fig, ax = plt.subplots(1, 1, figsize=(12, 4))
+        sns.boxplot(x=df[col], ax=ax)
+        ax.set_title(f"Boxplot {col}")
         st.pyplot(fig)
 
     # 4. Plot Outlier setelah penanganan
@@ -90,11 +88,9 @@ if uploaded_file:
         handle_outliers_iqr(df, col)
 
     for col in feature_outlier:
-        fig, ax = plt.subplots(1, 2, figsize=(12, 4))
-        sns.histplot(df[col], kde=True, ax=ax[0])
-        ax[0].set_title(f"Histogram {col}")
-        sns.boxplot(x=df[col], ax=ax[1])
-        ax[1].set_title(f"Boxplot {col}")
+        fig, ax = plt.subplots(1, 1, figsize=(12, 4))
+        sns.boxplot(x=df[col], ax=ax)
+        ax.set_title(f"Boxplot {col}")
         st.pyplot(fig)
 
     # 5. Scaling Columns
@@ -105,7 +101,29 @@ if uploaded_file:
     st.subheader("Data Setelah Scaling")
     st.dataframe(df[scaling_columns].head())
 
-    # 6. Bandwidth Tuning dan Evaluasi Mean Shift
+    # 6. EDA (Exploratory Data Analysis)
+    st.subheader("Exploratory Data Analysis (EDA)")
+
+    # Menampilkan deskripsi statistik
+    st.write(df[scaling_columns].describe().T)
+
+    # Plot histogram untuk setiap kolom numerik
+    for column in df[scaling_columns]:
+        plt.figure(figsize=(8, 6))
+        sns.histplot(df[column], kde=True)
+        plt.title(f'Histogram of {column}')
+        plt.xlabel(column)
+        plt.ylabel('Density')
+        st.pyplot(plt)
+
+    # Plot heatmap untuk korelasi fitur
+    correlation_matrix_selected = df[scaling_columns].corr()
+    plt.figure(figsize=(10, 8))
+    sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f")
+    plt.title("Correlation Heatmap for Selected Features")
+    st.pyplot(plt)
+
+    # 7. Bandwidth Tuning dan Evaluasi Mean Shift
     bandwidths = [1.0, 1.5, 2.0]
     for bw in bandwidths:
         ms = MeanShift(bandwidth=bw, bin_seeding=True)
