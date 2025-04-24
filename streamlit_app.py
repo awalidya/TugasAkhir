@@ -49,12 +49,18 @@ def handle_missing_values(df):
         df[col] = df[col].fillna(median)
 
 uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
-if uploaded_file:
-    df = load_data(uploaded_file)
-    st.session_state.df = df
-    st.success("Data berhasil diunggah!")
-    st.dataframe(df.head())
 
+# Pilihan untuk upload atau input manual
+menu = st.radio("Pilih menu", ("Upload Data", "Input Data Manual"))
+
+if menu == "Upload Data":
+    if uploaded_file:
+        df = load_data(uploaded_file)
+        st.session_state.df = df
+        st.success("Data berhasil diunggah!")
+        st.dataframe(df.head())
+
+elif menu == "Input Data Manual":
     st.subheader("🧾 Input Data Manual (Opsional)")
     with st.expander("Tambahkan Data Baru Secara Manual"):
         kabupaten_kota = st.text_input("Kabupaten/Kota")
