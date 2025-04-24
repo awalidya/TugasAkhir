@@ -48,12 +48,12 @@ def handle_missing_values(df):
         median = df[col].median()
         df[col] = df[col].fillna(median)
 
-uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
-
 # Membuat dua tab: Upload Data dan Input Data Manual
 tab1, tab2 = st.tabs(["Upload Data", "Input Data Manual"])
 
 with tab1:
+    uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
+
     if uploaded_file:
         df = load_data(uploaded_file)
         st.session_state.df = df
@@ -72,10 +72,18 @@ with tab2:
         if st.button("Tambahkan Data"):
             new_row = {"kabupaten_kota": kabupaten_kota, "provinsi": provinsi, **manual_data}
             new_df = pd.DataFrame([new_row])
-            st.session_state.df = pd.concat([st.session_state.df, new_df], ignore_index=True)
+            if 'df' in st.session_state:
+                st.session_state.df = pd.concat([st.session_state.df, new_df], ignore_index=True)
+            else:
+                st.session_state.df = new_df
             st.success("Data berhasil ditambahkan!")
 
+# Menambahkan pemeriksaan untuk memastikan `st.session_state.df` ada
+if 'df' in st.session_state:
     df = st.session_state.df
+    # Proses lainnya, misalnya menampilkan dataframe atau analisis, jika ada data
+else:
+    st.warning("Data belum tersedia. Silakan upload file atau input data manual.")
 
     st.subheader("🧱 Missing Value Sebelum Penanganan")
     missing_before = df.isnull().sum()
