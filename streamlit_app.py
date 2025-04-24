@@ -7,6 +7,8 @@ from sklearn.preprocessing import RobustScaler
 from sklearn.cluster import MeanShift
 from sklearn.metrics import silhouette_score
 from mpl_toolkits.mplot3d import Axes3D
+import joblib
+
 
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
