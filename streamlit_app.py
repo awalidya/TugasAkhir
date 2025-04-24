@@ -83,8 +83,8 @@ with tab2:
                     st.error(f"Kolom '{col}' tidak ada dalam inputan.")
                     break
             else:
-                # Lakukan scaling pada data yang baru dimasukkan
-                scaled_input = scaler.fit_transform(new_df[scaling_columns])
+                # Menggunakan transform untuk mengubah data baru sesuai dengan skala yang ada
+                scaled_input = scaler.transform(new_df[scaling_columns])
 
                 # Prediksi cluster untuk data yang baru
                 cluster_label = ms_final.predict(scaled_input)
@@ -227,5 +227,3 @@ if 'df' in st.session_state:
         
         # Menampilkan grafik 3D
         st.pyplot(fig)
-
-        
