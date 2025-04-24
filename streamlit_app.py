@@ -121,20 +121,34 @@ if 'df' in st.session_state:
         st.success("Semua missing value telah berhasil ditangani!")
 
     st.subheader("Plot Outlier Sebelum Penanganan")
-    for col in numeric_columns:
-        fig, ax = plt.subplots(1, 4, figsize=(6, 4))
-        sns.boxplot(x=df[col], ax=ax)
-        ax.set_title(f"Boxplot {col}")
-        st.pyplot(fig)
-
+    # Membuat 2 baris dan 3 kolom untuk 6 boxplot
+    fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
+    axes = axes.flatten()  # Mempermudah akses ke setiap subplot
+    
+    # Iterasi untuk menampilkan boxplot untuk setiap kolom
+    for i, col in enumerate(numeric_columns[:6]):  # Mengambil 6 kolom pertama
+        sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
+        axes[i].set_title(f"Boxplot {col}")
+    
+    # Menampilkan figure
+    st.pyplot(fig)
+    
     st.subheader("Plot Outlier Setelah Penanganan")
-    for col in feature_outlier:
+    # Mengatasi outlier dan plot boxplot setelah penanganan
+    for col in feature_outlier[:6]:  # Menyesuaikan agar hanya 6 kolom pertama yang diproses
         handle_outliers_iqr(df, col)
-    for col in feature_outlier:
-        fig, ax = plt.subplots(1, 4, figsize=(6, 4))
-        sns.boxplot(x=df[col], ax=ax)
-        ax.set_title(f"Boxplot {col}")
-        st.pyplot(fig)
+    
+    # Membuat 2 baris dan 3 kolom untuk 6 boxplot
+    fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
+    axes = axes.flatten()  # Mempermudah akses ke setiap subplot
+    
+    # Iterasi untuk menampilkan boxplot untuk setiap kolom
+    for i, col in enumerate(feature_outlier[:6]):  # Mengambil 6 kolom pertama
+        sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
+        axes[i].set_title(f"Boxplot {col}")
+    
+    # Menampilkan figure
+    st.pyplot(fig)
 
     scaler = RobustScaler()
     df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
