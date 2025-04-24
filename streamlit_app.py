@@ -130,7 +130,7 @@ if uploaded_file:
         ms.fit(X)
         labels = ms.labels_
         centers = ms.cluster_centers_
-
+    
         st.write(f"Bandwidth = {bw}, Jumlah cluster = {len(np.unique(labels))}")
         fig, ax = plt.subplots(figsize=(8, 4))  # Lebih kecil ukuran visualisasi
         ax.scatter(X[:, 0], X[:, 1], c=labels, cmap='plasma', marker='p')
@@ -141,15 +141,17 @@ if uploaded_file:
         # Menghitung dan menampilkan Davies-Bouldin Index (DBI)
         if len(set(labels)) > 1:  # DBI hanya valid jika jumlah klaster > 1
             dbi_score = davies_bouldin_score(X, labels)
-            print(f"Davies-Bouldin Index: {dbi_score:.3f}")
+            st.write(f"Davies-Bouldin Index untuk Bandwidth {bw}: {dbi_score:.3f}")
         else:
-            print("DBI tidak dapat dihitung karena hanya ada 1 cluster.")
-            
+            st.write(f"DBI tidak dapat dihitung karena hanya ada 1 cluster untuk Bandwidth {bw}.")
+        
+        # Menghitung dan menampilkan Silhouette Score
         if len(set(labels)) > 1:
             sil_score = silhouette_score(X, labels)
-            st.write(f"Silhouette Score: {sil_score:.3f}")
+            st.write(f"Silhouette Score untuk Bandwidth {bw}: {sil_score:.3f}")
         else:
-            st.write("Silhouette Score tidak dapat dihitung karena hanya 1 cluster.")
+            st.write(f"Silhouette Score tidak dapat dihitung karena hanya ada 1 cluster untuk Bandwidth {bw}.")
+
 
     # Final clustering dengan bandwidth terbaik
     ms_final = MeanShift(bandwidth=1.5, bin_seeding=True)
