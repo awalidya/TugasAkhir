@@ -5,7 +5,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import RobustScaler
 from sklearn.cluster import MeanShift
-from sklearn.metrics import silhouette_score
+from sklearn.metrics import silhouette_score, davies_bouldin_score
 
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
@@ -77,7 +77,7 @@ if uploaded_file:
     # 3. Plot Outlier sebelum penanganan
     st.subheader("Plot Outlier Sebelum Penanganan")
     for col in numeric_columns:
-        fig, ax = plt.subplots(1, 1, figsize=(12, 4))
+        fig, ax = plt.subplots(1, 1, figsize=(6, 4))  # Lebih kecil ukuran visualisasi
         sns.boxplot(x=df[col], ax=ax)
         ax.set_title(f"Boxplot {col}")
         st.pyplot(fig)
@@ -88,7 +88,7 @@ if uploaded_file:
         handle_outliers_iqr(df, col)
 
     for col in feature_outlier:
-        fig, ax = plt.subplots(1, 1, figsize=(12, 4))
+        fig, ax = plt.subplots(1, 1, figsize=(6, 4))  # Lebih kecil ukuran visualisasi
         sns.boxplot(x=df[col], ax=ax)
         ax.set_title(f"Boxplot {col}")
         st.pyplot(fig)
@@ -109,7 +109,7 @@ if uploaded_file:
 
     # Plot histogram untuk setiap kolom numerik
     for column in df[scaling_columns]:
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(6, 4))  # Lebih kecil ukuran visualisasi
         sns.histplot(df[column], kde=True)
         plt.title(f'Histogram of {column}')
         plt.xlabel(column)
@@ -118,7 +118,7 @@ if uploaded_file:
 
     # Plot heatmap untuk korelasi fitur
     correlation_matrix_selected = df[scaling_columns].corr()
-    plt.figure(figsize=(10, 8))
+    plt.figure(figsize=(8, 6))  # Lebih kecil ukuran visualisasi
     sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f")
     plt.title("Correlation Heatmap for Selected Features")
     st.pyplot(plt)
@@ -132,12 +132,19 @@ if uploaded_file:
         centers = ms.cluster_centers_
 
         st.write(f"Bandwidth = {bw}, Jumlah cluster = {len(np.unique(labels))}")
-        fig, ax = plt.subplots()
-        ax.scatter(X[:, 0], X[:, 1], c=labels, cmap='plasma', marker='p')  # Memperbaiki scatter plot
+        fig, ax = plt.subplots(figsize=(8, 4))  # Lebih kecil ukuran visualisasi
+        ax.scatter(X[:, 0], X[:, 1], c=labels, cmap='plasma', marker='p')
         ax.scatter(centers[:, 0], centers[:, 1], s=250, c='blue', marker='X')
         ax.set_title(f'Mean Shift Clustering (Bandwidth = {bw})')
         st.pyplot(fig)
-
+        
+        # Menghitung dan menampilkan Davies-Bouldin Index (DBI)
+        if len(set(labels)) > 1:  # DBI hanya valid jika jumlah klaster > 1
+            dbi_score = davies_bouldin_score(X, labels)
+            print(f"Davies-Bouldin Index: {dbi_score:.3f}")
+        else:
+            print("DBI tidak dapat dihitung karena hanya ada 1 cluster.")
+            
         if len(set(labels)) > 1:
             sil_score = silhouette_score(X, labels)
             st.write(f"Silhouette Score: {sil_score:.3f}")
@@ -183,7 +190,7 @@ if uploaded_file:
             "Klaster 1": cluster_1_avg
         })
 
-        fig, ax = plt.subplots(figsize=(8, 5))
+        fig, ax = plt.subplots(figsize=(8, 5))  # Lebih kecil ukuran visualisasi
         avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
 
         for i, cluster in enumerate(avg_df.columns):
