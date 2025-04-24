@@ -78,13 +78,11 @@ with tab2:
                 st.session_state.df = new_df
             st.success("Data berhasil ditambahkan!")
 
-# Menambahkan pemeriksaan untuk memastikan `st.session_state.df` ada
+# Menambahkan pemeriksaan untuk memastikan `st.session_state.df` ada sebelum menjalankan operasi lainnya
 if 'df' in st.session_state:
     df = st.session_state.df
-    # Proses lainnya, misalnya menampilkan dataframe atau analisis, jika ada data
-else:
-    st.warning("Data belum tersedia. Silakan upload file atau input data manual.")
 
+    # Proses lainnya hanya akan dijalankan jika df ada
     st.subheader("🧱 Missing Value Sebelum Penanganan")
     missing_before = df.isnull().sum()
     for col, count in missing_before.items():
@@ -197,8 +195,4 @@ else:
         ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
                    s=250, c='blue', marker='X', label='Cluster Centers')
         ax.set_xlabel('Sampah Tahunan')
-        ax.set_ylabel('Pengurangan')
-        ax.set_zlabel('Penanganan')
-        ax.legend()
-        plt.title('3D Mean Shift Clustering')
-        st.pyplot(fig)
+        ax.set_ylabel
