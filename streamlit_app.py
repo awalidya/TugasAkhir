@@ -12,7 +12,10 @@ st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
 # Menambahkan logo di atas menu sidebar
-st.sidebar.image("https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo.png", use_container_width=True)
+st.sidebar.image(
+    "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo.png",
+    width=150  # ubah angkanya sesuai kebutuhan (misal: 100, 200, dll)
+)
 
 
 # Kolom lainnya tetap seperti semula
