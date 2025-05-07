@@ -12,7 +12,8 @@ st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
 # Menambahkan logo di atas menu sidebar
-st.sidebar.image("path/to/your/logo.png", use_column_width=True)  # Ganti dengan path atau URL gambar logo Anda
+st.sidebar.image("https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo.png", use_container_width=True)
+
 
 # Kolom lainnya tetap seperti semula
 numeric_columns = [
