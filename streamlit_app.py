@@ -1,153 +1,80 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import MeanShift
-from sklearn.decomposition import PCA
+import matplotlib.pyplot as plt
+from sklearn.preprocessing import RobustScaler
+from sklearn.metrics import silhouette_score, davies_bouldin_score
+import joblib
 from mpl_toolkits.mplot3d import Axes3D
 
-st.set_page_config(page_title="Aplikasi Pengelompokan Wilayah", layout="wide")
-st.title("📊 Aplikasi Pengelompokan Wilayah Berdasarkan Pengelolaan Sampah")
+# Menambahkan CSS untuk mengubah warna latar belakang
+st.markdown(
+    """
+    <style>
+    .main {
+        background-color: #d4edda;  /* Warna hijau muda */
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-# Sidebar Navigation
-menu = st.sidebar.selectbox("Navigasi", [
-    "Upload Data", "Input Data Manual", "Pengolahan Data", 
-    "EDA & Scaling", "Clustering & Visualisasi"])
+st.set_page_config(layout="wide")
+st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
-# Fungsi Load Data
-def load_data(file):
-    df = pd.read_csv(file)
-    return df
+# Menyusun menu di sidebar
+menu = ["Upload Data", "Input Data Manual"]
+choice = st.sidebar.selectbox("Pilih Menu", menu)
 
-# Upload Data
-if menu == "Upload Data":
-    st.header("📤 Upload Data")
+# Fungsi untuk menangani file dan data manual
+def handle_uploaded_data(uploaded_file):
+    df = pd.read_csv(uploaded_file)
+    st.session_state.df = df
+    st.success("Data berhasil diunggah!")
+    st.dataframe(df.head())
+
+def handle_manual_data():
+    st.subheader("🧾 Input Data Manual")
+    
+    with st.expander("Tambahkan Data Baru Secara Manual"):
+        kabupaten_kota = st.text_input("Kabupaten/Kota")
+        provinsi = st.text_input("Provinsi")
+        
+        manual_data = {}
+        for col in numeric_columns:
+            manual_data[col] = st.number_input(f"{col.replace('_', ' ').title()}", min_value=0.0, step=1.0)
+        
+        if st.button("Tambahkan Data"):
+            new_row = {"kabupaten_kota": kabupaten_kota, "provinsi": provinsi, **manual_data}
+            new_df = pd.DataFrame([new_row])
+
+            for col in scaling_columns:
+                if col not in new_df.columns:
+                    st.error(f"Kolom '{col}' tidak ada dalam inputan.")
+                    break
+            else:
+                scaled_input = scaler.transform(new_df[scaling_columns])
+                cluster_label = ms_final.predict(scaled_input)
+                st.write(f"Data yang dimasukkan berada pada cluster: **Cluster {cluster_label[0]}**")
+                st.write("Data yang dimasukkan:")
+                st.dataframe(new_df)
+
+# Memilih menu berdasarkan pilihan pengguna
+if choice == "Upload Data":
     uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
     if uploaded_file:
-        df = load_data(uploaded_file)
-        st.session_state.df = df
-        st.success("Data berhasil diunggah!")
-        st.dataframe(df.head())
+        handle_uploaded_data(uploaded_file)
 
-# Input Data Manual
-elif menu == "Input Data Manual":
-    st.header("🧾 Input Data Manual")
-    if 'df' not in st.session_state:
-        st.warning("Silakan upload atau input data terlebih dahulu.")
-    else:
-        df = st.session_state.df.copy()
-        new_data = {}
-        for col in df.columns:
-            new_data[col] = st.number_input(f"Masukkan nilai untuk {col}", value=0.0)
-        if st.button("Tambah Data"):
-            df = df.append(new_data, ignore_index=True)
-            st.session_state.df = df
-            st.success("Data berhasil ditambahkan!")
-            st.dataframe(df.tail())
+elif choice == "Input Data Manual":
+    handle_manual_data()
 
-# Pengolahan Data: Missing Values dan Outlier
-elif menu == "Pengolahan Data":
-    st.header("🧼 Pengolahan Data")
-    if 'df' not in st.session_state:
-        st.warning("Silakan upload data terlebih dahulu.")
-    else:
-        df = st.session_state.df.copy()
-
-        # Missing Values
-        st.subheader("🔍 Missing Values")
-        st.write(df.isnull().sum())
-        if st.button("Isi Missing Values dengan Median"):
-            df = df.fillna(df.median(numeric_only=True))
-            st.session_state.df = df
-            st.success("Missing values telah diisi dengan median.")
-
-        # Outlier Detection
-        st.subheader("📦 Deteksi Outlier (Boxplot)")
-        numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns
-        selected_col = st.selectbox("Pilih kolom untuk melihat outlier:", numeric_cols)
-        fig, ax = plt.subplots()
-        sns.boxplot(data=df, x=selected_col, ax=ax)
-        st.pyplot(fig)
-
-        # Perhitungan Outlier
-        Q1 = df[selected_col].quantile(0.25)
-        Q3 = df[selected_col].quantile(0.75)
-        IQR = Q3 - Q1
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
-        outliers = df[(df[selected_col] < lower_bound) | (df[selected_col] > upper_bound)]
-        st.write(f"Jumlah outlier: {outliers.shape[0]}")
-        st.write(f"Persentase outlier: {100 * outliers.shape[0] / df.shape[0]:.2f}%")
-
-# EDA dan Scaling
-elif menu == "EDA & Scaling":
-    st.header("📊 EDA dan Standardisasi")
-    if 'df' not in st.session_state:
-        st.warning("Silakan upload data terlebih dahulu.")
-    else:
-        df = st.session_state.df.copy()
-
-        # Histogram
-        st.subheader("📈 Histogram")
-        selected_col = st.selectbox("Pilih kolom untuk histogram:", df.select_dtypes(include=['float64', 'int64']).columns)
-        fig, ax = plt.subplots()
-        df[selected_col].hist(ax=ax, bins=20)
-        st.pyplot(fig)
-
-        # Korelasi
-        st.subheader("📊 Korelasi (Heatmap)")
-        fig, ax = plt.subplots(figsize=(10, 6))
-        sns.heatmap(df.corr(), annot=True, cmap="coolwarm", ax=ax)
-        st.pyplot(fig)
-
-        # Scaling
-        st.subheader("⚙️ Standardisasi Data")
-        scaler = StandardScaler()
-        scaled_data = scaler.fit_transform(df)
-        df_scaled = pd.DataFrame(scaled_data, columns=df.columns)
-        st.session_state.df_scaled = df_scaled
-        st.dataframe(df_scaled.head())
-
-# Clustering dan Visualisasi
-elif menu == "Clustering & Visualisasi":
-    st.header("🔍 Clustering dan Visualisasi")
-    if 'df_scaled' not in st.session_state:
-        st.warning("Silakan lakukan scaling terlebih dahulu.")
-    else:
-        df_scaled = st.session_state.df_scaled.copy()
-
-        # Mean Shift Clustering
-        ms = MeanShift()
-        cluster_labels = ms.fit_predict(df_scaled)
-        df_clustered = st.session_state.df.copy()
-        df_clustered['Cluster'] = cluster_labels
-
-        st.subheader("📑 Ringkasan Cluster")
-        cluster_summary = df_clustered.groupby('Cluster').mean()
-        st.dataframe(cluster_summary)
-
-        # Visualisasi Bar Chart
-        st.subheader("📊 Visualisasi Jumlah Data per Cluster")
-        cluster_counts = df_clustered['Cluster'].value_counts().sort_index()
-        fig, ax = plt.subplots()
-        cluster_counts.plot(kind='bar', ax=ax)
-        st.pyplot(fig)
-
-        # Visualisasi 3D
-        st.subheader("🌐 Visualisasi 3D dengan PCA")
-        pca = PCA(n_components=3)
-        components = pca.fit_transform(df_scaled)
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        scatter = ax.scatter(components[:, 0], components[:, 1], components[:, 2], c=cluster_labels, cmap='viridis')
-        ax.set_xlabel('PC 1')
-        ax.set_ylabel('PC 2')
-        ax.set_zlabel('PC 3')
-        st.pyplot(fig)
-
-        # Simpan hasil clustering
-        if st.button("💾 Simpan Hasil Clustering"):
-            df_clustered.to_csv("hasil_clustering.csv", index=False)
-            st.success("Hasil clustering disimpan sebagai 'hasil_clustering.csv'")
+# Pastikan st.session_state.df ada sebelum menjalankan operasi lainnya
+if 'df' in st.session_state:
+    df = st.session_state.df
+    # Proses lainnya jika ada data
+    st.subheader("🧱 Missing Value Sebelum Penanganan")
+    missing_before = df.isnull().sum()
+    for col, count in missing_before.items():
+        if count > 0:
+            st.markdown(f"- **{col}**: {count} missing value")
+    if missing_before.sum() == 0:
+        st.success("Tidak ada missing value yang terdeteksi.")
