@@ -13,9 +13,10 @@ st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah"
 
 # Menambahkan logo di atas menu sidebar
 st.sidebar.image(
-    "https://github.com/awalidya/TugasAkhir/blob/main/logo%20sampah.png,
+    "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",  # Memperbaiki tanda kutip yang hilang
     width=150  # ubah angkanya sesuai kebutuhan (misal: 100, 200, dll)
 )
+
 
 # Kolom lainnya tetap seperti semula
 numeric_columns = [
