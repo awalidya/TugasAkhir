@@ -11,6 +11,10 @@ from mpl_toolkits.mplot3d import Axes3D
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
+# Menambahkan logo di atas menu sidebar
+st.sidebar.image("path/to/your/logo.png", use_column_width=True)  # Ganti dengan path atau URL gambar logo Anda
+
+# Kolom lainnya tetap seperti semula
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
     'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola', 'daur_ulang'
@@ -48,10 +52,11 @@ def handle_missing_values(df):
         median = df[col].median()
         df[col] = df[col].fillna(median)
 
-# Sidebar Menu
-menu = st.sidebar.selectbox("Pilih Menu", ["Upload Data", "Input Data Manual"])
+# Sidebar menu tanpa selectbox
+upload_data = st.sidebar.button("Upload Data")
+input_data = st.sidebar.button("Input Data Manual")
 
-if menu == "Upload Data":
+if upload_data:
     uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
 
     if uploaded_file:
@@ -211,4 +216,3 @@ if menu == "Upload Data":
 
                 # Menampilkan grafik 3D
                 st.pyplot(fig)
-
