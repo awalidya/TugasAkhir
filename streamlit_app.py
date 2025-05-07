@@ -8,6 +8,9 @@ from sklearn.metrics import silhouette_score, davies_bouldin_score
 import joblib
 from mpl_toolkits.mplot3d import Axes3D
 
+# Set page configuration first
+st.set_page_config(layout="wide")
+
 # Menambahkan CSS untuk mengubah warna latar belakang
 st.markdown(
     """
@@ -18,7 +21,6 @@ st.markdown(
     </style>
     """, unsafe_allow_html=True)
 
-st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
 # Menyusun menu di sidebar
