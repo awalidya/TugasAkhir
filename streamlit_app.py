@@ -24,10 +24,6 @@ scaling_columns = ['sampah_tahunan', 'pengurangan', 'penanganan']
 def load_model():
     return joblib.load("mean_shift_model_bandwidth_1.5.joblib")
 
-# Sidebar untuk dua menu terpisah
-st.sidebar.title("Navigasi")
-st.sidebar.subheader("Menu 1: Upload Data CSV")
-st.sidebar.subheader("Menu 2: Input Data Manual")
 
 # Menu 1: Upload Data CSV
 uploaded_file = st.sidebar.file_uploader("Pilih File CSV", type=["csv"])
