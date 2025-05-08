@@ -96,6 +96,32 @@ if uploaded_file:
     if 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
 
+        st.subheader("Visualisasi Klaster 3D")
+        labels = df['cluster_labels']
+        cluster_centers = ms_final.cluster_centers_
+
+        fig = plt.figure(figsize=(10, 6))
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Plot data points
+        ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
+                c=labels, cmap='plasma', marker='o', label='Data Points')
+
+        # Plot cluster centers
+        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+                s=250, c='blue', marker='X', label='Cluster Centers')
+
+        # Set axis labels
+        ax.set_xlabel('Sampah Tahunan')
+        ax.set_ylabel('Pengurangan Sampah')
+        ax.set_zlabel('Penanganan Sampah')
+
+        # Menambahkan legenda
+        ax.legend()
+
+        # Menampilkan grafik 3D
+        st.pyplot(fig)
+
         st.subheader("Data Cluster 0 dan Cluster 1")
         cluster_0_df = df[df['cluster_labels'] == 0]
         cluster_1_df = df[df['cluster_labels'] == 1]
