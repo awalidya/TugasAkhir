@@ -217,3 +217,42 @@ if uploaded_file:
 
         # Menampilkan grafik 3D
         st.pyplot(fig)
+
+if input_data:
+    st.subheader("📥 Input Data Manual")
+    with st.form("manual_input_form"):
+        kab_kota = st.text_input("Kabupaten/Kota")
+        provinsi = st.text_input("Provinsi")
+        sampah_harian = st.number_input("Sampah Harian (ton)", min_value=0.0, format="%.2f")
+        sampah_tahunan = st.number_input("Sampah Tahunan (ton)", min_value=0.0, format="%.2f")
+        pengurangan = st.number_input("Pengurangan (ton)", min_value=0.0, format="%.2f")
+        perc_pengurangan = st.number_input("Persentase Pengurangan (%)", min_value=0.0, max_value=100.0, format="%.2f")
+        penanganan = st.number_input("Penanganan (ton)", min_value=0.0, format="%.2f")
+        perc_penanganan = st.number_input("Persentase Penanganan (%)", min_value=0.0, max_value=100.0, format="%.2f")
+        sampah_terkelola = st.number_input("Sampah Terkelola (ton)", min_value=0.0, format="%.2f")
+        perc_sampah_terkelola = st.number_input("Persentase Sampah Terkelola (%)", min_value=0.0, max_value=100.0, format="%.2f")
+        daur_ulang = st.number_input("Daur Ulang (ton)", min_value=0.0, format="%.2f")
+
+        submit_manual = st.form_submit_button("Simpan dan Proses Data Manual")
+
+        if submit_manual:
+            # Buat DataFrame dari inputan
+            manual_df = pd.DataFrame([{
+                'Kabupaten/Kota': kab_kota,
+                'Provinsi': provinsi,
+                'sampah_harian': sampah_harian,
+                'sampah_tahunan': sampah_tahunan,
+                'pengurangan': pengurangan,
+                'perc_pengurangan': perc_pengurangan,
+                'penanganan': penanganan,
+                'perc_penanganan': perc_penanganan,
+                'sampah_terkelola': sampah_terkelola,
+                'perc_sampah_terkelola': perc_sampah_terkelola,
+                'daur_ulang': daur_ulang
+            }])
+
+            st.success("Data berhasil ditambahkan secara manual!")
+            st.dataframe(manual_df)
+
+            # Simpan ke session_state agar bisa digunakan di proses selanjutnya
+            st.session_state.df = manual_df
