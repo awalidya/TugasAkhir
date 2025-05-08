@@ -82,8 +82,14 @@ if uploaded_file:
     ms_final = joblib.load(model_filename)
     st.success("Model Mean Shift berhasil dimuat!")
 
+    # Melakukan scaling pada data
     X = df[scaling_columns].values
-    st.session_state.df['cluster_labels'] = ms_final.predict(X)
+    scaler = RobustScaler()
+    X_scaled = scaler.fit_transform(X)
+
+    # Simpan scaler di session_state
+    st.session_state.scaler = scaler
+    st.session_state.df['cluster_labels'] = ms_final.predict(X_scaled)
     st.success("Prediksi cluster selesai!")
 
     # Tampilkan hasil clustering di bawah
