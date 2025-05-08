@@ -117,24 +117,40 @@ if uploaded_file:
         st.pyplot(fig)
 
 # Menu 2: Input Data Manual
-st.sidebar.subheader("Input Data Manual")
+# Di awal file, set nilai default session_state untuk input manual
+if 'input_manual' not in st.session_state:
+    st.session_state.input_manual = False
 
-# Input manual di bagian bawah aplikasi
+# Tombol untuk mengaktifkan input manual
 if st.sidebar.button("Input Data Manual"):
-    sampah_harian = st.number_input("Sampah Harian", min_value=0.0)
+    st.session_state.input_manual = True
+
+# Inisialisasi session state untuk input manual
+if 'input_manual' not in st.session_state:
+    st.session_state.input_manual = False
+
+# Tombol untuk membuka dan menutup form input manual
+if st.sidebar.button("Input Data Manual"):
+    st.session_state.input_manual = True
+if st.sidebar.button("Tutup Input Manual"):
+    st.session_state.input_manual = False
+
+# Form input manual hanya 3 kolom (tanpa sampah_harian)
+if st.session_state.input_manual:
+    st.subheader("📝 Input Data Manual (tanpa Sampah Harian)")
     sampah_tahunan = st.number_input("Sampah Tahunan", min_value=0.0)
     pengurangan = st.number_input("Pengurangan", min_value=0.0)
-    perc_pengurangan = st.number_input("Persentase Pengurangan", min_value=0.0)
     penanganan = st.number_input("Penanganan", min_value=0.0)
-    perc_penanganan = st.number_input("Persentase Penanganan", min_value=0.0)
-    sampah_terkelola = st.number_input("Sampah Terkelola", min_value=0.0)
-    perc_sampah_terkelola = st.number_input("Persentase Sampah Terkelola", min_value=0.0)
-    daur_ulang = st.number_input("Daur Ulang", min_value=0.0)
 
-    if sampah_harian and sampah_tahunan and pengurangan and perc_pengurangan and penanganan and perc_penanganan and sampah_terkelola and perc_sampah_terkelola and daur_ulang:
-        input_data = np.array([[sampah_harian, sampah_tahunan, pengurangan, perc_pengurangan, penanganan, perc_penanganan, sampah_terkelola, perc_sampah_terkelola, daur_ulang]])
-        input_scaled = scaler.transform(input_data)
+    if st.button("Proses Data Manual"):
+        input_data = np.array([[sampah_tahunan, pengurangan, penanganan]])
+        st.write("📊 Data yang dimasukkan:")
+        st.write(pd.DataFrame(input_data, columns=["Sampah Tahunan", "Pengurangan", "Penanganan"]))
+
+
+        # Scaling dan prediksi
+        input_scaled = scaler.transform(input_data_selected)
         cluster_label = ms_final.predict(input_scaled)
-        st.write(f"Data manual dimasukkan ke dalam Klaster: {cluster_label[0]}")
-    else:
-        st.warning("Isi semua data input terlebih dahulu.")
+
+        st.success(f"✅ Data dimasukkan ke dalam Klaster: {cluster_label[0]}")
+
