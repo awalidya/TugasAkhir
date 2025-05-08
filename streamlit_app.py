@@ -75,7 +75,65 @@ if uploaded_file:
     if missing_after.sum() == 0:
         st.success("Semua missing value telah berhasil ditangani!")
 
-    # Lanjutkan proses lainnya seperti analisis, visualisasi, dan clustering sesuai kebutuhan
+        st.subheader("Plot Outlier Sebelum Penanganan")
+    # Membuat 2 baris dan 3 kolom untuk 6 boxplot
+    fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
+    axes = axes.flatten()  # Mempermudah akses ke setiap subplot
+
+    # Iterasi untuk menampilkan boxplot untuk setiap kolom
+    for i, col in enumerate(numeric_columns[:6]):  # Mengambil 6 kolom pertama
+        sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
+        axes[i].set_title(f"Boxplot {col}")
+
+    # Menampilkan figure
+    st.pyplot(fig)
+
+    st.subheader("Plot Outlier Setelah Penanganan")
+    # Mengatasi outlier dan plot boxplot setelah penanganan
+    for col in feature_outlier[:6]:  # Menyesuaikan agar hanya 6 kolom pertama yang diproses
+        handle_outliers_iqr(df, col)
+
+    # Membuat 2 baris dan 3 kolom untuk 6 boxplot
+    fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
+    axes = axes.flatten()  # Mempermudah akses ke setiap subplot
+
+    # Iterasi untuk menampilkan boxplot untuk setiap kolom
+    for i, col in enumerate(feature_outlier[:6]):  # Mengambil 6 kolom pertama
+        sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
+        axes[i].set_title(f"Boxplot {col}")
+
+    # Menampilkan figure
+    st.pyplot(fig)
+
+    scaler = RobustScaler()
+    df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
+    X = df[scaling_columns].values
+
+    st.subheader("Data Setelah Scaling")
+    st.dataframe(df[scaling_columns].head())
+
+    st.subheader("EDA")
+    st.dataframe(df[scaling_columns].describe().T)
+
+    # Membuat satu figure dengan 3 subplot
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1 baris, 3 kolom untuk subplot
+    axes = axes.flatten()  # Flatten untuk memudahkan akses subplot
+
+    # Iterasi untuk menampilkan histogram untuk setiap kolom
+    for i, column in enumerate(df[scaling_columns][:3]):  # Mengambil 3 kolom pertama
+        sns.histplot(df[column], kde=True, ax=axes[i])  # Plot histogram pada subplot yang sesuai
+        axes[i].set_title(f'Histogram of {column}')
+        axes[i].set_xlabel(column)
+        axes[i].set_ylabel('Density')
+
+    # Menampilkan figure
+    st.pyplot(fig)
+
+    correlation_matrix_selected = df[scaling_columns].corr()
+    fig, ax = plt.subplots(figsize=(10, 8))
+    sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
+    ax.set_title("Correlation Heatmap for Selected Features")
+    st.pyplot(fig)
 
     # Proses Model
     model_filename = "mean_shift_model_bandwidth_1.5.joblib"
