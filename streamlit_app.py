@@ -2,11 +2,16 @@ import streamlit as st
 import pandas as pd
 from sklearn.preprocessing import RobustScaler
 import joblib
-import numpy as np
 import matplotlib.pyplot as plt
 
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
+
+# Menambahkan logo di atas menu sidebar
+st.sidebar.image(
+    "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",  # Memperbaiki tanda kutip yang hilang
+    width=150  # ubah angkanya sesuai kebutuhan (misal: 100, 200, dll)
+)
 
 # Kolom input manual
 numeric_columns = [
@@ -21,9 +26,11 @@ def load_model():
 
 # Menu Sidebar
 st.sidebar.title("Navigasi")
-menu = st.sidebar.selectbox("Pilih Menu", ["Upload Data CSV", "Input Data Manual"])
+st.sidebar.subheader("Menu")
+menu_upload = st.sidebar.checkbox("Upload Data CSV")
+menu_input = st.sidebar.checkbox("Input Data Manual")
 
-if menu == "Upload Data CSV":
+if menu_upload:
     st.subheader("Upload Data CSV")
     uploaded_file = st.file_uploader("Pilih File CSV", type=["csv"])
     
@@ -66,7 +73,7 @@ if menu == "Upload Data CSV":
         ax.legend()
         st.pyplot(fig)
 
-elif menu == "Input Data Manual":
+if menu_input:
     st.subheader("Masukkan Data Secara Manual")
     
     # Input manual
