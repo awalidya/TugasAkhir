@@ -4,7 +4,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from sklearn.preprocessing import RobustScaler
-from sklearn.metrics import silhouette_score, davies_bouldin_score
 import joblib
 from mpl_toolkits.mplot3d import Axes3D
 
@@ -13,10 +12,9 @@ st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah"
 
 # Menambahkan logo di atas menu sidebar
 st.sidebar.image(
-    "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",  # Memperbaiki tanda kutip yang hilang
-    width=150  # ubah angkanya sesuai kebutuhan (misal: 100, 200, dll)
+    "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png", 
+    width=150
 )
-
 
 # Kolom lainnya tetap seperti semula
 numeric_columns = [
@@ -39,18 +37,6 @@ def handle_outliers_iqr(df, column):
     df[column] = np.where(df[column] < lower_bound, lower_bound, df[column])
     df[column] = np.where(df[column] > upper_bound, upper_bound, df[column])
 
-def jumlah_outlier(df, kolom):
-    Q1 = df[kolom].quantile(0.25)
-    Q3 = df[kolom].quantile(0.75)
-    IQR = Q3 - Q1
-    lower = Q1 - 1.5 * IQR
-    upper = Q3 + 1.5 * IQR
-    return df[(df[kolom] < lower) | (df[kolom] > upper)].shape[0]
-
-def persen_outlier(df, kolom):
-    jumlah = jumlah_outlier(df, kolom)
-    return (jumlah / df.shape[0]) * 100
-
 def handle_missing_values(df):
     for col in df.select_dtypes(include=[np.number]).columns:
         median = df[col].median()
@@ -58,7 +44,6 @@ def handle_missing_values(df):
 
 # ✅ Perubahan: Hapus tombol upload, langsung tampilkan file uploader
 uploaded_file = st.sidebar.file_uploader("Upload file CSV", type=["csv"])
-# input_data = st.sidebar.button("Input Data Manual")
 
 # ✅ Perubahan: Jalankan proses jika file sudah diupload
 if uploaded_file:
@@ -90,73 +75,18 @@ if uploaded_file:
     if missing_after.sum() == 0:
         st.success("Semua missing value telah berhasil ditangani!")
 
-    st.subheader("Plot Outlier Sebelum Penanganan")
-    # Membuat 2 baris dan 3 kolom untuk 6 boxplot
-    fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
-    axes = axes.flatten()  # Mempermudah akses ke setiap subplot
+    # Lanjutkan proses lainnya seperti analisis, visualisasi, dan clustering sesuai kebutuhan
 
-    # Iterasi untuk menampilkan boxplot untuk setiap kolom
-    for i, col in enumerate(numeric_columns[:6]):  # Mengambil 6 kolom pertama
-        sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
-        axes[i].set_title(f"Boxplot {col}")
-
-    # Menampilkan figure
-    st.pyplot(fig)
-
-    st.subheader("Plot Outlier Setelah Penanganan")
-    # Mengatasi outlier dan plot boxplot setelah penanganan
-    for col in feature_outlier[:6]:  # Menyesuaikan agar hanya 6 kolom pertama yang diproses
-        handle_outliers_iqr(df, col)
-
-    # Membuat 2 baris dan 3 kolom untuk 6 boxplot
-    fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
-    axes = axes.flatten()  # Mempermudah akses ke setiap subplot
-
-    # Iterasi untuk menampilkan boxplot untuk setiap kolom
-    for i, col in enumerate(feature_outlier[:6]):  # Mengambil 6 kolom pertama
-        sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
-        axes[i].set_title(f"Boxplot {col}")
-
-    # Menampilkan figure
-    st.pyplot(fig)
-
-    scaler = RobustScaler()
-    df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
-    X = df[scaling_columns].values
-
-    st.subheader("Data Setelah Scaling")
-    st.dataframe(df[scaling_columns].head())
-
-    st.subheader("EDA")
-    st.dataframe(df[scaling_columns].describe().T)
-
-    # Membuat satu figure dengan 3 subplot
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1 baris, 3 kolom untuk subplot
-    axes = axes.flatten()  # Flatten untuk memudahkan akses subplot
-
-    # Iterasi untuk menampilkan histogram untuk setiap kolom
-    for i, column in enumerate(df[scaling_columns][:3]):  # Mengambil 3 kolom pertama
-        sns.histplot(df[column], kde=True, ax=axes[i])  # Plot histogram pada subplot yang sesuai
-        axes[i].set_title(f'Histogram of {column}')
-        axes[i].set_xlabel(column)
-        axes[i].set_ylabel('Density')
-
-    # Menampilkan figure
-    st.pyplot(fig)
-
-    correlation_matrix_selected = df[scaling_columns].corr()
-    fig, ax = plt.subplots(figsize=(10, 8))
-    sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-    ax.set_title("Correlation Heatmap for Selected Features")
-    st.pyplot(fig)
-
+    # Proses Model
     model_filename = "mean_shift_model_bandwidth_1.5.joblib"
     ms_final = joblib.load(model_filename)
     st.success("Model Mean Shift berhasil dimuat!")
 
+    X = df[scaling_columns].values
     st.session_state.df['cluster_labels'] = ms_final.predict(X)
     st.success("Prediksi cluster selesai!")
 
+    # Tampilkan hasil clustering di bawah
     if 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
 
@@ -170,13 +100,7 @@ if uploaded_file:
         st.write("🟠 **Data Cluster 1**")
         st.dataframe(cluster_1_df)
 
-        st.subheader("Statistik Deskriptif Cluster 0 dan Cluster 1")
-        st.write("**Statistik Deskriptif Cluster 0**")
-        st.dataframe(cluster_0_df.describe())
-
-        st.write("**Statistik Deskriptif Cluster 1**")
-        st.dataframe(cluster_1_df.describe())
-
+        # Rata-rata untuk visualisasi
         st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
         cluster_0_avg = cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean()
         cluster_1_avg = cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
@@ -192,95 +116,25 @@ if uploaded_file:
         ax.set_ylabel("Rata-rata Persentase")
         st.pyplot(fig)
 
-        st.subheader("Visualisasi Klaster 3D")
-        labels = df['cluster_labels']
-        cluster_centers = ms_final.cluster_centers_
-
-        fig = plt.figure(figsize=(10, 6))
-        ax = fig.add_subplot(111, projection='3d')
-
-        # Plot data points
-        ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
-                c=labels, cmap='plasma', marker='o', label='Data Points')
-
-        # Plot cluster centers
-        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-                s=250, c='blue', marker='X', label='Cluster Centers')
-
-        # Set axis labels
-        ax.set_xlabel('Sampah Tahunan')
-        ax.set_ylabel('Pengurangan Sampah')
-        ax.set_zlabel('Penanganan Sampah')
-
-        # Menambahkan legenda
-        ax.legend()
-
-        # Menampilkan grafik 3D
-        st.pyplot(fig)
 # Menu 2: Input Data Manual
 st.sidebar.subheader("Input Data Manual")
-sampah_harian = st.number_input("Sampah Harian", min_value=0.0)
-sampah_tahunan = st.number_input("Sampah Tahunan", min_value=0.0)
-pengurangan = st.number_input("Pengurangan Sampah", min_value=0.0)
-perc_pengurangan = st.number_input("Persentase Pengurangan", min_value=0.0, max_value=100.0)
-penanganan = st.number_input("Penanganan Sampah", min_value=0.0)
-perc_penanganan = st.number_input("Persentase Penanganan", min_value=0.0, max_value=100.0)
-sampah_terkelola = st.number_input("Sampah Terkelola", min_value=0.0)
-perc_sampah_terkelola = st.number_input("Persentase Sampah Terkelola", min_value=0.0, max_value=100.0)
-daur_ulang = st.number_input("Daur Ulang", min_value=0.0)
 
-# Simpan inputan manual ke dalam DataFrame
-input_data = {
-    'sampah_harian': [sampah_harian],
-    'sampah_tahunan': [sampah_tahunan],
-    'pengurangan': [pengurangan],
-    'perc_pengurangan': [perc_pengurangan],
-    'penanganan': [penanganan],
-    'perc_penanganan': [perc_penanganan],
-    'sampah_terkelola': [sampah_terkelola],
-    'perc_sampah_terkelola': [perc_sampah_terkelola],
-    'daur_ulang': [daur_ulang]
-}
+# Input manual di bagian bawah aplikasi
+if st.sidebar.button("Input Data Manual"):
+    sampah_harian = st.number_input("Sampah Harian", min_value=0.0)
+    sampah_tahunan = st.number_input("Sampah Tahunan", min_value=0.0)
+    pengurangan = st.number_input("Pengurangan", min_value=0.0)
+    perc_pengurangan = st.number_input("Persentase Pengurangan", min_value=0.0)
+    penanganan = st.number_input("Penanganan", min_value=0.0)
+    perc_penanganan = st.number_input("Persentase Penanganan", min_value=0.0)
+    sampah_terkelola = st.number_input("Sampah Terkelola", min_value=0.0)
+    perc_sampah_terkelola = st.number_input("Persentase Sampah Terkelola", min_value=0.0)
+    daur_ulang = st.number_input("Daur Ulang", min_value=0.0)
 
-input_df = pd.DataFrame(input_data)
-
-if st.sidebar.button("Proses Data Manual"):
-    # Lakukan scaling pada data input
-    scaler = RobustScaler()
-    input_df[scaling_columns] = scaler.fit_transform(input_df[scaling_columns])
-
-    # Load model
-    model = load_model()
-
-    # Melakukan prediksi klaster
-    labels = model.predict(input_df[scaling_columns])
-
-    # Tampilkan hasil klastering
-    st.subheader("Hasil Klastering Kota yang Dimasukkan")
-    if labels[0] == 0:
-        st.success("Kota ini masuk ke dalam Klaster 0.")
+    if sampah_harian and sampah_tahunan and pengurangan and perc_pengurangan and penanganan and perc_penanganan and sampah_terkelola and perc_sampah_terkelola and daur_ulang:
+        input_data = np.array([[sampah_harian, sampah_tahunan, pengurangan, perc_pengurangan, penanganan, perc_penanganan, sampah_terkelola, perc_sampah_terkelola, daur_ulang]])
+        input_scaled = scaler.transform(input_data)
+        cluster_label = ms_final.predict(input_scaled)
+        st.write(f"Data manual dimasukkan ke dalam Klaster: {cluster_label[0]}")
     else:
-        st.success("Kota ini masuk ke dalam Klaster 1.")
-
-    # Tampilkan data input dengan klaster
-    input_df['Cluster'] = labels
-    st.write(input_df)
-
-    # Visualisasi Klastering
-    st.subheader("Visualisasi Klaster 3D")
-    cluster_centers = model.cluster_centers_
-    fig = plt.figure(figsize=(10, 6))
-    ax = fig.add_subplot(111, projection='3d')
-
-    ax.scatter(input_df['sampah_tahunan'], input_df['pengurangan'], input_df['penanganan'],
-               c=labels, cmap='plasma', marker='o', label='Data Points')
-
-    ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-               s=250, c='blue', marker='X', label='Cluster Centers')
-
-    ax.set_xlabel('Sampah Tahunan')
-    ax.set_ylabel('Pengurangan Sampah')
-    ax.set_zlabel('Penanganan Sampah')
-
-    ax.legend()
-    st.pyplot(fig)
+        st.warning("Isi semua data input terlebih dahulu.")
