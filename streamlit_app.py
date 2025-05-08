@@ -116,24 +116,17 @@ if uploaded_file:
         ax.set_ylabel("Rata-rata Persentase")
         st.pyplot(fig)
 
-# Menu 2: Input Data Manual
-# Di awal file, set nilai default session_state untuk input manual
-if 'input_manual' not in st.session_state:
-    st.session_state.input_manual = False
-
-# Tombol untuk mengaktifkan input manual
-if st.sidebar.button("Input Data Manual"):
-    st.session_state.input_manual = True
-
-# Inisialisasi session state untuk input manual
+# Inisialisasi session state
 if 'input_manual' not in st.session_state:
     st.session_state.input_manual = False
 
 # Tombol untuk membuka dan menutup form input manual
-if st.sidebar.button("Input Data Manual"):
-    st.session_state.input_manual = True
-if st.sidebar.button("Tutup Input Manual"):
-    st.session_state.input_manual = False
+if not st.session_state.input_manual:
+    if st.sidebar.button("Input Data Manual"):
+        st.session_state.input_manual = True
+else:
+    if st.sidebar.button("Tutup Input Manual"):
+        st.session_state.input_manual = False
 
 # Form input manual hanya 3 kolom (tanpa sampah_harian)
 if st.session_state.input_manual:
@@ -147,10 +140,10 @@ if st.session_state.input_manual:
         st.write("📊 Data yang dimasukkan:")
         st.write(pd.DataFrame(input_data, columns=["Sampah Tahunan", "Pengurangan", "Penanganan"]))
 
-
         # Scaling dan prediksi
-        input_scaled = scaler.transform(input_data_selected)
+        scaler = RobustScaler()  # Hanya jika belum dipanggil sebelumnya, sesuaikan jika sudah di-load
+        df_scaled = scaler.fit_transform(st.session_state.df[scaling_columns])
+        input_scaled = scaler.transform(input_data)
+
         cluster_label = ms_final.predict(input_scaled)
-
         st.success(f"✅ Data dimasukkan ke dalam Klaster: {cluster_label[0]}")
-
