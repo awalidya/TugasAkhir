@@ -116,18 +116,6 @@ if uploaded_file:
         ax.set_ylabel("Rata-rata Persentase")
         st.pyplot(fig)
 
-# Inisialisasi session state
-if 'input_manual' not in st.session_state:
-    st.session_state.input_manual = False
-
-# Tombol untuk membuka dan menutup form input manual
-if not st.session_state.input_manual:
-    if st.sidebar.button("Input Data Manual"):
-        st.session_state.input_manual = True
-else:
-    if st.sidebar.button("Tutup Input Manual"):
-        st.session_state.input_manual = False
-
 # Form input manual hanya 3 kolom (tanpa sampah_harian)
 if st.session_state.input_manual:
     st.subheader("📝 Input Data Manual (tanpa Sampah Harian)")
@@ -140,10 +128,17 @@ if st.session_state.input_manual:
         st.write("📊 Data yang dimasukkan:")
         st.write(pd.DataFrame(input_data, columns=["Sampah Tahunan", "Pengurangan", "Penanganan"]))
 
-        # Scaling dan prediksi
-        scaler = RobustScaler()  # Hanya jika belum dipanggil sebelumnya, sesuaikan jika sudah di-load
-        df_scaled = scaler.fit_transform(st.session_state.df[scaling_columns])
-        input_scaled = scaler.transform(input_data)
+        try:
+            # Load scaler yang sudah dilatih
+            scaler = joblib.load("robust_scaler.joblib")
+            ms_final = joblib.load("mean_shift_model_bandwidth_1.5.joblib")
 
-        cluster_label = ms_final.predict(input_scaled)
-        st.success(f"✅ Data dimasukkan ke dalam Klaster: {cluster_label[0]}")
+            # Transform input dan prediksi
+            input_scaled = scaler.transform(input_data)
+            cluster_label = ms_final.predict(input_scaled)
+
+            st.success(f"✅ Data dimasukkan ke dalam Klaster: {cluster_label[0]}")
+        except FileNotFoundError as e:
+            st.error("❌ File scaler atau model tidak ditemukan. Pastikan file 'robust_scaler.joblib' dan 'mean_shift_model_bandwidth_1.5.joblib' tersedia.")
+        except Exception as e:
+            st.error(f"❌ Terjadi kesalahan: {e}")
