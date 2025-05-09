@@ -52,7 +52,7 @@ def set_tab(tab_name):
 
 # Sidebar dengan tombol-tombol navigasi
 with st.sidebar:
-    st.markdown("## 📂 Navigasi")
+    # st.markdown("## 📂 Navigasi")
     tabs = ["Halaman Utama", "Upload Data", "Pemodelan", "Visualisasi"]
     for tab in tabs:
         if st.markdown(f'<a href="#" onclick="window.location.reload();">{tab}</a>', unsafe_allow_html=True):
