@@ -194,9 +194,11 @@ if section == "Visualisasi":
         ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
                    c=df['cluster_labels'], cmap='plasma', marker='o', label='Data Points')
 
-        # Plot pusat klaster (asumsi Anda memiliki data cluster_centers)
-        cluster_centers = ms_final.cluster_centers_  # Asumsi center didapat dari model Mean Shift
-        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+        # Menambahkan titik pusat klaster (menggunakan rata-rata setiap klaster sebagai pusat)
+        cluster_centers = df.groupby('cluster_labels')[['sampah_tahunan', 'pengurangan', 'penanganan']].mean()
+
+        # Plot pusat klaster dengan simbol X
+        ax.scatter(cluster_centers['sampah_tahunan'], cluster_centers['pengurangan'], cluster_centers['penanganan'],
                    s=250, c='blue', marker='X', label='Cluster Centers')
 
         # Menambahkan label sumbu
