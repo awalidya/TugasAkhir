@@ -52,9 +52,6 @@ if tab == "Halaman Utama":
     Mari bersama menciptakan lingkungan yang lebih bersih dan sehat melalui keputusan berbasis data
     """)
 
-elif tab == "Upload Data":
-    uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
-
     # Jika menu Upload Data dipilih
 elif tab == "Upload Data":
     uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
