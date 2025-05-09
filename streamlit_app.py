@@ -72,6 +72,11 @@ if halaman_utama:
         """
     )    
 
+# Menampilkan teks drag file jika belum ada file yang diupload
+if not uploaded_file:
+    with st.sidebar.empty():
+        st.write("👈 Drag file here to upload")
+        
 # ✅ Perubahan: Jalankan proses jika file sudah diupload
 if uploaded_file:
     df = load_data(uploaded_file)
