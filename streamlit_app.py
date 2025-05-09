@@ -58,7 +58,7 @@ def handle_missing_values(df):
 
 # ✅ Perubahan: Hapus tombol upload, langsung tampilkan file uploader
 uploaded_file = st.sidebar.file_uploader("Upload file CSV", type=["csv"])
-# input_data = st.sidebar.button("Input Data Manual")
+visualisasi = st.sidebar.button("Visualisasi")
 
 # ✅ Perubahan: Jalankan proses jika file sudah diupload
 if uploaded_file:
