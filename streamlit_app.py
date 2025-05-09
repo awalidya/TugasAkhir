@@ -41,7 +41,8 @@ def handle_missing_values(df):
         median = df[col].median()
         df[col] = df[col].fillna(median)
 
-tab = st.sidebar.selectbox("Pilih Menu", ["Halaman Utama", "Upload Data", "Pemodelan", "Visualisasi"])
+# Tab selection, to view different parts
+tab = st.radio("Pilih Menu", ["Halaman Utama", "Upload Data", "Pemodelan", "Visualisasi"])
 
 if tab == "Halaman Utama":
     st.write("""
