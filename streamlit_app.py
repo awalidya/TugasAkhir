@@ -35,10 +35,10 @@ with st.sidebar:
     with col1:
         st.image(
             "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",
-            width=50
+            width=150
         )
     with col2:
-        st.markdown("<div class='custom-title'>Trash</div>", unsafe_allow_html=True)
+        st.markdown("<div class='custom-title'>Trash Achievemen</div>", unsafe_allow_html=True)
 
 
 numeric_columns = [
