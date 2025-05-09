@@ -11,6 +11,14 @@ from mpl_toolkits.mplot3d import Axes3D
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
+# Menambahkan logo di atas menu sidebar
+st.sidebar.image(
+    "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",  # Memperbaiki tanda kutip yang hilang
+    width=150  # ubah angkanya sesuai kebutuhan (misal: 100, 200, dll)
+)
+
+
+# Kolom lainnya tetap seperti semula
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
     'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola', 'daur_ulang'
@@ -48,56 +56,18 @@ def handle_missing_values(df):
         median = df[col].median()
         df[col] = df[col].fillna(median)
 
-# Membuat dua tab: Upload Data dan Input Data Manual
-tab1, tab2 = st.tabs(["Upload Data", "Input Data Manual"])
+# ✅ Perubahan: Hapus tombol upload, langsung tampilkan file uploader
+uploaded_file = st.sidebar.file_uploader("Upload file CSV", type=["csv"])
+# input_data = st.sidebar.button("Input Data Manual")
 
-with tab1:
-    uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
+# ✅ Perubahan: Jalankan proses jika file sudah diupload
+if uploaded_file:
+    df = load_data(uploaded_file)
+    st.session_state.df = df
+    st.success("Data berhasil diunggah!")
+    st.dataframe(df.head())
 
-    if uploaded_file:
-        df = load_data(uploaded_file)
-        st.session_state.df = df
-        st.success("Data berhasil diunggah!")
-        st.dataframe(df.head())
-
-with tab2:
-    st.subheader("🧾 Input Data Manual")
-    
-    with st.expander("Tambahkan Data Baru Secara Manual"):
-        kabupaten_kota = st.text_input("Kabupaten/Kota")
-        provinsi = st.text_input("Provinsi")
-        
-        # Input data numerik
-        manual_data = {}
-        for col in numeric_columns:
-            manual_data[col] = st.number_input(f"{col.replace('_', ' ').title()}", min_value=0.0, step=1.0)
-        
-        if st.button("Tambahkan Data"):
-            # Membuat dataframe dari inputan
-            new_row = {"kabupaten_kota": kabupaten_kota, "provinsi": provinsi, **manual_data}
-            new_df = pd.DataFrame([new_row])
-
-            # Pastikan semua kolom scaling ada di dataframe
-            for col in scaling_columns:
-                if col not in new_df.columns:
-                    st.error(f"Kolom '{col}' tidak ada dalam inputan.")
-                    break
-            else:
-                # Menggunakan transform untuk mengubah data baru sesuai dengan skala yang ada
-                scaled_input = scaler.transform(new_df[scaling_columns])
-
-                # Prediksi cluster untuk data yang baru
-                cluster_label = ms_final.predict(scaled_input)
-
-                # Tampilkan hasil cluster
-                st.write(f"Data yang dimasukkan berada pada cluster: **Cluster {cluster_label[0]}**")
-                
-                # Menampilkan data yang dimasukkan
-                st.write("Data yang dimasukkan:")
-                st.dataframe(new_df)
-
-# Menambahkan pemeriksaan untuk memastikan `st.session_state.df` ada sebelum menjalankan operasi lainnya
-if 'df' in st.session_state:
+    # Proses pemodelan
     df = st.session_state.df
 
     # Proses lainnya hanya akan dijalankan jika df ada
@@ -124,29 +94,29 @@ if 'df' in st.session_state:
     # Membuat 2 baris dan 3 kolom untuk 6 boxplot
     fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
     axes = axes.flatten()  # Mempermudah akses ke setiap subplot
-    
+
     # Iterasi untuk menampilkan boxplot untuk setiap kolom
     for i, col in enumerate(numeric_columns[:6]):  # Mengambil 6 kolom pertama
         sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
         axes[i].set_title(f"Boxplot {col}")
-    
+
     # Menampilkan figure
     st.pyplot(fig)
-    
+
     st.subheader("Plot Outlier Setelah Penanganan")
     # Mengatasi outlier dan plot boxplot setelah penanganan
     for col in feature_outlier[:6]:  # Menyesuaikan agar hanya 6 kolom pertama yang diproses
         handle_outliers_iqr(df, col)
-    
+
     # Membuat 2 baris dan 3 kolom untuk 6 boxplot
     fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
     axes = axes.flatten()  # Mempermudah akses ke setiap subplot
-    
+
     # Iterasi untuk menampilkan boxplot untuk setiap kolom
     for i, col in enumerate(feature_outlier[:6]):  # Mengambil 6 kolom pertama
         sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
         axes[i].set_title(f"Boxplot {col}")
-    
+
     # Menampilkan figure
     st.pyplot(fig)
 
@@ -163,14 +133,14 @@ if 'df' in st.session_state:
     # Membuat satu figure dengan 3 subplot
     fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1 baris, 3 kolom untuk subplot
     axes = axes.flatten()  # Flatten untuk memudahkan akses subplot
-    
+
     # Iterasi untuk menampilkan histogram untuk setiap kolom
     for i, column in enumerate(df[scaling_columns][:3]):  # Mengambil 3 kolom pertama
         sns.histplot(df[column], kde=True, ax=axes[i])  # Plot histogram pada subplot yang sesuai
         axes[i].set_title(f'Histogram of {column}')
         axes[i].set_xlabel(column)
         axes[i].set_ylabel('Density')
-    
+
     # Menampilkan figure
     st.pyplot(fig)
 
@@ -225,25 +195,25 @@ if 'df' in st.session_state:
         st.subheader("Visualisasi Klaster 3D")
         labels = df['cluster_labels']
         cluster_centers = ms_final.cluster_centers_
-        
+
         fig = plt.figure(figsize=(10, 6))
         ax = fig.add_subplot(111, projection='3d')
-        
+
         # Plot data points
         ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
-                   c=labels, cmap='plasma', marker='o', label='Data Points')
-        
+                c=labels, cmap='plasma', marker='o', label='Data Points')
+
         # Plot cluster centers
         ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-                   s=250, c='blue', marker='X', label='Cluster Centers')
-        
+                s=250, c='blue', marker='X', label='Cluster Centers')
+
         # Set axis labels
         ax.set_xlabel('Sampah Tahunan')
         ax.set_ylabel('Pengurangan Sampah')
         ax.set_zlabel('Penanganan Sampah')
-        
+
         # Menambahkan legenda
         ax.legend()
-        
+
         # Menampilkan grafik 3D
         st.pyplot(fig)
