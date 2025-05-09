@@ -22,8 +22,8 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 
     .custom-title {
-        font-family: 'Roboto', sans-serif;
-        font-size: 24px;
+        font-family: 'Garamond', sans-serif;
+        font-size: 16px;
         font-weight: bold;
         display: inline;
         margin-left: 10px;
