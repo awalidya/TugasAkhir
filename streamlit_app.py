@@ -57,8 +57,20 @@ def handle_missing_values(df):
         df[col] = df[col].fillna(median)
 
 # ✅ Perubahan: Hapus tombol upload, langsung tampilkan file uploader
+halaman_utama = st.sidebar.button("Halaman Utama")
 uploaded_file = st.sidebar.file_uploader("Upload file CSV", type=["csv"])
 visualisasi = st.sidebar.button("Visualisasi")
+
+if halaman_utama:
+    st.write(
+        """
+        Selamat datang di platform analisis wilayah berbasis pengelolaan sampah
+        Melalui pendekatan data dan metode klastering, kami menyajikan gambaran menyeluruh tentang bagaimana berbagai daerah di Indonesia menangani permasalahan sampah. 
+        Dengan memetakan wilayah berdasarkan pola pengurangan, penanganan, dan daur ulang sampah, platform ini diharapkan dapat menjadi acuan bagi pengambil kebijakan, 
+        peneliti, maupun masyarakat umum dalam mendorong pengelolaan sampah yang lebih efektif dan berkelanjutan. 
+        Mari bersama menciptakan lingkungan yang lebih bersih dan sehat melalui keputusan berbasis data.
+        """
+    )    
 
 # ✅ Perubahan: Jalankan proses jika file sudah diupload
 if uploaded_file:
