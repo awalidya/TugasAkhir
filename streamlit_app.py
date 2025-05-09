@@ -161,6 +161,51 @@ elif tab == "Upload Data":
         #     st.error("Model Mean Shift gagal dimuat atau tidak memiliki cluster_centers_.")
 
 
+elif tab == "Pemodelan":
+    if 'df' in st.session_state:
+        df = st.session_state.df.copy()
+        X = df[scaling_columns].values
+
+        from sklearn.cluster import MeanShift
+        from sklearn.metrics import davies_bouldin_score, silhouette_score
+
+        st.subheader("Pemodelan Clustering dengan Mean Shift")
+        
+        bandwidth_values = [1.0, 1.5, 2.0]
+        for bw in bandwidth_values:
+            st.markdown(f"### 🔹 Bandwidth: `{bw}`")
+            ms = MeanShift(bandwidth=bw, bin_seeding=True)
+            ms.fit(X)
+            labels = ms.labels_
+            cluster_centers = ms.cluster_centers_
+            n_clusters = len(np.unique(labels))
+
+            st.write(f"Jumlah klaster yang terbentuk: **{n_clusters}**")
+
+            # Visualisasi hasil clustering
+            fig, ax = plt.subplots()
+            scatter = ax.scatter(df['sampah_tahunan'], df['penanganan'], c=labels, cmap='plasma', marker='o')
+            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], s=250, c='blue', marker='X', label='Cluster Centers')
+            ax.set_title(f"Mean Shift Clustering (Bandwidth = {bw})")
+            ax.set_xlabel('Sampah Tahunan')
+            ax.set_ylabel('Penanganan')
+            ax.legend()
+            st.pyplot(fig)
+
+            # Evaluasi Davies-Bouldin Index dan Silhouette Score
+            if len(set(labels)) > 1:
+                dbi_score = davies_bouldin_score(X, labels)
+                sil_score = silhouette_score(X, labels)
+                st.write(f"**Davies-Bouldin Index:** {dbi_score:.3f}")
+                st.write(f"**Silhouette Score:** {sil_score:.3f}")
+            else:
+                st.warning("DBI & Silhouette Score tidak dapat dihitung karena hanya ada 1 cluster.")
+
+    else:
+        st.warning("Silakan unggah dan proses data terlebih dahulu di menu 'Upload Data'.")
+
+    
+
 elif tab == "Visualisasi":
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
