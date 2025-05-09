@@ -247,26 +247,81 @@ elif st.session_state.selected_tab == "Pemodelan":
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
 
+# elif st.session_state.selected_tab == "Visualisasi":    
+# # elif tab == "Visualisasi":
+#     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
+#         df = st.session_state.df.copy()
+#         ms_final = st.session_state.get('ms_final', None)
+
+#         cluster_0_df = df[df['cluster_labels'] == 0]
+#         cluster_1_df = df[df['cluster_labels'] == 1]
+#         st.write("🔵 **Data Cluster 0**")
+#         st.dataframe(cluster_0_df)
+#         st.write("🟠 **Data Cluster 1**")
+#         st.dataframe(cluster_1_df)
+
+#         # st.subheader("Statistik Deskriptif Cluster 0 dan Cluster 1")
+#         # st.write("**Cluster 0**")
+#         # st.dataframe(cluster_0_df.describe())
+#         # st.write("**Cluster 1**")
+#         # st.dataframe(cluster_1_df.describe())
+
+#         st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
+#         avg_df = pd.DataFrame({
+#             "Klaster 0": cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean(),
+#             "Klaster 1": cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
+#         })
+
+#         fig, ax = plt.subplots(figsize=(8, 5))
+#         avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
+#         for i, cluster in enumerate(avg_df.columns):
+#             for j, val in enumerate(avg_df[cluster]):
+#                 ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
+#         ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan")
+#         ax.set_xlabel("Klaster")
+#         ax.set_ylabel("Rata-rata Persentase")
+#         st.pyplot(fig)
+#     else:
+#         st.warning("Data belum tersedia atau clustering belum dijalankan.")
+
 elif st.session_state.selected_tab == "Visualisasi":    
-# elif tab == "Visualisasi":
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
         ms_final = st.session_state.get('ms_final', None)
 
         cluster_0_df = df[df['cluster_labels'] == 0]
         cluster_1_df = df[df['cluster_labels'] == 1]
+
         st.write("🔵 **Data Cluster 0**")
         st.dataframe(cluster_0_df)
         st.write("🟠 **Data Cluster 1**")
         st.dataframe(cluster_1_df)
 
-        # st.subheader("Statistik Deskriptif Cluster 0 dan Cluster 1")
-        # st.write("**Cluster 0**")
-        # st.dataframe(cluster_0_df.describe())
-        # st.write("**Cluster 1**")
-        # st.dataframe(cluster_1_df.describe())
+        # Ringkasan total sampah tahunan per klaster
+        total_0 = cluster_0_df['sampah_tahunan'].sum()
+        total_1 = cluster_1_df['sampah_tahunan'].sum()
 
-        st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
+        st.markdown("### 🧾 Total Sampah Tahunan per Klaster")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.markdown(f"""
+                <div style='background-color:#e0f7fa; padding:15px; border-radius:10px; text-align:center;'>
+                    <h4>Klaster 0</h4>
+                    <p style='font-size:24px; font-weight:bold;'>{total_0:,.0f}</p>
+                    <p>ton/tahun</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+        with col2:
+            st.markdown(f"""
+                <div style='background-color:#ffe0b2; padding:15px; border-radius:10px; text-align:center;'>
+                    <h4>Klaster 1</h4>
+                    <p style='font-size:24px; font-weight:bold;'>{total_1:,.0f}</p>
+                    <p>ton/tahun</p>
+                </div>
+                """, unsafe_allow_html=True)
+
+        st.subheader("📊 Rata-rata Persentase Pengurangan & Penanganan per Cluster")
         avg_df = pd.DataFrame({
             "Klaster 0": cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean(),
             "Klaster 1": cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
@@ -283,4 +338,5 @@ elif st.session_state.selected_tab == "Visualisasi":
         st.pyplot(fig)
     else:
         st.warning("Data belum tersedia atau clustering belum dijalankan.")
+
 
