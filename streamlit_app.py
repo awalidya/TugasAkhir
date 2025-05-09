@@ -23,7 +23,7 @@ st.markdown("""
 
     .custom-title {
         font-family: 'Roboto', sans-serif;
-        font-size: 24px;
+        font-size: 16px;
         font-weight: bold;
         display: inline;
         margin-left: 10px;
@@ -38,7 +38,7 @@ with st.sidebar:
     with col1:
         st.image(
             "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",
-            width=50
+            width=200
         )
     with col2:
         st.markdown("<span class='custom-title'>Trash Achievement</span>", unsafe_allow_html=True)
