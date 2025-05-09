@@ -10,11 +10,36 @@ from mpl_toolkits.mplot3d import Axes3D
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
-# Logo di sidebar
-st.sidebar.image(
-    "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",
-    width=150
-)
+# # Logo di sidebar
+# st.sidebar.image(
+#     "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",
+#     width=150
+# )
+
+# Menyisipkan font kustom dari Google Fonts
+st.markdown("""
+    <style>
+    @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
+
+    .custom-title {
+        font-family: 'Roboto', sans-serif;
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 15px;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+
+with st.sidebar:
+    col1, col2 = st.columns([1, 3])
+    with col1:
+        st.image(
+            "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",
+            width=50
+        )
+    with col2:
+        st.markdown("<div class='custom-title'>Trash</div>", unsafe_allow_html=True)
+
 
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
