@@ -170,11 +170,20 @@ elif tab == "Pemodelan":
         from sklearn.metrics import davies_bouldin_score, silhouette_score
 
         st.subheader("Pemodelan Clustering dengan Mean Shift")
-        
-        bandwidth_values = [1.0, 1.5, 2.0]
-        for bw in bandwidth_values:
-            st.markdown(f"### 🔹 Bandwidth: `{bw}`")
-            ms = MeanShift(bandwidth=bw, bin_seeding=True)
+
+        # Fitur input bandwidth dari user
+        custom_bw = st.number_input(
+            label="Sesuaikan nilai Bandwidth:",
+            min_value=0.1,
+            max_value=10.0,
+            value=1.5,
+            step=0.1,
+            format="%.1f"
+        )
+
+        if st.button("Jalankan Clustering"):
+            st.markdown(f"### 🔹 Bandwidth: `{custom_bw}`")
+            ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
             ms.fit(X)
             labels = ms.labels_
             cluster_centers = ms.cluster_centers_
@@ -186,13 +195,13 @@ elif tab == "Pemodelan":
             fig, ax = plt.subplots()
             scatter = ax.scatter(df['sampah_tahunan'], df['penanganan'], c=labels, cmap='plasma', marker='o')
             ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], s=250, c='blue', marker='X', label='Cluster Centers')
-            ax.set_title(f"Mean Shift Clustering (Bandwidth = {bw})")
+            ax.set_title(f"Mean Shift Clustering (Bandwidth = {custom_bw})")
             ax.set_xlabel('Sampah Tahunan')
             ax.set_ylabel('Penanganan')
             ax.legend()
             st.pyplot(fig)
 
-            # Evaluasi Davies-Bouldin Index dan Silhouette Score
+            # Evaluasi klaster
             if len(set(labels)) > 1:
                 dbi_score = davies_bouldin_score(X, labels)
                 sil_score = silhouette_score(X, labels)
@@ -200,9 +209,9 @@ elif tab == "Pemodelan":
                 st.write(f"**Silhouette Score:** {sil_score:.3f}")
             else:
                 st.warning("DBI & Silhouette Score tidak dapat dihitung karena hanya ada 1 cluster.")
-
     else:
         st.warning("Silakan unggah dan proses data terlebih dahulu di menu 'Upload Data'.")
+
 
     
 
