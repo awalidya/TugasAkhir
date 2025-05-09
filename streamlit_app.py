@@ -50,8 +50,7 @@ elif st.sidebar.button("Pemodelan"):
     tab = "Pemodelan"
 elif st.sidebar.button("Visualisasi"):
     tab = "Visualisasi"
-else:
-    tab = "Halaman Utama" 
+
 
 if tab == "Halaman Utama":
     st.write("""
