@@ -23,23 +23,25 @@ st.markdown("""
 
     .custom-title {
         font-family: 'Roboto', sans-serif;
-        font-size: 9px;
+        font-size: 24px;
         font-weight: bold;
-        margin-top: 15px;
+        display: inline;
+        margin-left: 10px;
+        vertical-align: middle;
     }
     </style>
     """, unsafe_allow_html=True)
 
+# Sidebar dengan logo dan judul
 with st.sidebar:
     col1, col2 = st.columns([1, 3])
     with col1:
         st.image(
             "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",
-            width=300
+            width=50
         )
     with col2:
-        st.markdown("<div class='custom-title'>Trash Achievemen</div>", unsafe_allow_html=True)
-
+        st.markdown("<span class='custom-title'>Trash Achievement</span>", unsafe_allow_html=True)
 
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
