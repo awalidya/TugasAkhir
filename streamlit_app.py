@@ -34,7 +34,7 @@ st.markdown("""
 
 # Sidebar dengan logo dan judul
 with st.sidebar:
-    col1, col2 = st.columns([1, 3])
+    col1, col2 = st.columns([2, 3])
     with col1:
         st.image(
             "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",
