@@ -186,7 +186,7 @@ elif tab == "Pemodelan":
             st.success(f"Jumlah klaster terbentuk: {n_clusters}")
 
             # Plot 3D
-            fig = plt.figure(figsize=(6, 4))  # Ukuran visualisasi lebih kecil
+            fig = plt.figure(figsize=(4, 2))  # Ukuran visualisasi lebih kecil
             ax = fig.add_subplot(111, projection='3d')
 
             ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, cmap='plasma', marker='o', label='Data Points')
