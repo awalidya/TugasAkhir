@@ -185,17 +185,23 @@ elif tab == "Pemodelan":
 
             st.success(f"Jumlah klaster terbentuk: {n_clusters}")
 
-            # Plot kecil
-            fig, ax = plt.subplots(figsize=(6, 4))  # Ukuran visualisasi diperkecil
-            ax.scatter(df['sampah_tahunan'], df['penanganan'], c=labels, cmap='plasma', marker='o')
-            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], s=120, c='blue', marker='X', label='Center')
-            ax.set_title(f"Clustering (Bandwidth = {custom_bw})")
-            ax.set_xlabel("Sampah Tahunan")
-            ax.set_ylabel("Penanganan")
+            # Plot 3D
+            fig = plt.figure(figsize=(6, 4))  # Ukuran visualisasi lebih kecil
+            ax = fig.add_subplot(111, projection='3d')
+
+            ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, cmap='plasma', marker='o', label='Data Points')
+            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+                       s=150, c='blue', marker='X', label='Cluster Centers')
+
+            ax.set_xlabel('Sampah Tahunan')
+            ax.set_ylabel('Pengurangan')
+            ax.set_zlabel('Penanganan')
+            ax.set_title('3D Mean Shift Clustering')
             ax.legend()
+
             st.pyplot(fig)
 
-            # Evaluasi klaster
+            # Evaluasi
             if len(set(labels)) > 1:
                 dbi = davies_bouldin_score(X, labels)
                 sil = silhouette_score(X, labels)
@@ -206,7 +212,6 @@ elif tab == "Pemodelan":
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
 
-    
 
 elif tab == "Visualisasi":
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
