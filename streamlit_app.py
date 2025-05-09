@@ -160,7 +160,6 @@ elif tab == "Upload Data":
         # else:
         #     st.error("Model Mean Shift gagal dimuat atau tidak memiliki cluster_centers_.")
 
-
 elif tab == "Pemodelan":
     if 'df' in st.session_state:
         df = st.session_state.df.copy()
@@ -171,47 +170,41 @@ elif tab == "Pemodelan":
 
         st.subheader("Pemodelan Clustering dengan Mean Shift")
 
-        # Fitur input bandwidth dari user
+        # Input bandwidth interaktif
         custom_bw = st.number_input(
-            label="Sesuaikan nilai Bandwidth:",
-            min_value=0.1,
-            max_value=10.0,
-            value=1.5,
-            step=0.1,
-            format="%.1f"
+            label="🎛️ Sesuaikan nilai Bandwidth",
+            min_value=0.1, max_value=10.0, value=1.5, step=0.1, format="%.1f"
         )
 
-        if st.button("Jalankan Clustering"):
-            st.markdown(f"### 🔹 Bandwidth: `{custom_bw}`")
+        if st.button("🚀 Jalankan Clustering"):
             ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
             ms.fit(X)
             labels = ms.labels_
             cluster_centers = ms.cluster_centers_
             n_clusters = len(np.unique(labels))
 
-            st.write(f"Jumlah klaster yang terbentuk: **{n_clusters}**")
+            st.success(f"Jumlah klaster terbentuk: {n_clusters}")
 
-            # Visualisasi hasil clustering
-            fig, ax = plt.subplots()
-            scatter = ax.scatter(df['sampah_tahunan'], df['penanganan'], c=labels, cmap='plasma', marker='o')
-            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], s=250, c='blue', marker='X', label='Cluster Centers')
-            ax.set_title(f"Mean Shift Clustering (Bandwidth = {custom_bw})")
-            ax.set_xlabel('Sampah Tahunan')
-            ax.set_ylabel('Penanganan')
+            # Plot kecil
+            fig, ax = plt.subplots(figsize=(6, 4))  # Ukuran visualisasi diperkecil
+            ax.scatter(df['sampah_tahunan'], df['penanganan'], c=labels, cmap='plasma', marker='o')
+            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], s=120, c='blue', marker='X', label='Center')
+            ax.set_title(f"Clustering (Bandwidth = {custom_bw})")
+            ax.set_xlabel("Sampah Tahunan")
+            ax.set_ylabel("Penanganan")
             ax.legend()
             st.pyplot(fig)
 
             # Evaluasi klaster
             if len(set(labels)) > 1:
-                dbi_score = davies_bouldin_score(X, labels)
-                sil_score = silhouette_score(X, labels)
-                st.write(f"**Davies-Bouldin Index:** {dbi_score:.3f}")
-                st.write(f"**Silhouette Score:** {sil_score:.3f}")
+                dbi = davies_bouldin_score(X, labels)
+                sil = silhouette_score(X, labels)
+                st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
+                st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
             else:
-                st.warning("DBI & Silhouette Score tidak dapat dihitung karena hanya ada 1 cluster.")
+                st.warning("Tidak bisa menghitung DBI/Silhouette karena hanya ada 1 klaster.")
     else:
-        st.warning("Silakan unggah dan proses data terlebih dahulu di menu 'Upload Data'.")
-
+        st.warning("Silakan unggah data terlebih dahulu.")
 
     
 
