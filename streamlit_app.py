@@ -72,16 +72,16 @@ if halaman_utama:
         """
     )    
 
-# ✅ Perubahan: Hapus tombol upload, langsung tampilkan file uploader
-uploaded_file = st.sidebar.file_uploader("Upload file CSV", type=["csv"])
-# input_data = st.sidebar.button("Input Data Manual")
 
-# ✅ Perubahan: Jalankan proses jika file sudah diupload
-if uploaded_file:
-    df = load_data(uploaded_file)
-    st.session_state.df = df
-    st.success("Data berhasil diunggah!")
-    st.dataframe(df)
+# Menampilkan file uploader hanya setelah tombol di-click
+if upload_button:
+    uploaded_file = st.sidebar.file_uploader("Drag file here to upload", type=["csv"])
+
+    if uploaded_file:
+        df = load_data(uploaded_file)
+        st.session_state.df = df
+        st.success("Data berhasil diunggah!")
+        st.dataframe(df)
 
     # Proses pemodelan
     df = st.session_state.df
