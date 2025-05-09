@@ -43,7 +43,7 @@ def handle_missing_values(df):
         df[col] = df[col].fillna(median)
 
 # Membuat dua tab: Upload Data dan Visualisasi
-tab1, tab2 = st.tabs(["Upload Data", "Visualisasi"])
+tab1, tab2 = st.tabs(["📤 Upload Data & Preprocessing", "📊 Visualisasi"])
 
 # Tab 1: Upload Data
 with tab1:
