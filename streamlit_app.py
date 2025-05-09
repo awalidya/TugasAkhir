@@ -207,37 +207,4 @@ if uploaded_file:
         st.pyplot(fig)
 
 
-# Inisialisasi session state
-if 'input_manual' not in st.session_state:
-    st.session_state.input_manual = False
 
-# Tombol toggle
-if not st.session_state.input_manual:
-    if st.sidebar.button("Input Data Manual"):
-        st.session_state.input_manual = True
-else:
-    if st.sidebar.button("Tutup Input Manual"):
-        st.session_state.input_manual = False
-
-# Form input manual
-if st.session_state.input_manual:
-    st.subheader("📝 Input Data Manual (tanpa Sampah Harian)")
-    sampah_tahunan = st.number_input("Sampah Tahunan", min_value=0.0)
-    pengurangan = st.number_input("Pengurangan", min_value=0.0)
-    penanganan = st.number_input("Penanganan", min_value=0.0)
-
-    if st.button("Proses Data Manual"):
-        input_data = np.array([[sampah_tahunan, pengurangan, penanganan]])
-        st.write("📊 Data yang dimasukkan:")
-        st.write(pd.DataFrame(input_data, columns=["Sampah Tahunan", "Pengurangan", "Penanganan"]))
-
-        try:
-            scaler = st.session_state.scaler  # Ambil dari session state
-            input_scaled = scaler.transform(input_data)
-
-            cluster_label = ms_final.predict(input_scaled)
-            st.success(f"✅ Data dimasukkan ke dalam Klaster: {cluster_label[0]}")
-        except KeyError:
-            st.error("❌ Scaler belum tersedia. Silakan unggah data terlebih dahulu.")
-        except Exception as e:
-            st.error(f"❌ Terjadi kesalahan: {e}")
