@@ -23,19 +23,19 @@ st.markdown("""
 
     .custom-title {
         font-family: 'Roboto', sans-serif;
-        font-size: 16px;
+        font-size: 24px;
         font-weight: bold;
         display: inline;
-        margin-top: 25px;
         margin-left: 10px;
         vertical-align: middle;
+        margin-top: 10px;  # Menambah margin-top agar teks turun
     }
     </style>
     """, unsafe_allow_html=True)
 
 # Sidebar dengan logo dan judul
 with st.sidebar:
-    col1, col2 = st.columns([2, 3])
+    col1, col2 = st.columns([3, 3])
     with col1:
         st.image(
             "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",
