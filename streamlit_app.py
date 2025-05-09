@@ -50,7 +50,7 @@ if uploaded_file:
     df = load_data(uploaded_file)
     st.session_state.df = df
     st.success("Data berhasil diunggah!")
-    st.dataframe(df.head())
+    st.dataframe(df)
 
     # Proses pemodelan
     df = st.session_state.df
@@ -150,61 +150,7 @@ if uploaded_file:
     st.session_state.df['cluster_labels'] = ms_final.predict(X_scaled)
     st.success("Prediksi cluster selesai!")
 
-    # Tampilkan hasil clustering di bawah
-    if 'cluster_labels' in st.session_state.df.columns:
-        df = st.session_state.df.copy()
-
-        st.subheader("Data Cluster 0 dan Cluster 1")
-        cluster_0_df = df[df['cluster_labels'] == 0]
-        cluster_1_df = df[df['cluster_labels'] == 1]
-
-        st.write("🔵 **Data Cluster 0**")
-        st.dataframe(cluster_0_df)
-
-        st.write("🟠 **Data Cluster 1**")
-        st.dataframe(cluster_1_df)
-
-        # Rata-rata untuk visualisasi
-        st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
-        cluster_0_avg = cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean()
-        cluster_1_avg = cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
-        avg_df = pd.DataFrame({"Klaster 0": cluster_0_avg, "Klaster 1": cluster_1_avg})
-
-        fig, ax = plt.subplots(figsize=(8, 5))
-        avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
-        for i, cluster in enumerate(avg_df.columns):
-            for j, val in enumerate(avg_df[cluster]):
-                ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
-        ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan")
-        ax.set_xlabel("Klaster")
-        ax.set_ylabel("Rata-rata Persentase")
-        st.pyplot(fig)
-
-        # Visualisasi 3D clustering
-        st.subheader("Visualisasi 3D Hasil Clustering")
-        fig = plt.figure(figsize=(10, 6))
-        ax = fig.add_subplot(111, projection='3d')
-
-        # Plot titik data berdasarkan hasil clustering
-        ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
-                   c=df['cluster_labels'], cmap='plasma', marker='o', label='Data Points')
-
-        # Plot pusat klaster (asumsi Anda memiliki data cluster_centers)
-        cluster_centers = ms_final.cluster_centers_  # Asumsi center didapat dari model Mean Shift
-        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-                   s=250, c='blue', marker='X', label='Cluster Centers')
-
-        # Menambahkan label sumbu
-        ax.set_xlabel('Sampah Tahunan')
-        ax.set_ylabel('Pengurangan')
-        ax.set_zlabel('Penanganan')
-
-        # Menambahkan judul dan legenda
-        plt.title('3D Mean Shift Clustering')
-        ax.legend()
-
-        # Menampilkan plot
-        st.pyplot(fig)
+    
 
 
 
