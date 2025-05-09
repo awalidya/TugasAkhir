@@ -52,11 +52,11 @@ def set_tab(tab_name):
 
 # Sidebar dengan tombol-tombol navigasi
 with st.sidebar:
-    # st.markdown("## 📂 Navigasi")
+    st.markdown("## 📂 Navigasi")
     tabs = ["Halaman Utama", "Upload Data", "Pemodelan", "Visualisasi"]
     for tab in tabs:
-        if st.markdown(f'<a href="#" onclick="window.location.reload();">{tab}</a>', unsafe_allow_html=True):
-            set_tab(tab)
+        if st.button(tab):
+            st.session_state.selected_tab = tab
             
 if st.session_state.selected_tab == "Halaman Utama":
 # if tab == "Halaman Utama":
