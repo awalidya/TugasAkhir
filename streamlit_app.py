@@ -17,7 +17,6 @@ st.sidebar.image(
     width=150  # ubah angkanya sesuai kebutuhan (misal: 100, 200, dll)
 )
 
-
 # Kolom lainnya tetap seperti semula
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
@@ -56,12 +55,10 @@ def handle_missing_values(df):
         median = df[col].median()
         df[col] = df[col].fillna(median)
 
-# ✅ Perubahan: Hapus tombol upload, langsung tampilkan file uploader
-halaman_utama = st.sidebar.button("Halaman Utama")
-uploaded_file = st.sidebar.file_uploader("Upload file CSV", type=["csv"])
-visualisasi = st.sidebar.button("Visualisasi")
+# Menampilkan tabs untuk navigasi
+tabs = st.tabs(["Halaman Utama", "Upload & Proses Data", "Visualisasi"])
 
-if halaman_utama:
+with tabs[0]:
     st.write(
         """
         Selamat datang di platform analisis wilayah berbasis pengelolaan sampah
@@ -70,107 +67,107 @@ if halaman_utama:
         peneliti, maupun masyarakat umum dalam mendorong pengelolaan sampah yang lebih efektif dan berkelanjutan. 
         Mari bersama menciptakan lingkungan yang lebih bersih dan sehat melalui keputusan berbasis data.
         """
-    )    
+    )
 
+with tabs[1]:
+    uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
+    if uploaded_file:
+        df = load_data(uploaded_file)
+        st.session_state.df = df
+        st.success("Data berhasil diunggah!")
+        st.dataframe(df)
 
-# Menampilkan file uploader hanya setelah tombol di-click
-if uploaded_file:
-    df = load_data(uploaded_file)
-    st.session_state.df = df
-    st.success("Data berhasil diunggah!")
-    st.dataframe(df)
+        # Proses pemodelan
+        df = st.session_state.df
 
-    # Proses pemodelan
-    df = st.session_state.df
+        # Proses lainnya hanya akan dijalankan jika df ada
+        st.subheader("🧱 Missing Value Sebelum Penanganan")
+        missing_before = df.isnull().sum()
+        for col, count in missing_before.items():
+            if count > 0:
+                st.markdown(f"- **{col}**: {count} missing value")
+        if missing_before.sum() == 0:
+            st.success("Tidak ada missing value yang terdeteksi.")
 
-    # Proses lainnya hanya akan dijalankan jika df ada
-    st.subheader("🧱 Missing Value Sebelum Penanganan")
-    missing_before = df.isnull().sum()
-    for col, count in missing_before.items():
-        if count > 0:
-            st.markdown(f"- **{col}**: {count} missing value")
-    if missing_before.sum() == 0:
-        st.success("Tidak ada missing value yang terdeteksi.")
+        handle_missing_values(df)
+        st.session_state.df = df
 
-    handle_missing_values(df)
-    st.session_state.df = df
+        st.subheader("🧹 Missing Value Setelah Penanganan")
+        missing_after = df.isnull().sum()
+        for col, count in missing_after.items():
+            if count > 0:
+                st.markdown(f"- **{col}**: {count} missing value")
+        if missing_after.sum() == 0:
+            st.success("Semua missing value telah berhasil ditangani!")
 
-    st.subheader("🧹 Missing Value Setelah Penanganan")
-    missing_after = df.isnull().sum()
-    for col, count in missing_after.items():
-        if count > 0:
-            st.markdown(f"- **{col}**: {count} missing value")
-    if missing_after.sum() == 0:
-        st.success("Semua missing value telah berhasil ditangani!")
+        st.subheader("Plot Outlier Sebelum Penanganan")
+        # Membuat 2 baris dan 3 kolom untuk 6 boxplot
+        fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
+        axes = axes.flatten()  # Mempermudah akses ke setiap subplot
 
-    st.subheader("Plot Outlier Sebelum Penanganan")
-    # Membuat 2 baris dan 3 kolom untuk 6 boxplot
-    fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
-    axes = axes.flatten()  # Mempermudah akses ke setiap subplot
+        # Iterasi untuk menampilkan boxplot untuk setiap kolom
+        for i, col in enumerate(numeric_columns[:6]):  # Mengambil 6 kolom pertama
+            sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
+            axes[i].set_title(f"Boxplot {col}")
 
-    # Iterasi untuk menampilkan boxplot untuk setiap kolom
-    for i, col in enumerate(numeric_columns[:6]):  # Mengambil 6 kolom pertama
-        sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
-        axes[i].set_title(f"Boxplot {col}")
+        # Menampilkan figure
+        st.pyplot(fig)
 
-    # Menampilkan figure
-    st.pyplot(fig)
+        st.subheader("Plot Outlier Setelah Penanganan")
+        # Mengatasi outlier dan plot boxplot setelah penanganan
+        for col in feature_outlier[:6]:  # Menyesuaikan agar hanya 6 kolom pertama yang diproses
+            handle_outliers_iqr(df, col)
 
-    st.subheader("Plot Outlier Setelah Penanganan")
-    # Mengatasi outlier dan plot boxplot setelah penanganan
-    for col in feature_outlier[:6]:  # Menyesuaikan agar hanya 6 kolom pertama yang diproses
-        handle_outliers_iqr(df, col)
+        # Membuat 2 baris dan 3 kolom untuk 6 boxplot
+        fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
+        axes = axes.flatten()  # Mempermudah akses ke setiap subplot
 
-    # Membuat 2 baris dan 3 kolom untuk 6 boxplot
-    fig, axes = plt.subplots(2, 3, figsize=(18, 8))  # Ukuran figure yang lebih besar untuk 6 boxplot
-    axes = axes.flatten()  # Mempermudah akses ke setiap subplot
+        # Iterasi untuk menampilkan boxplot untuk setiap kolom
+        for i, col in enumerate(feature_outlier[:6]):  # Mengambil 6 kolom pertama
+            sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
+            axes[i].set_title(f"Boxplot {col}")
 
-    # Iterasi untuk menampilkan boxplot untuk setiap kolom
-    for i, col in enumerate(feature_outlier[:6]):  # Mengambil 6 kolom pertama
-        sns.boxplot(x=df[col], ax=axes[i])  # Plot boxplot pada subplot yang sesuai
-        axes[i].set_title(f"Boxplot {col}")
+        # Menampilkan figure
+        st.pyplot(fig)
 
-    # Menampilkan figure
-    st.pyplot(fig)
+        scaler = RobustScaler()
+        df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
+        X = df[scaling_columns].values
 
-    scaler = RobustScaler()
-    df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
-    X = df[scaling_columns].values
+        st.subheader("Data Setelah Scaling")
+        st.dataframe(df[scaling_columns].head())
 
-    st.subheader("Data Setelah Scaling")
-    st.dataframe(df[scaling_columns].head())
+        st.subheader("EDA")
+        st.dataframe(df[scaling_columns].describe().T)
 
-    st.subheader("EDA")
-    st.dataframe(df[scaling_columns].describe().T)
+        # Membuat satu figure dengan 3 subplot
+        fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1 baris, 3 kolom untuk subplot
+        axes = axes.flatten()  # Flatten untuk memudahkan akses subplot
 
-    # Membuat satu figure dengan 3 subplot
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6))  # 1 baris, 3 kolom untuk subplot
-    axes = axes.flatten()  # Flatten untuk memudahkan akses subplot
+        # Iterasi untuk menampilkan histogram untuk setiap kolom
+        for i, column in enumerate(df[scaling_columns][:3]):  # Mengambil 3 kolom pertama
+            sns.histplot(df[column], kde=True, ax=axes[i])  # Plot histogram pada subplot yang sesuai
+            axes[i].set_title(f'Histogram of {column}')
+            axes[i].set_xlabel(column)
+            axes[i].set_ylabel('Density')
 
-    # Iterasi untuk menampilkan histogram untuk setiap kolom
-    for i, column in enumerate(df[scaling_columns][:3]):  # Mengambil 3 kolom pertama
-        sns.histplot(df[column], kde=True, ax=axes[i])  # Plot histogram pada subplot yang sesuai
-        axes[i].set_title(f'Histogram of {column}')
-        axes[i].set_xlabel(column)
-        axes[i].set_ylabel('Density')
+        # Menampilkan figure
+        st.pyplot(fig)
 
-    # Menampilkan figure
-    st.pyplot(fig)
+        correlation_matrix_selected = df[scaling_columns].corr()
+        fig, ax = plt.subplots(figsize=(10, 8))
+        sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
+        ax.set_title("Correlation Heatmap for Selected Features")
+        st.pyplot(fig)
 
-    correlation_matrix_selected = df[scaling_columns].corr()
-    fig, ax = plt.subplots(figsize=(10, 8))
-    sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
-    ax.set_title("Correlation Heatmap for Selected Features")
-    st.pyplot(fig)
+        model_filename = "mean_shift_model_bandwidth_1.5.joblib"
+        ms_final = joblib.load(model_filename)
+        st.success("Model Mean Shift berhasil dimuat!")
 
-    model_filename = "mean_shift_model_bandwidth_1.5.joblib"
-    ms_final = joblib.load(model_filename)
-    st.success("Model Mean Shift berhasil dimuat!")
+        st.session_state.df['cluster_labels'] = ms_final.predict(X)
+        st.success("Prediksi cluster selesai!")
 
-    st.session_state.df['cluster_labels'] = ms_final.predict(X)
-    st.success("Prediksi cluster selesai!")
-
-if visualisasi:
+with tabs[2]:
     # Cek apakah 'df' ada dan apakah kolom 'cluster_labels' tersedia
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
