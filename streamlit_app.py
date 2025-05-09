@@ -204,6 +204,7 @@ elif tab == "Pemodelan":
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
 
+elif tab == "Visualisasi":
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
         ms_final = st.session_state.get('ms_final', None)
@@ -227,30 +228,6 @@ elif tab == "Pemodelan":
             "Klaster 1": cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
         })
 
-elif tab == "Visualisasi":
-    if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
-        df = st.session_state.df.copy()
-        ms_final = st.session_state.get('ms_final', None)
-
-        # cluster_0_df = df[df['cluster_labels'] == 0]
-        # cluster_1_df = df[df['cluster_labels'] == 1]
-        # st.write("🔵 **Data Cluster 0**")
-        # st.dataframe(cluster_0_df)
-        # st.write("🟠 **Data Cluster 1**")
-        # st.dataframe(cluster_1_df)
-
-        # st.subheader("Statistik Deskriptif Cluster 0 dan Cluster 1")
-        # st.write("**Cluster 0**")
-        # st.dataframe(cluster_0_df.describe())
-        # st.write("**Cluster 1**")
-        # st.dataframe(cluster_1_df.describe())
-
-        # st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
-        # avg_df = pd.DataFrame({
-        #     "Klaster 0": cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean(),
-        #     "Klaster 1": cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
-        # })
-
         fig, ax = plt.subplots(figsize=(8, 5))
         avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
         for i, cluster in enumerate(avg_df.columns):
@@ -262,6 +239,7 @@ elif tab == "Visualisasi":
         st.pyplot(fig)
     else:
         st.warning("Data belum tersedia atau clustering belum dijalankan.")
+
 
 
 
