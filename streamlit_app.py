@@ -41,10 +41,25 @@ def handle_missing_values(df):
         median = df[col].median()
         df[col] = df[col].fillna(median)
 
-tab = st.sidebar.selectbox("Pilih Menu", ["Halaman Utama", "Upload Data", "Pemodelan", "Visualisasi"])
+# tab = st.sidebar.selectbox("Pilih Menu", ["Halaman Utama", "Upload Data", "Pemodelan", "Visualisasi"])
 
+if 'selected_tab' not in st.session_state:
+    st.session_state.selected_tab = 'Halaman Utama'
 
-if tab == "Halaman Utama":
+# Fungsi untuk mengatur tab yang dipilih
+def set_tab(tab_name):
+    st.session_state.selected_tab = tab_name
+
+# Sidebar dengan tombol-tombol navigasi
+with st.sidebar:
+    st.markdown("## 📂 Navigasi")
+    tabs = ["Halaman Utama", "Upload Data", "Pemodelan", "Visualisasi"]
+    for tab in tabs:
+        if st.button(tab):
+            set_tab(tab)
+            
+if st.session_state.selected_tab == "Halaman Utama":
+# if tab == "Halaman Utama":
     st.write("""
     Selamat datang di platform analisis wilayah berbasis pengelolaan sampah
     Melalui pendekatan data dan metode klastering, kami menyajikan gambaran menyeluruh tentang bagaimana berbagai daerah di Indonesia menangani permasalahan sampah. 
@@ -54,7 +69,8 @@ if tab == "Halaman Utama":
     """)
 
     # Jika menu Upload Data dipilih
-elif tab == "Upload Data":
+elif st.session_state.selected_tab == "Upload Data":
+# elif tab == "Upload Data":
     uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
     
     if uploaded_file:
@@ -146,8 +162,8 @@ elif tab == "Upload Data":
         ax.set_title("Correlation Heatmap for Selected Features")
         st.pyplot(fig)
 
-
-elif tab == "Pemodelan":
+elif st.session_state.selected_tab == "Pemodelan":
+# elif tab == "Pemodelan":
     if 'df' in st.session_state:
         df = st.session_state.df.copy()
         X = df[scaling_columns].values
@@ -204,7 +220,8 @@ elif tab == "Pemodelan":
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
 
-elif tab == "Visualisasi":
+elif st.session_state.selected_tab == "Visualisasi":    
+# elif tab == "Visualisasi":
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
         ms_final = st.session_state.get('ms_final', None)
