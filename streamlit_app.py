@@ -252,26 +252,6 @@ elif tab == "Visualisasi":
         ax.set_ylabel("Rata-rata Persentase")
         st.pyplot(fig)
 
-        # Visualisasi 3D
-        st.subheader("Visualisasi Klaster 3D")
-        if ms_final is not None:
-            labels = df['cluster_labels']
-            cluster_centers = ms_final.cluster_centers_
-
-            fig = plt.figure(figsize=(10, 6))
-            ax = fig.add_subplot(111, projection='3d')
-
-            ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
-                       c=labels, cmap='plasma', marker='o', label='Data Points')
-
-            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-                       s=250, c='blue', marker='X', label='Cluster Centers')
-
-            ax.set_xlabel('Sampah Tahunan')
-            ax.set_ylabel('Pengurangan Sampah')
-            ax.set_zlabel('Penanganan Sampah')
-            ax.legend()
-            st.pyplot(fig)
         else:
             st.error("Model belum dimuat atau tidak ditemukan. Silakan jalankan clustering terlebih dahulu.")
     else:
