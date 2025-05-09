@@ -43,10 +43,10 @@ def handle_missing_values(df):
         df[col] = df[col].fillna(median)
 
 # Membuat dua tab: Upload Data dan Visualisasi
-tab1, tab2 = st.tabs(["📤 Upload Data & Preprocessing", "📊 Visualisasi"])
+col1, col2 = st.columns(2)
 
 # Tab 1: Upload Data
-with tab1:
+with col1:
     st.header("📤 Upload Data & Preprocessing")
     uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
 
@@ -155,7 +155,7 @@ with tab1:
         st.success("Prediksi cluster selesai!")
 
 # Tab 2: Visualisasi
-with tab2:
+with col2:
     if 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
 
