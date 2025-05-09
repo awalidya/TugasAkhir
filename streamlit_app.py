@@ -216,11 +216,11 @@ elif tab == "Visualisasi":
         st.write("🟠 **Data Cluster 1**")
         st.dataframe(cluster_1_df)
 
-        st.subheader("Statistik Deskriptif Cluster 0 dan Cluster 1")
-        st.write("**Cluster 0**")
-        st.dataframe(cluster_0_df.describe())
-        st.write("**Cluster 1**")
-        st.dataframe(cluster_1_df.describe())
+        # st.subheader("Statistik Deskriptif Cluster 0 dan Cluster 1")
+        # st.write("**Cluster 0**")
+        # st.dataframe(cluster_0_df.describe())
+        # st.write("**Cluster 1**")
+        # st.dataframe(cluster_1_df.describe())
 
         st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
         avg_df = pd.DataFrame({
