@@ -72,17 +72,16 @@ if halaman_utama:
         """
     )    
 
-# Menampilkan teks drag file jika belum ada file yang diupload
-if not uploaded_file:
-    with st.sidebar.empty():
-        st.write("👈 Drag file here to upload")
+# ✅ Perubahan: Hapus tombol upload, langsung tampilkan file uploader
+uploaded_file = st.sidebar.file_uploader("Upload file CSV", type=["csv"])
+# input_data = st.sidebar.button("Input Data Manual")
 
-# Menampilkan proses setelah file diupload
+# ✅ Perubahan: Jalankan proses jika file sudah diupload
 if uploaded_file:
     df = load_data(uploaded_file)
     st.session_state.df = df
     st.success("Data berhasil diunggah!")
-    st.dataframe(df.head())
+    st.dataframe(df)
 
     # Proses pemodelan
     df = st.session_state.df
