@@ -74,14 +74,11 @@ if halaman_utama:
 
 
 # Menampilkan file uploader hanya setelah tombol di-click
-if upload_button:
-    uploaded_file = st.sidebar.file_uploader("Drag file here to upload", type=["csv"])
-
-    if uploaded_file:
-        df = load_data(uploaded_file)
-        st.session_state.df = df
-        st.success("Data berhasil diunggah!")
-        st.dataframe(df)
+if uploaded_file:
+    df = load_data(uploaded_file)
+    st.session_state.df = df
+    st.success("Data berhasil diunggah!")
+    st.dataframe(df)
 
     # Proses pemodelan
     df = st.session_state.df
