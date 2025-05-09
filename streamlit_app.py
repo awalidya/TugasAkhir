@@ -145,20 +145,20 @@ elif tab == "Upload Data":
         ax.set_title("Correlation Heatmap for Selected Features")
         st.pyplot(fig)
 
-        # Load model
-        model_filename = "mean_shift_model_bandwidth_1.5.joblib"
-        try:
-            ms_final = joblib.load(model_filename)
-            st.success("Model Mean Shift berhasil dimuat!")
-        except Exception as e:
-            st.error(f"Terjadi kesalahan saat memuat model: {e}")
-            ms_final = None
+        # # Load model
+        # model_filename = "mean_shift_model_bandwidth_1.5.joblib"
+        # try:
+        #     ms_final = joblib.load(model_filename)
+        #     st.success("Model Mean Shift berhasil dimuat!")
+        # except Exception as e:
+        #     st.error(f"Terjadi kesalahan saat memuat model: {e}")
+        #     ms_final = None
 
-        if ms_final is not None and hasattr(ms_final, 'cluster_centers_'):
-            st.session_state.df['cluster_labels'] = ms_final.predict(X)
-            st.success("Prediksi cluster selesai!")
-        else:
-            st.error("Model Mean Shift gagal dimuat atau tidak memiliki cluster_centers_.")
+        # if ms_final is not None and hasattr(ms_final, 'cluster_centers_'):
+        #     st.session_state.df['cluster_labels'] = ms_final.predict(X)
+        #     st.success("Prediksi cluster selesai!")
+        # else:
+        #     st.error("Model Mean Shift gagal dimuat atau tidak memiliki cluster_centers_.")
 
 
 elif tab == "Visualisasi":
