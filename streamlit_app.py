@@ -55,10 +55,11 @@ def handle_missing_values(df):
         median = df[col].median()
         df[col] = df[col].fillna(median)
 
-# Menampilkan tabs untuk navigasi
-tabs = st.tabs(["Halaman Utama", "Upload & Proses Data", "Visualisasi"])
+# Menampilkan menu tab di sidebar
+tab = st.sidebar.selectbox("Pilih Menu", ["Halaman Utama", "Upload Data", "Visualisasi"])
 
-with tabs[0]:
+# Jika menu Halaman Utama dipilih
+if tab == "Halaman Utama":
     st.write(
         """
         Selamat datang di platform analisis wilayah berbasis pengelolaan sampah
@@ -69,8 +70,10 @@ with tabs[0]:
         """
     )
 
-with tabs[1]:
+# Jika menu Upload Data dipilih
+elif tab == "Upload Data":
     uploaded_file = st.file_uploader("Upload file CSV", type=["csv"])
+    
     if uploaded_file:
         df = load_data(uploaded_file)
         st.session_state.df = df
@@ -160,14 +163,23 @@ with tabs[1]:
         ax.set_title("Correlation Heatmap for Selected Features")
         st.pyplot(fig)
 
+        # Load model
         model_filename = "mean_shift_model_bandwidth_1.5.joblib"
-        ms_final = joblib.load(model_filename)
-        st.success("Model Mean Shift berhasil dimuat!")
+        try:
+            ms_final = joblib.load(model_filename)
+            st.success("Model Mean Shift berhasil dimuat!")
+        except Exception as e:
+            st.error(f"Terjadi kesalahan saat memuat model: {e}")
+            ms_final = None
 
-        st.session_state.df['cluster_labels'] = ms_final.predict(X)
-        st.success("Prediksi cluster selesai!")
+        if ms_final is not None and hasattr(ms_final, 'cluster_centers_'):
+            st.session_state.df['cluster_labels'] = ms_final.predict(X)
+            st.success("Prediksi cluster selesai!")
+        else:
+            st.error("Model Mean Shift gagal dimuat atau tidak memiliki cluster_centers_.")
 
-with tabs[2]:
+# Jika menu Visualisasi dipilih
+elif tab == "Visualisasi":
     # Cek apakah 'df' ada dan apakah kolom 'cluster_labels' tersedia
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
@@ -206,26 +218,27 @@ with tabs[2]:
 
         st.subheader("Visualisasi Klaster 3D")
         labels = df['cluster_labels']
-        cluster_centers = ms_final.cluster_centers_
+        if ms_final is not None:
+            cluster_centers = ms_final.cluster_centers_
 
-        fig = plt.figure(figsize=(10, 6))
-        ax = fig.add_subplot(111, projection='3d')
+            fig = plt.figure(figsize=(10, 6))
+            ax = fig.add_subplot(111, projection='3d')
 
-        # Plot data points
-        ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
-                c=labels, cmap='plasma', marker='o', label='Data Points')
+            # Plot data points
+            ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
+                    c=labels, cmap='plasma', marker='o', label='Data Points')
 
-        # Plot cluster centers
-        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-                s=250, c='blue', marker='X', label='Cluster Centers')
+            # Plot cluster centers
+            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+                    s=250, c='blue', marker='X', label='Cluster Centers')
 
-        # Set axis labels
-        ax.set_xlabel('Sampah Tahunan')
-        ax.set_ylabel('Pengurangan Sampah')
-        ax.set_zlabel('Penanganan Sampah')
+            # Set axis labels
+            ax.set_xlabel('Sampah Tahunan')
+            ax.set_ylabel('Pengurangan Sampah')
+            ax.set_zlabel('Penanganan Sampah')
 
-        # Menambahkan legenda
-        ax.legend()
+            # Menambahkan legenda
+            ax.legend()
 
-        # Menampilkan grafik 3D
-        st.pyplot(fig)
+            # Menampilkan grafik 3D
+            st.pyplot(fig)
