@@ -40,16 +40,24 @@ def handle_missing_values(df):
     for col in df.select_dtypes(include=[np.number]).columns:
         median = df[col].median()
         df[col] = df[col].fillna(median)
+        
+# Inisialisasi tab default
+if 'tab' not in st.session_state:
+    st.session_state.tab = "Halaman Utama"
 
-# Button untuk memilih tab
+# Sidebar navigasi dengan tombol
+st.sidebar.markdown("## Navigasi")
 if st.sidebar.button("Halaman Utama"):
-    tab = "Halaman Utama"
-elif st.sidebar.button("Upload Data"):
-    tab = "Upload Data"
-elif st.sidebar.button("Pemodelan"):
-    tab = "Pemodelan"
-elif st.sidebar.button("Visualisasi"):
-    tab = "Visualisasi"
+    st.session_state.tab = "Halaman Utama"
+if st.sidebar.button("Upload Data"):
+    st.session_state.tab = "Upload Data"
+if st.sidebar.button("Pemodelan"):
+    st.session_state.tab = "Pemodelan"
+if st.sidebar.button("Visualisasi"):
+    st.session_state.tab = "Visualisasi"
+
+# Gunakan tab yang tersimpan di session_state
+tab = st.session_state.tab
 
 
 if tab == "Halaman Utama":
