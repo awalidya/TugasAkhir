@@ -217,3 +217,65 @@ if uploaded_file:
 
         # Menampilkan grafik 3D
         st.pyplot(fig)
+
+if visualisasi:
+    if 'cluster_labels' in st.session_state.df.columns:
+        df = st.session_state.df.copy()
+
+        st.subheader("Data Cluster 0 dan Cluster 1")
+        cluster_0_df = df[df['cluster_labels'] == 0]
+        cluster_1_df = df[df['cluster_labels'] == 1]
+
+        st.write("🔵 **Data Cluster 0**")
+        st.dataframe(cluster_0_df)
+
+        st.write("🟠 **Data Cluster 1**")
+        st.dataframe(cluster_1_df)
+
+        st.subheader("Statistik Deskriptif Cluster 0 dan Cluster 1")
+        st.write("**Statistik Deskriptif Cluster 0**")
+        st.dataframe(cluster_0_df.describe())
+
+        st.write("**Statistik Deskriptif Cluster 1**")
+        st.dataframe(cluster_1_df.describe())
+
+        st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
+        cluster_0_avg = cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean()
+        cluster_1_avg = cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
+        avg_df = pd.DataFrame({"Klaster 0": cluster_0_avg, "Klaster 1": cluster_1_avg})
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
+        for i, cluster in enumerate(avg_df.columns):
+            for j, val in enumerate(avg_df[cluster]):
+                ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
+        ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan")
+        ax.set_xlabel("Klaster")
+        ax.set_ylabel("Rata-rata Persentase")
+        st.pyplot(fig)
+
+        st.subheader("Visualisasi Klaster 3D")
+        labels = df['cluster_labels']
+        cluster_centers = ms_final.cluster_centers_
+
+        fig = plt.figure(figsize=(10, 6))
+        ax = fig.add_subplot(111, projection='3d')
+
+        # Plot data points
+        ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
+                c=labels, cmap='plasma', marker='o', label='Data Points')
+
+        # Plot cluster centers
+        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+                s=250, c='blue', marker='X', label='Cluster Centers')
+
+        # Set axis labels
+        ax.set_xlabel('Sampah Tahunan')
+        ax.set_ylabel('Pengurangan Sampah')
+        ax.set_zlabel('Penanganan Sampah')
+
+        # Menambahkan legenda
+        ax.legend()
+
+        # Menampilkan grafik 3D
+        st.pyplot(fig)
