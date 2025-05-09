@@ -171,7 +171,8 @@ if uploaded_file:
     st.success("Prediksi cluster selesai!")
 
 if visualisasi:
-    if 'cluster_labels' in st.session_state.df.columns:
+    # Cek apakah 'df' ada dan apakah kolom 'cluster_labels' tersedia
+    if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
 
         st.subheader("Data Cluster 0 dan Cluster 1")
