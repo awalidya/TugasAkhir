@@ -46,7 +46,6 @@ if 'tab' not in st.session_state:
     st.session_state.tab = "Halaman Utama"
 
 # Sidebar navigasi dengan tombol
-st.sidebar.markdown("## Navigasi")
 if st.sidebar.button("Halaman Utama"):
     st.session_state.tab = "Halaman Utama"
 if st.sidebar.button("Upload Data"):
