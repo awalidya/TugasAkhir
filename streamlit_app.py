@@ -45,7 +45,11 @@ tab = st.sidebar.selectbox("Pilih Menu", ["Halaman Utama", "Upload Data", "Visua
 
 if tab == "Halaman Utama":
     st.write("""
-    Selamat datang di platform analisis wilayah berbasis pengelolaan sampah...
+    Selamat datang di platform analisis wilayah berbasis pengelolaan sampah
+    Melalui pendekatan data dan metode klastering, kami menyajikan gambaran menyeluruh tentang bagaimana berbagai daerah di Indonesia menangani permasalahan sampah. 
+    Dengan memetakan wilayah berdasarkan pola pengurangan, penanganan, dan daur ulang sampah, platform ini diharapkan dapat menjadi acuan bagi pengambil kebijakan, 
+    peneliti, maupun masyarakat umum dalam mendorong pengelolaan sampah yang lebih efektif dan berkelanjutan. 
+    Mari bersama menciptakan lingkungan yang lebih bersih dan sehat melalui keputusan berbasis data
     """)
 
 elif tab == "Upload Data":
