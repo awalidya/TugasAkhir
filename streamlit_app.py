@@ -222,7 +222,6 @@ elif tab == "Visualisasi":
         df = st.session_state.df.copy()
         ms_final = st.session_state.get('ms_final', None)
 
-        st.subheader("Data Cluster 0 dan Cluster 1")
         cluster_0_df = df[df['cluster_labels'] == 0]
         cluster_1_df = df[df['cluster_labels'] == 1]
         st.write("🔵 **Data Cluster 0**")
