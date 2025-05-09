@@ -23,7 +23,7 @@ st.markdown("""
 
     .custom-title {
         font-family: 'Roboto', sans-serif;
-        font-size: 24px;
+        font-size: 9px;
         font-weight: bold;
         margin-top: 15px;
     }
