@@ -359,113 +359,52 @@ if uploaded_file:
     st.session_state.df['cluster_labels'] = ms_final.predict(X_scaled)
     st.success("Prediksi cluster selesai!")
 
-    # Tampilkan hasil clustering di bawah
-    if 'cluster_labels' in st.session_state.df.columns:
+elif menu_pilihan == "Visualisasi":
+    st.subheader("Visualisasi Hasil Clustering")
+
+    if 'cluster_labels' not in st.session_state.df.columns:
+        st.warning("Data belum diproses untuk clustering. Silakan jalankan proses klasterisasi terlebih dahulu.")
+    else:
         df = st.session_state.df.copy()
 
-        st.subheader("Data Cluster 0 dan Cluster 1")
-        cluster_0_df = df[df['cluster_labels'] == 0]
-        cluster_1_df = df[df['cluster_labels'] == 1]
+        st.subheader("Data per Cluster")
+        cluster_labels = df['cluster_labels'].unique()
+        for label in sorted(cluster_labels):
+            st.write(f"🔹 **Data Cluster {label}**")
+            st.dataframe(df[df['cluster_labels'] == label])
 
-        st.write("🔵 **Data Cluster 0**")
-        st.dataframe(cluster_0_df)
-
-        st.write("🟠 **Data Cluster 1**")
-        st.dataframe(cluster_1_df)
-
-        # Rata-rata untuk visualisasi
         st.subheader("Rata-rata Persentase Pengurangan & Penanganan per Cluster")
-        cluster_0_avg = cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean()
-        cluster_1_avg = cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
-        avg_df = pd.DataFrame({"Klaster 0": cluster_0_avg, "Klaster 1": cluster_1_avg})
+        avg_df = df.groupby('cluster_labels')[['perc_pengurangan', 'perc_penanganan']].mean().T
 
         fig, ax = plt.subplots(figsize=(8, 5))
-        avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
+        avg_df.plot(kind='bar', ax=ax, color=['blue', 'orange'])
         for i, cluster in enumerate(avg_df.columns):
             for j, val in enumerate(avg_df[cluster]):
                 ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
-        ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan")
-        ax.set_xlabel("Klaster")
+        ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan per Klaster")
+        ax.set_xlabel("Variabel")
         ax.set_ylabel("Rata-rata Persentase")
         st.pyplot(fig)
 
-        # Visualisasi 3D clustering
         st.subheader("Visualisasi 3D Hasil Clustering")
         fig = plt.figure(figsize=(10, 6))
         ax = fig.add_subplot(111, projection='3d')
 
-        # Plot titik data berdasarkan hasil clustering
         ax.scatter(df['sampah_tahunan'], df['pengurangan'], df['penanganan'],
-                   c=df['cluster_labels'], cmap='plasma', marker='o', label='Data Points')
+                   c=df['cluster_labels'], cmap='plasma', marker='o')
 
-        # Plot pusat klaster (asumsi Anda memiliki data cluster_centers)
-        cluster_centers = ms_final.cluster_centers_  # Asumsi center didapat dari model Mean Shift
-        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-                   s=250, c='blue', marker='X', label='Cluster Centers')
+        if hasattr(st.session_state, 'model') and hasattr(st.session_state.model, 'cluster_centers_'):
+            cluster_centers = st.session_state.model.cluster_centers_
+            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+                       s=250, c='blue', marker='X', label='Cluster Centers')
 
-        # Menambahkan label sumbu
         ax.set_xlabel('Sampah Tahunan')
         ax.set_ylabel('Pengurangan')
         ax.set_zlabel('Penanganan')
-
-        # Menambahkan judul dan legenda
-        plt.title('3D Mean Shift Clustering')
+        ax.set_title('3D Mean Shift Clustering')
         ax.legend()
-
-        # Menampilkan plot
         st.pyplot(fig)
 
 
-# Inisialisasi session state
-if 'input_manual' not in st.session_state:
-    st.session_state.input_manual = False
 
-# Tombol toggle
-if not st.session_state.input_manual:
-    if st.sidebar.button("Input Data Manual"):
-        st.session_state.input_manual = True
-else:
-    if st.sidebar.button("Tutup Input Manual"):
-        st.session_state.input_manual = False
-
-# Form input manual
-if st.session_state.input_manual:
-    st.subheader("📝 Input Data Manual (tanpa Sampah Harian)")
-    sampah_tahunan = st.number_input("Sampah Tahunan", min_value=0.0)
-    pengurangan = st.number_input("Pengurangan", min_value=0.0)
-    penanganan = st.number_input("Penanganan", min_value=0.0)
-
-    if st.button("Proses Data Manual"):
-        input_data = np.array([[sampah_tahunan, pengurangan, penanganan]])
-        st.write("📊 Data yang dimasukkan:")
-        st.write(pd.DataFrame(input_data, columns=["Sampah Tahunan", "Pengurangan", "Penanganan"]))
-
-        try:
-            scaler = st.session_state.scaler  # Ambil dari session state
-            input_scaled = scaler.transform(input_data)
-
-            cluster_label = ms_final.predict(input_scaled)
-            st.success(f"✅ Data dimasukkan ke dalam Klaster: {cluster_label[0]}")
-        except KeyError:
-            st.error("❌ Scaler belum tersedia. Silakan unggah data terlebih dahulu.")
-        except Exception as e:
-            st.error(f"❌ Terjadi kesalahan: {e}")
-
-elif menu == "Visualisasi":
-    st.subheader("Total Nilai Beberapa Variabel")
-
-    # Pastikan kolom sudah tersedia di dataframe
-    total_tahunan = df['Sampah_Tahunan'].sum()
-    total_harian = df['Sampah_Harian'].sum()
-    total_pengurangan = df['Pengurangan'].sum()
-    total_penanganan = df['Penanganan'].sum()
-
-    # Tampilkan dengan metric
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric(label="Total Sampah Tahunan", value=f"{total_tahunan:,.0f} ton")
-        st.metric(label="Total Pengurangan", value=f"{total_pengurangan:,.0f} ton")
-    with col2:
-        st.metric(label="Total Sampah Harian", value=f"{total_harian:,.0f} ton")
-        st.metric(label="Total Penanganan", value=f"{total_penanganan:,.0f} ton")
 
