@@ -263,13 +263,6 @@ elif st.session_state.selected_tab == "Pemodelan":
            st.write("🟠 **Data Cluster 1**")
            st.dataframe(cluster_1_df)
            
-           # Ringkasan total sampah tahunan per klaster
-           sum_tahunan_0 = cluster_0_df['sampah_tahunan'].sum()
-           sum_pengurangan_0 = cluster_0_df['pengurangan'].sum()
-           sum_penanganan_0 = cluster_0_df['penanganan'].sum()
-           sum_tahunan_1 = cluster_1_df['sampah_tahunan'].sum()
-           sum_pengurangan_1 = cluster_1_df['pengurangan'].sum()
-           sum_penanganan_1 = cluster_1_df['penanganan'].sum()
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
  
@@ -277,6 +270,14 @@ elif st.session_state.selected_tab == "Visualisasi":
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
         ms_final = st.session_state.get('ms_final', None)
+
+        # Ringkasan total sampah tahunan per klaster
+        sum_tahunan_0 = cluster_0_df['sampah_tahunan'].sum()
+        sum_pengurangan_0 = cluster_0_df['pengurangan'].sum()
+        sum_penanganan_0 = cluster_0_df['penanganan'].sum()
+        sum_tahunan_1 = cluster_1_df['sampah_tahunan'].sum()
+        sum_pengurangan_1 = cluster_1_df['pengurangan'].sum()
+        sum_penanganan_1 = cluster_1_df['penanganan'].sum()
         
         st.markdown("### Klaster 0")
         col1, col2, col3 = st.columns(3)
