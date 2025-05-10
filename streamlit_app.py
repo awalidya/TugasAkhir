@@ -331,7 +331,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             st.markdown(f"""
                 <div style='background-color:#e0f7fa; padding:15px; border-radius:10px; text-align:center;'>
                     <h4>Pengurangan</h4>
-                    <p style='font-size:24px; font-weight:bold;'>{sum_pengurangan_0:,.0f}</p>
+                    <p style='font-size:24px; font-weight:bold;'>{sum_penanganann_0:,.0f}</p>
                     <p>ton/tahun</p>
                 </div>
                 """, unsafe_allow_html=True)
