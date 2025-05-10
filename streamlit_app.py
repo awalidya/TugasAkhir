@@ -23,15 +23,17 @@ st.markdown("""
 
     .custom-title {
         font-family: 'Garamond', sans-serif;
-        font-size: 16px;
+        font-size: 24px;
         font-weight: bold;
-        display: inline;
-        margin-left: 10px;
-        vertical-align: middle;
-        margin-top: 10px;  # Menambah margin-top agar teks turun
+        display: block;
+    }
+
+    .move-down {
+        margin-top: 60px; /* Atur sesuai kebutuhan */
     }
     </style>
-    """, unsafe_allow_html=True)
+""", unsafe_allow_html=True)
+
 
 # Sidebar dengan logo dan judul
 with st.sidebar:
@@ -42,7 +44,7 @@ with st.sidebar:
             width=200
         )
     with col2:
-        st.markdown("<span class='custom-title'>Trash</span>", unsafe_allow_html=True)
+        st.markdown("<span class='custom-title move-down'>Trash</span>", unsafe_allow_html=True)
         st.markdown("<span class='custom-title'>Achievemnet</span>", unsafe_allow_html=True)
 
 numeric_columns = [
