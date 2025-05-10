@@ -263,8 +263,8 @@ elif st.session_state.selected_tab == "Pemodelan":
             st.write("🟠 **Data Cluster 1**")
             st.dataframe(cluster_1_df)
                
-        else:
-            st.warning("Silakan unggah data terlebih dahulu.")
+    else:
+        st.warning("Silakan unggah data terlebih dahulu.")
  
 elif st.session_state.selected_tab == "Visualisasi": 
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
