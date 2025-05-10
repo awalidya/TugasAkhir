@@ -248,10 +248,8 @@ elif st.session_state.selected_tab == "Pemodelan":
                 st.warning("Tidak bisa menghitung DBI/Silhouette karena hanya ada 1 klaster.")
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
-
-
-elif st.session_state.selected_tab == "Visualisasi":    
-    if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
+        
+     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
         ms_final = st.session_state.get('ms_final', None)
 
@@ -271,6 +269,7 @@ elif st.session_state.selected_tab == "Visualisasi":
         sum_pengurangan_1 = cluster_1_df['pengurangan'].sum()
         sum_penanganan_1 = cluster_1_df['penanganan'].sum()
 
+elif st.session_state.selected_tab == "Visualisasi":    
         st.markdown("### Klaster 0")
         col1, col2, col3 = st.columns(3)
         with col1:
