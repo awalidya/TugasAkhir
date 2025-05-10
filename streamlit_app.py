@@ -10,29 +10,32 @@ from mpl_toolkits.mplot3d import Axes3D
 st.set_page_config(layout="wide")
 st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah")
 
-# # Logo di sidebar
-# st.sidebar.image(
-#     "https://raw.githubusercontent.com/awalidya/TugasAkhir/main/logo%20sampah.png",
-#     width=150
-# )
 
 # Menyisipkan font kustom dari Google Fonts
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 
+    /* Ubah background sidebar */
+    div[data-testid="stSidebar"] {
+        background-color: #BEE4D0; /* Soft orange */
+        color: black; /* Warna teks */
+    }
+
     .custom-title {
         font-family: 'Garamond', sans-serif;
         font-size: 20px;
         font-weight: bold;
         display: block;
+        color: #d84315; /* Warna teks judul (merah-oranye) */
     }
 
     .move-down {
-        margin-top: 60px; /* Atur sesuai kebutuhan */
+        margin-top: 60px;
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 # Sidebar dengan logo dan judul
