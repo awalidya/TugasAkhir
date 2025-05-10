@@ -21,7 +21,7 @@ st.markdown("""
     }
 
     .custom-title {
-        font-family: 'Railey', sans-serif;
+        font-family: 'Adam Script', sans-serif;
         font-size: 20px;
         font-weight: bold;
         display: block;
