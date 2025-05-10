@@ -367,5 +367,22 @@ elif st.session_state.selected_tab == "Visualisasi":
         else:
             st.warning("Data belum tersedia atau clustering belum dijalankan.")
 
+        
+        # Pilih hanya kolom yang ingin ditampilkan
+        tabel_klaster_0 = cluster_0_df[['wilayah', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
+        
+        # Pilihan urutan
+        sort_order = st.selectbox(
+            "Urutkan Klaster 0 berdasarkan jumlah sampah tahunan:",
+            options=["Terbesar ke Terkecil", "Terkecil ke Terbesar"]
+        )
+        
+        # Urutkan data sesuai pilihan
+        ascending_order = True if sort_order == "Terkecil ke Terbesar" else False
+        tabel_klaster_0_sorted = tabel_klaster_0.sort_values(by="sampah_tahunan", ascending=ascending_order)
+        
+        # Tampilkan tabel
+        st.markdown("### 📋 Tabel Klaster 0")
+        st.dataframe(tabel_klaster_0_sorted, use_container_width=True)
 
 
