@@ -382,10 +382,10 @@ elif st.session_state.selected_tab == "Visualisasi":
         ascending = True if sort_order == "Ascending" else False
         
         # Urutkan data
-        tabel_sorted = tabel_klaster_0.sort_values(by=sort_column, ascending=ascending)
+        tabel_sorted_0 = tabel_klaster_0.sort_values(by=sort_column, ascending=ascending)
                 
         # Tampilkan tabel
         st.markdown("### 📋 Tabel Klaster 0")
-        st.dataframe(tabel_klaster_0_sorted, use_container_width=True)
+        st.dataframe(tabel_sorted_0, use_container_width=True)
 
 
