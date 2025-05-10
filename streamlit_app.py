@@ -44,7 +44,7 @@ with st.sidebar:
             width=200
         )
     with col2:
-        st.markdown("<span class='custom-title move-down'>Trash Achievemnet</span>", unsafe_allow_html=True)
+        st.markdown("<span class='custom-title move-down'>Trash Achievement</span>", unsafe_allow_html=True)
         
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
@@ -286,7 +286,7 @@ elif st.session_state.selected_tab == "Visualisasi":
         col1, col2, col3 = st.columns(3)
         with col1:
             st.markdown(f"""
-                <div style='background-color:#e0f7fa; padding:15px; border-radius:10px; text-align:center;'>
+                <div style='background-color:#FF0000; padding:15px; border-radius:10px; text-align:center;'>
                     <h4>Sampah Tahunan</h4>
                     <p style='font-size:24px; font-weight:bold;'>{sum_tahunan_0:,.0f}</p>
                     <p>ton/tahun</p>
@@ -295,7 +295,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             
         with col2:
             st.markdown(f"""
-                <div style='background-color:#e0f7fa; padding:15px; border-radius:10px; text-align:center;'>
+                <div style='background-color:#FFFF00; padding:15px; border-radius:10px; text-align:center;'>
                     <h4>Pengurangan</h4>
                     <p style='font-size:24px; font-weight:bold;'>{sum_pengurangan_0:,.0f}</p>
                     <p>ton/tahun</p>
@@ -304,7 +304,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             
         with col3:
             st.markdown(f"""
-                <div style='background-color:#e0f7fa; padding:15px; border-radius:10px; text-align:center;'>
+                <div style='background-color:#FFA500; padding:15px; border-radius:10px; text-align:center;'>
                     <h4>Pengurangan</h4>
                     <p style='font-size:24px; font-weight:bold;'>{sum_penanganan_0:,.0f}</p>
                     <p>ton/tahun</p>
@@ -315,7 +315,7 @@ elif st.session_state.selected_tab == "Visualisasi":
         col1, col2, col3 = st.columns(3)
         with col1:
             st.markdown(f"""
-                <div style='background-color:#ffe0b2; padding:15px; border-radius:10px; text-align:center;'>
+                <div style='background-color:#FF0000; padding:15px; border-radius:10px; text-align:center;'>
                     <h4>Sampah Tahunan</h4>
                     <p style='font-size:24px; font-weight:bold;'>{sum_tahunan_1:,.0f}</p>
                     <p>ton/tahun</p>
@@ -324,7 +324,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             
         with col2:
             st.markdown(f"""
-                <div style='background-color:#ffe0b2; padding:15px; border-radius:10px; text-align:center;'>
+                <div style='background-color:#FFFF00; padding:15px; border-radius:10px; text-align:center;'>
                     <h4>Pengurangan</h4>
                     <p style='font-size:24px; font-weight:bold;'>{sum_pengurangan_1:,.0f}</p>
                     <p>ton/tahun</p>
@@ -333,7 +333,7 @@ elif st.session_state.selected_tab == "Visualisasi":
                
         with col3:
             st.markdown(f"""
-                <div style='background-color:#ffe0b2; padding:15px; border-radius:10px; text-align:center;'>
+                <div style='background-color:#FFA500; padding:15px; border-radius:10px; text-align:center;'>
                     <h4>Penanganan</h4>
                     <p style='font-size:24px; font-weight:bold;'>{sum_penanganan_1:,.0f}</p>
                     <p>ton/tahun</p>
