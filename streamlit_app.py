@@ -12,13 +12,13 @@ st.title("Aplikasi Pengelompokan Wilayah Berdasarkan Capaian Pengelolaan Sampah"
 
 
 # Menyisipkan font kustom dari Google Fonts
+# Masukkan di bagian paling atas sebelum `with st.sidebar:`
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 
-    /* Paksa warna background sidebar */
-    div[data-testid="stSidebar"] {
-        background-color: #A0C878 !important;  /* Soft hijau */
+    section[data-testid="stSidebar"] {
+        background-color: #ffe0b2 !important; /* Soft orange */
         color: black !important;
     }
 
@@ -35,7 +35,6 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
 
 
 
