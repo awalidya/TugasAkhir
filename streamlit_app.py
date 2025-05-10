@@ -374,4 +374,9 @@ elif st.session_state.selected_tab == "Visualisasi":
         st.markdown("### 📋 Tabel Klaster 0")
         st.dataframe(tabel_klaster_0, use_container_width=True)
 
-
+        # Pilih hanya kolom yang ingin ditampilkan
+        tabel_klaster_1 = cluster_1_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
+        
+        # Tampilkan tabel dengan kemampuan pengurutan interaktif
+        st.markdown("### 📋 Tabel Klaster 1")
+        st.dataframe(tabel_klaster_1, use_container_width=True)
