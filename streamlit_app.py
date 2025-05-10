@@ -18,7 +18,7 @@ st.markdown("""
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 
     section[data-testid="stSidebar"] {
-        background-color: #ffe0b2 !important; /* Soft orange */
+        background-color: #DDEB9D !important; /* Soft orange */
         color: black !important;
     }
 
