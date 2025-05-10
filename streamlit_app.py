@@ -20,8 +20,8 @@ st.markdown("""
         color: black !important;
     }
 
-    /* Main content */
-    div[data-testid="stAppViewContainer"] > main {
+    /* Main area */
+    div[data-testid="stAppViewContainer"] > div:first-child {
         background-color: #FAF6E9 !important;  /* Ganti dengan warna yang kamu inginkan */
     }
 
