@@ -20,16 +20,6 @@ st.markdown("""
         color: black !important;
     }
 
-    # /* Main area */
-    # div[data-testid="stAppViewContainer"] > div:first-child {
-    #     background-color: #FAF6E9 !important;  /* Ganti dengan warna yang kamu inginkan */
-    # }
-
-    # /* Optional: Atur warna teks utama */
-    # div[data-testid="stAppViewContainer"] {
-    #     color: black !important;
-    # }
-
     .custom-title {
         font-family: 'Garamond', sans-serif;
         font-size: 20px;
