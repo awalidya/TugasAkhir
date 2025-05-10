@@ -44,9 +44,8 @@ with st.sidebar:
             width=200
         )
     with col2:
-        st.markdown("<span class='custom-title move-down'>Trash</span>", unsafe_allow_html=True)
-        st.markdown("<span class='custom-title'>Achievemnet</span>", unsafe_allow_html=True)
-
+        st.markdown("<span class='custom-title move-down'>Trash Achievemnet</span>", unsafe_allow_html=True)
+        
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
     'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola', 'daur_ulang'
