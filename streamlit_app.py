@@ -328,44 +328,44 @@ elif st.session_state.selected_tab == "Visualisasi":
                     <p>ton/tahun</p>
                 </div>
                 """, unsafe_allow_html=True)
-
+            
         st.markdown("### Klaster 0")
         col1, col2 = st.columns(2)
-        with col1:
-        # st.subheader("📊 Rata-rata Persentase Pengurangan & Penanganan per Cluster")
-            avg_df = pd.DataFrame({
-                "Klaster 0": cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean(),
-                "Klaster 1": cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
-            })
-    
-            fig, ax = plt.subplots(figsize=(8, 5))
-            avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
-            for i, cluster in enumerate(avg_df.columns):
-                for j, val in enumerate(avg_df[cluster]):
-                    ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
-            ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan")
-            ax.set_xlabel("Klaster")
-            ax.set_ylabel("Rata-rata Persentase")
-            st.pyplot(fig)
+        
+        if not cluster_0_df.empty and not cluster_1_df.empty:
+            with col1:
+                avg_df = pd.DataFrame({
+                    "Klaster 0": cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean(),
+                    "Klaster 1": cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
+                })
+        
+                fig, ax = plt.subplots(figsize=(8, 5))
+                avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
+                for i, cluster in enumerate(avg_df.columns):
+                    for j, val in enumerate(avg_df[cluster]):
+                        ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
+                ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan")
+                ax.set_xlabel("Klaster")
+                ax.set_ylabel("Rata-rata Persentase")
+                st.pyplot(fig)
+        
+            with col2:
+                avg_df = pd.DataFrame({
+                    "Klaster 0": cluster_0_df[['sampah_harian', 'sampah_tahunan']].mean(),
+                    "Klaster 1": cluster_1_df[['sampah_harian', 'sampah_tahunan']].mean()
+                })
+        
+                fig, ax = plt.subplots(figsize=(8, 5))
+                avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
+                for i, cluster in enumerate(avg_df.columns):
+                    for j, val in enumerate(avg_df[cluster]):
+                        ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
+                ax.set_title("Rata-rata Sampah Harian dan Tahunan")
+                ax.set_xlabel("Klaster")
+                ax.set_ylabel("Rata-rata")
+                st.pyplot(fig)
         else:
             st.warning("Data belum tersedia atau clustering belum dijalankan.")
-            
-        with col2:
-        # st.subheader("📊 Rata-rata Persentase Pengurangan & Penanganan per Cluster")
-            avg_df = pd.DataFrame({
-                "Klaster 0": cluster_0_df[['sampah_harian', 'sampah_tahunan']].mean(),
-                "Klaster 1": cluster_1_df[['sampah_harian', 'sampah_tahunan']].mean()
-            })
-    
-            fig, ax = plt.subplots(figsize=(8, 5))
-            avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
-            for i, cluster in enumerate(avg_df.columns):
-                for j, val in enumerate(avg_df[cluster]):
-                    ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
-            ax.set_title("Rata-rata Persentase Sampah Harian dan Tahunan")
-            ax.set_xlabel("Klaster")
-            ax.set_ylabel("Rata-rata Persentase")
-            st.pyplot(fig)
-        else:
-            st.warning("Data belum tersedia atau clustering belum dijalankan.")
+
+
 
