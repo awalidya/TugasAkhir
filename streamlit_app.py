@@ -18,7 +18,7 @@ st.markdown("""
 
     /* Ubah background sidebar */
     div[data-testid="stSidebar"] {
-        background-color: #BEE4D0; /* Soft orange */
+        background-color: #A0C878; /* Soft orange */
         color: black; /* Warna teks */
     }
 
@@ -27,7 +27,7 @@ st.markdown("""
         font-size: 20px;
         font-weight: bold;
         display: block;
-        color: #d84315; /* Warna teks judul (merah-oranye) */
+        color: black; /* Warna teks judul (merah-oranye) */
     }
 
     .move-down {
