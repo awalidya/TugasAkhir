@@ -367,25 +367,11 @@ elif st.session_state.selected_tab == "Visualisasi":
         else:
             st.warning("Data belum tersedia atau clustering belum dijalankan.")
 
-        
         # Pilih hanya kolom yang ingin ditampilkan
         tabel_klaster_0 = cluster_0_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
         
-        # Pilihan urutan
-        sort_column = st.selectbox(
-            "Pilih kolom untuk mengurutkan:",
-            options=['sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']
-        )
-        
-        # Pilih arah pengurutan
-        sort_order = st.radio("Urutan:", ["Ascending", "Descending"], horizontal=True)
-        ascending = True if sort_order == "Ascending" else False
-        
-        # Urutkan data
-        tabel_sorted_0 = tabel_klaster_0.sort_values(by=sort_column, ascending=ascending)
-                
-        # Tampilkan tabel
+        # Tampilkan tabel dengan kemampuan pengurutan interaktif
         st.markdown("### 📋 Tabel Klaster 0")
-        st.dataframe(tabel_sorted_0, use_container_width=True)
+        st.dataframe(tabel_klaster_0, use_container_width=True)
 
 
