@@ -22,7 +22,7 @@ st.markdown("""
 
     .custom-title {
         font-family: 'Great Vibes', cursive;
-        font-size: 20px;
+        font-size: 18px;
         font-weight: bold;
         display: block;
         color: black !important;
