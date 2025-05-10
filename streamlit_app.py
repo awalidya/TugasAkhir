@@ -21,7 +21,7 @@ st.markdown("""
     }
 
     .custom-title {
-        font-family: 'Adam Script', sans-serif;
+        font-family: 'Great Vibes', sans-serif;
         font-size: 20px;
         font-weight: bold;
         display: block;
