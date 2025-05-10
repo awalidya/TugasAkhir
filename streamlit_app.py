@@ -23,7 +23,7 @@ st.markdown("""
 
     .custom-title {
         font-family: 'Garamond', sans-serif;
-        font-size: 24px;
+        font-size: 20px;
         font-weight: bold;
         display: block;
     }
