@@ -372,15 +372,18 @@ elif st.session_state.selected_tab == "Visualisasi":
         tabel_klaster_0 = cluster_0_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
         
         # Pilihan urutan
-        sort_order = st.selectbox(
-            "Urutkan Klaster 0 berdasarkan jumlah sampah tahunan:",
-            options=["Terbesar ke Terkecil", "Terkecil ke Terbesar"]
+        sort_column = st.selectbox(
+            "Pilih kolom untuk mengurutkan:",
+            options=['sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']
         )
         
-        # Urutkan data sesuai pilihan
-        ascending_order = True if sort_order == "Terkecil ke Terbesar" else False
-        tabel_klaster_0_sorted = tabel_klaster_0.sort_values(by="sampah_tahunan", ascending=ascending_order)
+        # Pilih arah pengurutan
+        sort_order = st.radio("Urutan:", ["Ascending", "Descending"], horizontal=True)
+        ascending = True if sort_order == "Ascending" else False
         
+        # Urutkan data
+        tabel_sorted = tabel_klaster_0.sort_values(by=sort_column, ascending=ascending)
+                
         # Tampilkan tabel
         st.markdown("### 📋 Tabel Klaster 0")
         st.dataframe(tabel_klaster_0_sorted, use_container_width=True)
