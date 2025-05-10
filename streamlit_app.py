@@ -271,6 +271,9 @@ elif st.session_state.selected_tab == "Visualisasi":
         df = st.session_state.df.copy()
         ms_final = st.session_state.get('ms_final', None)
 
+        cluster_0_df = df[df['cluster_labels'] == 0]
+        cluster_1_df = df[df['cluster_labels'] == 1]
+        
         # Ringkasan total sampah tahunan per klaster
         sum_tahunan_0 = cluster_0_df['sampah_tahunan'].sum()
         sum_pengurangan_0 = cluster_0_df['pengurangan'].sum()
