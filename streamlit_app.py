@@ -16,10 +16,10 @@ st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap');
 
-    /* Ubah background sidebar */
+    /* Paksa warna background sidebar */
     div[data-testid="stSidebar"] {
-        background-color: #A0C878; /* Soft orange */
-        color: black; /* Warna teks */
+        background-color: #A0C878 !important;  /* Soft hijau */
+        color: black !important;
     }
 
     .custom-title {
@@ -27,7 +27,7 @@ st.markdown("""
         font-size: 20px;
         font-weight: bold;
         display: block;
-        color: black; /* Warna teks judul (merah-oranye) */
+        color: black !important;
     }
 
     .move-down {
@@ -35,6 +35,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 
