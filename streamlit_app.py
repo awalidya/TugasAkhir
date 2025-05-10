@@ -249,22 +249,22 @@ elif st.session_state.selected_tab == "Pemodelan":
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
         
-   if 'df' in st.session_state:
-       df = st.session_state.df.copy()
+    if 'df' in st.session_state:
+        df = st.session_state.df.copy()
        
-       if 'cluster_labels' not in df.columns:
-           st.warning("Proses clustering belum dilakukan atau kolom 'cluster_labels' tidak ada.")
-       else: 
-           # Proses clustering sudah berhasil, bisa lanjut ke analisis klaster
-           cluster_0_df = df[df['cluster_labels'] == 0]
-           cluster_1_df = df[df['cluster_labels'] == 1]
-           st.write("🔵 **Data Cluster 0**")
-           st.dataframe(cluster_0_df)       
-           st.write("🟠 **Data Cluster 1**")
-           st.dataframe(cluster_1_df)
-           
-    else:
-        st.warning("Silakan unggah data terlebih dahulu.")
+        if 'cluster_labels' not in df.columns:
+            st.warning("Proses clustering belum dilakukan atau kolom 'cluster_labels' tidak ada.")
+        else: 
+            # Proses clustering sudah berhasil, bisa lanjut ke analisis klaster
+            cluster_0_df = df[df['cluster_labels'] == 0]
+            cluster_1_df = df[df['cluster_labels'] == 1]
+            st.write("🔵 **Data Cluster 0**")
+            st.dataframe(cluster_0_df)       
+            st.write("🟠 **Data Cluster 1**")
+            st.dataframe(cluster_1_df)
+               
+        else:
+            st.warning("Silakan unggah data terlebih dahulu.")
  
 elif st.session_state.selected_tab == "Visualisasi": 
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
