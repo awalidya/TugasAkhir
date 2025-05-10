@@ -369,7 +369,7 @@ elif st.session_state.selected_tab == "Visualisasi":
 
         
         # Pilih hanya kolom yang ingin ditampilkan
-        tabel_klaster_0 = cluster_0_df[['wilayah', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
+        tabel_klaster_0 = cluster_0_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
         
         # Pilihan urutan
         sort_order = st.selectbox(
