@@ -248,23 +248,24 @@ elif st.session_state.selected_tab == "Pemodelan":
                 st.warning("Tidak bisa menghitung DBI/Silhouette karena hanya ada 1 klaster.")
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
+        
+    cluster_0_df = df[df['cluster_labels'] == 0]
+    cluster_1_df = df[df['cluster_labels'] == 1]
 
-        cluster_0_df = df[df['cluster_labels'] == 0]
-        cluster_1_df = df[df['cluster_labels'] == 1]
+    st.write("🔵 **Data Cluster 0**")
+    st.dataframe(cluster_0_df)       
+    st.write("🟠 **Data Cluster 1**")
+    st.dataframe(cluster_1_df)
 
-        st.write("🔵 **Data Cluster 0**")
-        st.dataframe(cluster_0_df)
-        st.write("🟠 **Data Cluster 1**")
-        st.dataframe(cluster_1_df)
+    # Ringkasan total sampah tahunan per klaster
+    sum_tahunan_0 = cluster_0_df['sampah_tahunan'].sum()
+    sum_pengurangan_0 = cluster_0_df['pengurangan'].sum()
+    sum_penanganan_0 = cluster_0_df['penanganan'].sum()
+    sum_tahunan_1 = cluster_1_df['sampah_tahunan'].sum()
+    sum_pengurangan_1 = cluster_1_df['pengurangan'].sum()
+    sum_penanganan_1 = cluster_1_df['penanganan'].sum()
 
-        # Ringkasan total sampah tahunan per klaster
-        sum_tahunan_0 = cluster_0_df['sampah_tahunan'].sum()
-        sum_pengurangan_0 = cluster_0_df['pengurangan'].sum()
-        sum_penanganan_0 = cluster_0_df['penanganan'].sum()
-        sum_tahunan_1 = cluster_1_df['sampah_tahunan'].sum()
-        sum_pengurangan_1 = cluster_1_df['pengurangan'].sum()
-        sum_penanganan_1 = cluster_1_df['penanganan'].sum()
-
+    
 elif st.session_state.selected_tab == "Visualisasi": 
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
