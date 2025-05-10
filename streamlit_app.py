@@ -300,29 +300,71 @@ elif st.session_state.selected_tab == "Visualisasi":
         st.dataframe(cluster_1_df)
 
         # Ringkasan total sampah tahunan per klaster
-        total_0 = cluster_0_df['sampah_tahunan'].sum()
-        total_1 = cluster_1_df['sampah_tahunan'].sum()
+        sum_tahunan_0 = cluster_0_df['sampah_tahunan'].sum()
+        sum_pengurangan_0 = cluster_0_df['pengurangan'].sum()
+        sum_penanganan_0 = cluster_0_df['penanganan'].sum()
+        sum_tahunan_1 = cluster_1_df['sampah_tahunan'].sum()
+        sum_pengurangan_1 = cluster_1_df['pengurangan'].sum()
+        sum_penanganan_1 = cluster_1_df['penanganan'].sum()
 
-        st.markdown("### 🧾 Total Sampah Tahunan per Klaster")
-        col1, col2 = st.columns(2)
+        st.markdown("### Klaster 0")
+        col1, col2, col3 = st.columns(3)
         with col1:
             st.markdown(f"""
                 <div style='background-color:#e0f7fa; padding:15px; border-radius:10px; text-align:center;'>
-                    <h4>Klaster 0</h4>
-                    <p style='font-size:24px; font-weight:bold;'>{total_0:,.0f}</p>
+                    <h4>Sampah Tahunan</h4>
+                    <p style='font-size:24px; font-weight:bold;'>{sum_tahunan_0:,.0f}</p>
                     <p>ton/tahun</p>
                 </div>
                 """, unsafe_allow_html=True)
-
+            
+        with col2:
+            st.markdown(f"""
+                <div style='background-color:#e0f7fa; padding:15px; border-radius:10px; text-align:center;'>
+                    <h4>Pengurangan</h4>
+                    <p style='font-size:24px; font-weight:bold;'>{sum_pengurangan_0:,.0f}</p>
+                    <p>ton/tahun</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
+        with col3:
+            st.markdown(f"""
+                <div style='background-color:#e0f7fa; padding:15px; border-radius:10px; text-align:center;'>
+                    <h4>Pengurangan</h4>
+                    <p style='font-size:24px; font-weight:bold;'>{sum_pengurangan_0:,.0f}</p>
+                    <p>ton/tahun</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
+        st.markdown("### Klaster 1")
+        col1, col2, col3 = st.columns(3)
+        with col1:
+            st.markdown(f"""
+                <div style='background-color:#ffe0b2; padding:15px; border-radius:10px; text-align:center;'>
+                    <h4>Sampah Tahunan</h4>
+                    <p style='font-size:24px; font-weight:bold;'>{sum_tahunan_1:,.0f}</p>
+                    <p>ton/tahun</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
         with col2:
             st.markdown(f"""
                 <div style='background-color:#ffe0b2; padding:15px; border-radius:10px; text-align:center;'>
-                    <h4>Klaster 1</h4>
-                    <p style='font-size:24px; font-weight:bold;'>{total_1:,.0f}</p>
+                    <h4>Pengurangan</h4>
+                    <p style='font-size:24px; font-weight:bold;'>{sum_pengurangan_1:,.0f}</p>
                     <p>ton/tahun</p>
                 </div>
                 """, unsafe_allow_html=True)
-
+               
+        with col3:
+            st.markdown(f"""
+                <div style='background-color:#ffe0b2; padding:15px; border-radius:10px; text-align:center;'>
+                    <h4>Penanganan</h4>
+                    <p style='font-size:24px; font-weight:bold;'>{sum_penanganan_1:,.0f}</p>
+                    <p>ton/tahun</p>
+                </div>
+                """, unsafe_allow_html=True)
+            
         st.subheader("📊 Rata-rata Persentase Pengurangan & Penanganan per Cluster")
         avg_df = pd.DataFrame({
             "Klaster 0": cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean(),
