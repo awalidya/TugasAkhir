@@ -341,7 +341,7 @@ elif st.session_state.selected_tab == "Visualisasi":
                 </div>
                 """, unsafe_allow_html=True)
             
-        st.markdown("\n")    
+        st.markdown("\n\n")    
         col1, col2 = st.columns(2)
         
         if not cluster_0_df.empty and not cluster_1_df.empty:
