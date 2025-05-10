@@ -16,13 +16,13 @@ st.markdown("""
     <style>
     /* Sidebar */
     section[data-testid="stSidebar"] {
-        background-color: #ffe0b2 !important; /* Soft orange */
+        background-color: #BEE4D0 !important; /* Soft orange */
         color: black !important;
     }
 
     /* Main content */
     div[data-testid="stAppViewContainer"] > main {
-        background-color: #FFFDF6 !important;  /* Ganti dengan warna yang kamu inginkan */
+        background-color: #FAF6E9 !important;  /* Ganti dengan warna yang kamu inginkan */
     }
 
     /* Optional: Atur warna teks utama */
