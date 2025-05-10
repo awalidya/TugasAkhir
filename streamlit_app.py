@@ -90,7 +90,8 @@ with st.sidebar:
 if st.session_state.selected_tab == "Halaman Utama":
 # if tab == "Halaman Utama":
     st.write("""
-    Selamat datang di platform analisis wilayah berbasis pengelolaan sampah\n Melalui pendekatan data dan metode klastering, kami menyajikan gambaran menyeluruh tentang bagaimana berbagai daerah di Indonesia menangani permasalahan sampah. 
+    Selamat datang di platform analisis wilayah berbasis pengelolaan sampah 
+    \nMelalui pendekatan data dan metode klastering, kami menyajikan gambaran menyeluruh tentang bagaimana berbagai daerah di Indonesia menangani permasalahan sampah. 
     Dengan memetakan wilayah berdasarkan pola pengurangan, penanganan, dan daur ulang sampah, platform ini diharapkan dapat menjadi acuan bagi pengambil kebijakan, 
     peneliti, maupun masyarakat umum dalam mendorong pengelolaan sampah yang lebih efektif dan berkelanjutan. 
     Mari bersama menciptakan lingkungan yang lebih bersih dan sehat melalui keputusan berbasis data
