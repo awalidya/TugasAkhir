@@ -225,8 +225,8 @@ elif st.session_state.selected_tab == "Pemodelan":
 
 elif st.session_state.selected_tab == "Visualisasi":
     def visualisasi_page(df, n_clusters):
-        st.title("Visualisasi Klaster")
-        st.markdown(f"### Jumlah Klaster: {n_clusters}")
+        st.title("Visualisasi")
+        # st.markdown(f"### Jumlah Klaster: {n_clusters}")
 
         cluster_dfs = {
             label: df[df['cluster_labels'] == label]
@@ -242,7 +242,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             with col1:
                 st.markdown(f"""
                     <div style='background-color:#FDAB9E; padding:15px; border-radius:10px; text-align:center;'>
-                        <h4>Sampah Tahunan</h4>
+                        <h4>Total Sampah Tahunan</h4>
                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['sampah_tahunan'].sum():,.0f}</p>
                         <p>ton/tahun</p>
                     </div>
@@ -251,7 +251,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             with col2:
                 st.markdown(f"""
                     <div style='background-color:#FBF3B9; padding:15px; border-radius:10px; text-align:center;'>
-                        <h4>Pengurangan</h4>
+                        <h4>Total Pengurangan</h4>
                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['pengurangan'].sum():,.0f}</p>
                         <p>ton/tahun</p>
                     </div>
@@ -260,7 +260,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             with col3:
                 st.markdown(f"""
                     <div style='background-color:#FFB433; padding:15px; border-radius:10px; text-align:center;'>
-                        <h4>Penanganan</h4>
+                        <h4>Total Penanganan</h4>
                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['penanganan'].sum():,.0f}</p>
                         <p>ton/tahun</p>
                     </div>
@@ -269,7 +269,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             # Dua kolom bar chart
             col1, col2 = st.columns(2)
             with col1:
-                st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
+                st.markdown("### Rata-Rata Persentase Pengurangan dan Penanganan")
                 avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
                 avg_df1_T = avg_df1.T  # Transpose agar klaster jadi bar
             
@@ -292,7 +292,7 @@ elif st.session_state.selected_tab == "Visualisasi":
            
             
             with col2:
-                st.markdown("### Perbandingan Rata-rata Sampah Harian dan Tahunan (dalam Subplot)")
+                st.markdown("### Rata-rata Sampah Harian dan Tahunan (dalam Subplot)")
             
                 # Hitung rata-rata
                 avg_sampah_harian = cluster_df['sampah_harian'].mean()
@@ -330,8 +330,6 @@ elif st.session_state.selected_tab == "Visualisasi":
                 fig2.suptitle(f"Perbandingan Sampah Harian vs Tahunan - Klaster {label}")
                 st.pyplot(fig2)
             
-
-               
             # Pie Chart: Distribusi Provinsi
             jumlah_top = 5
             hitung_provinsi = cluster_df['Provinsi'].value_counts()
@@ -339,7 +337,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             jumlah_lainnya = hitung_provinsi[jumlah_top:].sum()
             data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
 
-            fig3, ax3 = plt.subplots(figsize=(3, 3))
+            fig3, ax3 = plt.subplots(figsize=(2, 2))
             colors = sns.color_palette('Set3', len(data_visual))
             ax3.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
             ax3.set_title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")
