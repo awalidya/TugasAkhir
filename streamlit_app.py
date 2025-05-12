@@ -267,128 +267,82 @@ elif st.session_state.selected_tab == "Pemodelan":
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
  
-elif st.session_state.selected_tab == "Visualisasi": 
-    if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
-        df = st.session_state.df.copy()
-        ms_final = st.session_state.get('ms_final', None)
+elif st.session_state.selected_tab == "Visualisasi":
+def visualisasi_page(df, n_clusters):
+    st.title("Visualisasi Klaster")
 
-        cluster_0_df = df[df['cluster_labels'] == 0]
-        cluster_1_df = df[df['cluster_labels'] == 1]
-        
-        # Ringkasan total sampah tahunan per klaster
-        sum_tahunan_0 = cluster_0_df['sampah_tahunan'].sum()
-        sum_pengurangan_0 = cluster_0_df['pengurangan'].sum()
-        sum_penanganan_0 = cluster_0_df['penanganan'].sum()
-        sum_tahunan_1 = cluster_1_df['sampah_tahunan'].sum()
-        sum_pengurangan_1 = cluster_1_df['pengurangan'].sum()
-        sum_penanganan_1 = cluster_1_df['penanganan'].sum()
-        
-        st.markdown("### Klaster 0")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown(f"""
-                <div style='background-color:#FDAB9E; padding:15px; border-radius:10px; text-align:center;'>
-                    <h4>Sampah Tahunan</h4>
-                    <p style='font-size:24px; font-weight:bold;'>{sum_tahunan_0:,.0f}</p>
-                    <p>ton/tahun</p>
-                </div>
-                """, unsafe_allow_html=True)
-            
-        with col2:
-            st.markdown(f"""
-                <div style='background-color:#FBF3B9; padding:15px; border-radius:10px; text-align:center;'>
-                    <h4>Pengurangan</h4>
-                    <p style='font-size:24px; font-weight:bold;'>{sum_pengurangan_0:,.0f}</p>
-                    <p>ton/tahun</p>
-                </div>
-                """, unsafe_allow_html=True)
-            
-        with col3:
-            st.markdown(f"""
-                <div style='background-color:#FFB433; padding:15px; border-radius:10px; text-align:center;'>
-                    <h4>Pengurangan</h4>
-                    <p style='font-size:24px; font-weight:bold;'>{sum_penanganan_0:,.0f}</p>
-                    <p>ton/tahun</p>
-                </div>
-                """, unsafe_allow_html=True)
-            
-        st.markdown("### Klaster 1")
-        col1, col2, col3 = st.columns(3)
-        with col1:
-            st.markdown(f"""
-                <div style='background-color:#FDAB9E; padding:15px; border-radius:10px; text-align:center;'>
-                    <h4>Sampah Tahunan</h4>
-                    <p style='font-size:24px; font-weight:bold;'>{sum_tahunan_1:,.0f}</p>
-                    <p>ton/tahun</p>
-                </div>
-                """, unsafe_allow_html=True)
-            
-        with col2:
-            st.markdown(f"""
-                <div style='background-color:#FBF3B9; padding:15px; border-radius:10px; text-align:center;'>
-                    <h4>Pengurangan</h4>
-                    <p style='font-size:24px; font-weight:bold;'>{sum_pengurangan_1:,.0f}</p>
-                    <p>ton/tahun</p>
-                </div>
-                """, unsafe_allow_html=True)
-               
-        with col3:
-            st.markdown(f"""
-                <div style='background-color:#FFB433; padding:15px; border-radius:10px; text-align:center;'>
-                    <h4>Penanganan</h4>
-                    <p style='font-size:24px; font-weight:bold;'>{sum_penanganan_1:,.0f}</p>
-                    <p>ton/tahun</p>
-                </div>
-                """, unsafe_allow_html=True)
-            
-        st.markdown("\n\n")    
-        col1, col2 = st.columns(2)
-        
-        if not cluster_0_df.empty and not cluster_1_df.empty:
+    if df is not None and 'cluster_labels' in df.columns:
+        # Tampilkan jumlah klaster
+        st.markdown(f"### Jumlah Klaster: {n_clusters}")
+
+        # Buat DataFrame per klaster secara dinamis
+        cluster_dfs = {
+            label: df[df['cluster_labels'] == label]
+            for label in sorted(df['cluster_labels'].unique())
+        }
+
+        # Visualisasi statistik utama per klaster
+        for label, cluster_df in cluster_dfs.items():
+            st.markdown(f"### Klaster {label}")
+            col1, col2, col3 = st.columns(3)
+
             with col1:
-                avg_df = pd.DataFrame({
-                    "Klaster 0": cluster_0_df[['perc_pengurangan', 'perc_penanganan']].mean(),
-                    "Klaster 1": cluster_1_df[['perc_pengurangan', 'perc_penanganan']].mean()
-                })
-        
-                fig, ax = plt.subplots(figsize=(8, 5))
-                avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
-                for i, cluster in enumerate(avg_df.columns):
-                    for j, val in enumerate(avg_df[cluster]):
-                        ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
-                ax.set_title("Rata-rata Persentase Pengurangan dan Penanganan")
-                ax.set_xlabel("Klaster")
-                ax.set_ylabel("Rata-rata Persentase")
-                st.pyplot(fig)
-        
+                st.markdown(f"""
+                    <div style='background-color:#FDAB9E; padding:15px; border-radius:10px; text-align:center;'>
+                        <h4>Sampah Tahunan</h4>
+                        <p style='font-size:24px; font-weight:bold;'>{cluster_df['sampah_tahunan'].sum():,.0f}</p>
+                        <p>ton/tahun</p>
+                    </div>
+                """, unsafe_allow_html=True)
+
             with col2:
-                avg_df = pd.DataFrame({
-                    "Klaster 0": cluster_0_df[['sampah_harian', 'sampah_tahunan']].mean(),
-                    "Klaster 1": cluster_1_df[['sampah_harian', 'sampah_tahunan']].mean()
-                })
-        
-                fig, ax = plt.subplots(figsize=(8, 5))
-                avg_df.T.plot(kind='bar', ax=ax, color=['blue', 'orange'])
-                for i, cluster in enumerate(avg_df.columns):
-                    for j, val in enumerate(avg_df[cluster]):
-                        ax.text(i + j*0.25 - 0.15, val + 0.5, f"{val:.2f}", ha='center', fontsize=10)
-                ax.set_title("Rata-rata Sampah Harian dan Tahunan")
-                ax.set_xlabel("Klaster")
-                ax.set_ylabel("Rata-rata")
-                st.pyplot(fig)
-        else:
-            st.warning("Data belum tersedia atau clustering belum dijalankan.")
+                st.markdown(f"""
+                    <div style='background-color:#FBF3B9; padding:15px; border-radius:10px; text-align:center;'>
+                        <h4>Pengurangan</h4>
+                        <p style='font-size:24px; font-weight:bold;'>{cluster_df['pengurangan'].sum():,.0f}</p>
+                        <p>ton/tahun</p>
+                    </div>
+                """, unsafe_allow_html=True)
 
-        # Pilih hanya kolom yang ingin ditampilkan
-        tabel_klaster_0 = cluster_0_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
-        
-        # Tampilkan tabel dengan kemampuan pengurutan interaktif
-        st.markdown("### 📋 Tabel Klaster 0")
-        st.dataframe(tabel_klaster_0, use_container_width=True)
+            with col3:
+                st.markdown(f"""
+                    <div style='background-color:#FFB433; padding:15px; border-radius:10px; text-align:center;'>
+                        <h4>Penanganan</h4>
+                        <p style='font-size:24px; font-weight:bold;'>{cluster_df['penanganan'].sum():,.0f}</p>
+                        <p>ton/tahun</p>
+                    </div>
+                """, unsafe_allow_html=True)
 
-        # Pilih hanya kolom yang ingin ditampilkan
-        tabel_klaster_1 = cluster_1_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
-        
-        # Tampilkan tabel dengan kemampuan pengurutan interaktif
-        st.markdown("### 📋 Tabel Klaster 1")
-        st.dataframe(tabel_klaster_1, use_container_width=True)
+        # Bar chart perbandingan rata-rata persentase
+        st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan per Klaster")
+        avg_df = pd.DataFrame({
+            f"Klaster {label}": cluster_df[['perc_pengurangan', 'perc_penanganan']].mean()
+            for label, cluster_df in cluster_dfs.items()
+        })
+
+        fig, ax = plt.subplots()
+        avg_df.T.plot(kind='bar', ax=ax)
+        plt.title("Rata-rata Persentase per Klaster")
+        plt.ylabel("Persentase (%)")
+        plt.xticks(rotation=0)
+        st.pyplot(fig)
+
+        # Scatter plot berdasarkan klaster
+        st.markdown("### Scatter Plot Pengurangan vs Penanganan")
+        fig, ax = plt.subplots()
+        sns.scatterplot(
+            data=df,
+            x='perc_pengurangan',
+            y='perc_penanganan',
+            hue='cluster_labels',
+            palette='Set2',
+            s=100
+        )
+        plt.xlabel("Persentase Pengurangan (%)")
+        plt.ylabel("Persentase Penanganan (%)")
+        plt.title("Klastering Wilayah")
+        st.pyplot(fig)
+
+    else:
+        st.warning("Data belum tersedia atau belum dilakukan klastering.")
+
