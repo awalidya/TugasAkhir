@@ -337,16 +337,45 @@ elif st.session_state.selected_tab == "Visualisasi":
                 plt.xticks(rotation=0)
                 st.pyplot(fig1)
                 
+            # with col2:
+            #     st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
+            #     avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
+            
+            #     fig2, ax2 = plt.subplots()
+            #     avg_df2.T.plot(kind='bar', ax=ax2, color=["#fdb462", "#b3de69"])  # warna opsional
+            #     plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
+            #     plt.ylabel("Ton")
+            #     plt.xticks(rotation=0)
+            #     st.pyplot(fig2)
+
             with col2:
                 st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
-                avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
+                
+                # Hitung rata-rata
+                avg_sampah_harian = cluster_df['sampah_harian'].mean()
+                avg_sampah_tahunan = cluster_df['sampah_tahunan'].mean()
             
-                fig2, ax2 = plt.subplots()
-                avg_df2.T.plot(kind='bar', ax=ax2, color=["#fdb462", "#b3de69"])  # warna opsional
+                # Buat 2 y-axis
+                fig2, ax1 = plt.subplots()
+            
+                color1 = "#fdb462"
+                ax1.set_xlabel("Klaster")
+                ax1.set_ylabel("Sampah Harian (Ton)", color=color1)
+                ax1.bar(["Klaster " + str(label)], [avg_sampah_harian], color=color1, width=0.4, label='Sampah Harian')
+                ax1.tick_params(axis='y', labelcolor=color1)
+            
+                # Sumbu kedua untuk tahunan
+                ax2 = ax1.twinx()
+                color2 = "#b3de69"
+                ax2.set_ylabel("Sampah Tahunan (Ton)", color=color2)
+                ax2.bar(["Klaster " + str(label)], [avg_sampah_tahunan], color=color2, width=0.4, alpha=0.5, label='Sampah Tahunan')
+                ax2.tick_params(axis='y', labelcolor=color2)
+            
                 plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
-                plt.ylabel("Ton")
-                plt.xticks(rotation=0)
+                fig2.tight_layout()
                 st.pyplot(fig2)
+
+            
 
             # Pie Chart: Distribusi Provinsi
             jumlah_top = 5
