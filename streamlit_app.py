@@ -350,48 +350,21 @@ elif st.session_state.selected_tab == "Visualisasi":
 
 
             with col2:
-                st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+
+                # Bar untuk harian
+                ax1.bar(["Klaster " + str(label)], [avg_sampah_harian], color="#fdb462")
+                ax1.set_title("Sampah Harian")
+                ax1.set_ylabel("Ton")
                 
-                # Rata-rata
-                avg_sampah_harian = cluster_df['sampah_harian'].mean()
-                avg_sampah_tahunan = cluster_df['sampah_tahunan'].mean()
-            
-                # Bar width dan posisi
-                labels = ["Klaster " + str(label)]
-                x = [0]  # posisi bar
-                width = 0.4
-            
-                fig2, ax1 = plt.subplots()
-            
-                # Sumbu kiri - sampah harian
-                ax1.bar([i - width/2 for i in x], [avg_sampah_harian], width=width, color="#fdb462", label="Sampah Harian")
-                ax1.set_ylabel("Sampah Harian (Ton)", color="#fdb462")
-                ax1.tick_params(axis='y', labelcolor="#fdb462")
-            
-                # Sumbu kanan - sampah tahunan
-                ax2 = ax1.twinx()
-                ax2.bar([i + width/2 for i in x], [avg_sampah_tahunan], width=width, color="#b3de69", label="Sampah Tahunan", alpha=0.7)
-                ax2.set_ylabel("Sampah Tahunan (Ton)", color="#b3de69")
-                ax2.tick_params(axis='y', labelcolor="#b3de69")
-            
-                ax1.set_xticks(x)
-                ax1.set_xticklabels(labels)
-                plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
-                fig2.tight_layout()
-            
-                st.pyplot(fig2)
-            
-            
-                # Sumbu kedua untuk tahunan
-                ax2 = ax1.twinx()
-                color2 = "#b3de69"
-                ax2.set_ylabel("Sampah Tahunan (Ton)", color=color2)
-                ax2.bar(["Klaster " + str(label)], [avg_sampah_tahunan], color=color2, width=0.4, alpha=0.5, label='Sampah Tahunan')
-                ax2.tick_params(axis='y', labelcolor=color2)
-            
-                plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
-                fig2.tight_layout()
-                st.pyplot(fig2)
+                # Bar untuk tahunan
+                ax2.bar(["Klaster " + str(label)], [avg_sampah_tahunan], color="#b3de69")
+                ax2.set_title("Sampah Tahunan")
+                ax2.set_ylabel("Ton")
+                
+                fig.suptitle(f"Rata-rata Sampah Harian vs Tahunan - Klaster {label}")
+                st.pyplot(fig)
+
 
             
 
