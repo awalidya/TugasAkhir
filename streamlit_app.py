@@ -350,20 +350,29 @@ elif st.session_state.selected_tab == "Visualisasi":
 
 
             with col2:
+                st.markdown("### Perbandingan Rata-rata Sampah Harian dan Tahunan (dalam Subplot)")
+            
+                # Hitung rata-rata
+                avg_sampah_harian = cluster_df['sampah_harian'].mean()
+                avg_sampah_tahunan = cluster_df['sampah_tahunan'].mean()
+            
+                # Buat subplot 1 baris 2 kolom
                 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
-
-                # Bar untuk harian
+            
+                # Bar chart sampah harian
                 ax1.bar(["Klaster " + str(label)], [avg_sampah_harian], color="#fdb462")
-                ax1.set_title("Sampah Harian")
+                ax1.set_title("Rata-rata Sampah Harian")
                 ax1.set_ylabel("Ton")
-                
-                # Bar untuk tahunan
+            
+                # Bar chart sampah tahunan
                 ax2.bar(["Klaster " + str(label)], [avg_sampah_tahunan], color="#b3de69")
-                ax2.set_title("Sampah Tahunan")
+                ax2.set_title("Rata-rata Sampah Tahunan")
                 ax2.set_ylabel("Ton")
-                
-                fig.suptitle(f"Rata-rata Sampah Harian vs Tahunan - Klaster {label}")
+            
+                # Tambahkan judul utama
+                fig.suptitle(f"Perbandingan Sampah Harian vs Tahunan - Klaster {label}")
                 st.pyplot(fig)
+
 
 
             
