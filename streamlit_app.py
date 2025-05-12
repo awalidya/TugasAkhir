@@ -271,25 +271,24 @@ elif st.session_state.selected_tab == "Visualisasi":
             with col1:
                 st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
                 avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
+                avg_df1_T = avg_df1.T  # Transpose agar klaster jadi bar
             
                 fig1, ax1 = plt.subplots()
-                bars1 = avg_df1.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])
-                plt.title(f"Rata-rata Persentase - Klaster {label}")
-                plt.ylabel("Persentase (%)")
-                plt.xticks(rotation=0)
+                bars1 = avg_df1_T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])
+                ax1.set_title(f"Rata-rata Persentase - Klaster {label}")
+                ax1.set_ylabel("Persentase (%)")
+                ax1.set_xticks(range(len(avg_df1_T.index)))
+                ax1.set_xticklabels(avg_df1_T.index, rotation=0)
             
-                # Tambahkan label angka di atas bar
-                for container in bars1.containers:
-                    for bar in container:
-                        height = bar.get_height()
-                        ax1.annotate(f'{height:.1f}%',  # Format angka 1 desimal dan pakai persen
-                                     xy=(bar.get_x() + bar.get_width() / 2, height),
-                                     xytext=(0, 3),  # Offset vertikal 3 pt
-                                     textcoords="offset points",
-                                     ha='center', va='bottom')
+                # Tambahkan label angka di atas batang
+                for bar in ax1.patches:
+                    height = bar.get_height()
+                    ax1.annotate(f'{height:.1f}%',
+                                 xy=(bar.get_x() + bar.get_width() / 2, height),
+                                 xytext=(0, 3), textcoords="offset points",
+                                 ha='center', va='bottom')
             
                 st.pyplot(fig1)
-            
             
             with col2:
                 st.markdown("### Perbandingan Rata-rata Sampah Harian dan Tahunan (dalam Subplot)")
@@ -299,30 +298,37 @@ elif st.session_state.selected_tab == "Visualisasi":
                 avg_sampah_tahunan = cluster_df['sampah_tahunan'].mean()
             
                 # Buat subplot 1 baris 2 kolom
-                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+                fig2, (ax2_1, ax2_2) = plt.subplots(1, 2, figsize=(10, 4))
             
                 # Bar chart sampah harian
-                bar1 = ax1.bar(["Klaster " + str(label)], [avg_sampah_harian], color="#fdb462")
-                ax1.set_title("Rata-rata Sampah Harian")
-                ax1.set_ylabel("Ton")
-                for bar in bar1:
-                    ax1.annotate(f'{bar.get_height():,.0f}',  # Format ribuan tanpa desimal
-                                 xy=(bar.get_x() + bar.get_width() / 2, bar.get_height()),
-                                 xytext=(0, 3), textcoords="offset points",
-                                 ha='center', va='bottom')
+                bars2_1 = ax2_1.bar(["Klaster " + str(label)], [avg_sampah_harian], color="#fdb462")
+                ax2_1.set_title("Rata-rata Sampah Harian")
+                ax2_1.set_ylabel("Ton")
+            
+                # Tambahkan label angka
+                for bar in bars2_1:
+                    height = bar.get_height()
+                    ax2_1.annotate(f'{height:.1f}',
+                                   xy=(bar.get_x() + bar.get_width() / 2, height),
+                                   xytext=(0, 3), textcoords="offset points",
+                                   ha='center', va='bottom')
             
                 # Bar chart sampah tahunan
-                bar2 = ax2.bar(["Klaster " + str(label)], [avg_sampah_tahunan], color="#b3de69")
-                ax2.set_title("Rata-rata Sampah Tahunan")
-                ax2.set_ylabel("Ton")
-                for bar in bar2:
-                    ax2.annotate(f'{bar.get_height():,.0f}',
-                                 xy=(bar.get_x() + bar.get_width() / 2, bar.get_height()),
-                                 xytext=(0, 3), textcoords="offset points",
-                                 ha='center', va='bottom')
+                bars2_2 = ax2_2.bar(["Klaster " + str(label)], [avg_sampah_tahunan], color="#b3de69")
+                ax2_2.set_title("Rata-rata Sampah Tahunan")
+                ax2_2.set_ylabel("Ton")
             
-                fig.suptitle(f"Perbandingan Sampah Harian vs Tahunan - Klaster {label}")
-                st.pyplot(fig)
+                for bar in bars2_2:
+                    height = bar.get_height()
+                    ax2_2.annotate(f'{height:.1f}',
+                                   xy=(bar.get_x() + bar.get_width() / 2, height),
+                                   xytext=(0, 3), textcoords="offset points",
+                                   ha='center', va='bottom')
+            
+                # Judul utama subplot
+                fig2.suptitle(f"Perbandingan Sampah Harian vs Tahunan - Klaster {label}")
+                st.pyplot(fig2)
+            
 
                
             # Pie Chart: Distribusi Provinsi
