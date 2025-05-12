@@ -275,11 +275,21 @@ elif st.session_state.selected_tab == "Visualisasi":
                 st.pyplot(fig)
 
 
-            # Membuat Pie Chart untuk 5 Kabupaten/Kota terbanyak berdasarkan 'sampah_tahunan' per klaster
-            top_5_kabupaten = cluster_df[['Kabupaten/Kota', 'sampah_tahunan']].nlargest(5, 'sampah_tahunan')
-            plt.figure(figsize=(8, 8))
-            plt.pie(top_5_kabupaten['sampah_tahunan'], labels=top_5_kabupaten['Kabupaten/Kota'], autopct='%1.1f%%', startangle=90, colors=sns.color_palette('Set3', 5))
-            plt.title(f"Top 5 Kabupaten/Kota Terbanyak Sampah Tahunan - Klaster {label}")
+            # Menyiapkan data untuk pie chart
+            jumlah_top = 5  # Jumlah kabupaten/kota teratas untuk ditampilkan
+            hitung_kabupaten = cluster_df['Kabupaten/Kota'].value_counts()  # Menghitung kemunculan setiap kabupaten/kota
+            kabupaten_teratas = hitung_kabupaten[:jumlah_top]  # Mengambil N kabupaten/kota teratas
+            jumlah_lainnya = hitung_kabupaten[jumlah_top:].sum()  # Menghitung jumlah untuk 'Lainnya'
+
+            # Membuat DataFrame baru untuk visualisasi
+            data_visual = kabupaten_teratas.append(pd.Series(jumlah_lainnya, index=['Lainnya']))
+
+            # Membuat pie chart dengan warna yang sama seperti sebelumnya
+            plt.figure(figsize=(8, 8))  # Mengatur ukuran gambar
+            colors = sns.color_palette('Set3', len(data_visual))  # Warna dari Set3 yang sesuai dengan jumlah data
+            plt.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
+            plt.title(f"Distribusi 5 Kabupaten/Kota Terbanyak - Klaster {label}")  # Menetapkan judul
+            plt.axis('equal')  # Memastikan pie chart bulat
             st.pyplot(plt)
             
     # Tampilkan DataFrame untuk setiap klaster yang dapat diurutkan
