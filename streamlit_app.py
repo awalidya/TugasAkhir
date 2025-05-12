@@ -134,7 +134,6 @@ elif st.session_state.selected_tab == "Upload Data":
         scaler = RobustScaler()
         df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
         X = df[scaling_columns].values
-      
 
         st.subheader("Data Setelah Scaling")
         st.dataframe(df[scaling_columns].head())
@@ -205,102 +204,7 @@ elif st.session_state.selected_tab == "Pemodelan":
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
 
-
-# elif st.session_state.selected_tab == "Visualisasi":
-#     def visualisasi_page(df, n_clusters):
-#         st.title("Visualisasi Klaster")
-#         st.markdown(f"### Jumlah Klaster: {n_clusters}")
-
-#         cluster_dfs = {
-#             label: df[df['cluster_labels'] == label]
-#             for label in sorted(df['cluster_labels'].unique())
-#         }
-
-#         for label, cluster_df in cluster_dfs.items():
-#             st.markdown(f"## Klaster {label}")
-
-#             # Tiga kolom indikator utama
-#             col1, col2, col3 = st.columns(3)
-
-#             with col1:
-#                 st.markdown(f"""
-#                     <div style='background-color:#FDAB9E; padding:15px; border-radius:10px; text-align:center;'>
-#                         <h4>Sampah Tahunan</h4>
-#                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['sampah_tahunan'].sum():,.0f}</p>
-#                         <p>ton/tahun</p>
-#                     </div>
-#                 """, unsafe_allow_html=True)
-
-#             with col2:
-#                 st.markdown(f"""
-#                     <div style='background-color:#FBF3B9; padding:15px; border-radius:10px; text-align:center;'>
-#                         <h4>Pengurangan</h4>
-#                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['pengurangan'].sum():,.0f}</p>
-#                         <p>ton/tahun</p>
-#                     </div>
-#                 """, unsafe_allow_html=True)
-
-#             with col3:
-#                 st.markdown(f"""
-#                     <div style='background-color:#FFB433; padding:15px; border-radius:10px; text-align:center;'>
-#                         <h4>Penanganan</h4>
-#                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['penanganan'].sum():,.0f}</p>
-#                         <p>ton/tahun</p>
-#                     </div>
-#                 """, unsafe_allow_html=True)
-
-#             # Dua kolom bar chart
-#             col1, col2 = st.columns(2)
-
-#             with col1:
-#                 st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
-#                 avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
-            
-#                 fig1, ax1 = plt.subplots()
-#                 avg_df1.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])  # opsional: custom warna
-#                 plt.title(f"Rata-rata Persentase - Klaster {label}")
-#                 plt.ylabel("Persentase (%)")
-#                 plt.xticks(rotation=0)
-#                 st.pyplot(fig1)
-                
-#             with col2:
-#                 st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
-#                 avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
-            
-#                 fig2, ax2 = plt.subplots()
-#                 avg_df2.T.plot(kind='bar', ax=ax2, color=["#fdb462", "#b3de69"])  # warna opsional
-#                 plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
-#                 plt.ylabel("Ton")
-#                 plt.xticks(rotation=0)
-#                 st.pyplot(fig2)
-
-#             # Pie Chart: Distribusi Provinsi
-#             jumlah_top = 5
-#             hitung_provinsi = cluster_df['Provinsi'].value_counts()
-#             provinsi_teratas = hitung_provinsi[:jumlah_top]
-#             jumlah_lainnya = hitung_provinsi[jumlah_top:].sum()
-#             data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
-
-#             fig3, ax3 = plt.subplots(figsize=(8, 8))
-#             colors = sns.color_palette('Set3', len(data_visual))
-#             ax3.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
-#             ax3.set_title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")
-#             ax3.axis('equal')
-#             st.pyplot(fig3)
-
-#             # Tabel Data
-#             st.markdown(f"### 📋 Tabel Klaster {label}")
-#             tabel_klaster = cluster_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
-#             st.dataframe(tabel_klaster, use_container_width=True)
-
-#     # Validasi dan pemanggilan
-#     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
-#         df = st.session_state.df
-#         n_clusters = len(df['cluster_labels'].unique())
-#         visualisasi_page(df, n_clusters)
-#     else:
-#         st.warning("Silakan jalankan pemodelan terlebih dahulu agar klaster tersedia.")
-
+# === Visualisasi ===
 elif st.session_state.selected_tab == "Visualisasi":
     def visualisasi_page(df, n_clusters):
         # Kembalikan nilai yang di-scaling ke bentuk semula
@@ -335,7 +239,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             with col2:
                 st.markdown(f"""
                     <div style='background-color:#FBF3B9; padding:15px; border-radius:10px; text-align:center;'>
-                        <h4>Pengurangan</h4>
+                        <h4>Pengurangan Sampah</h4>
                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['pengurangan'].sum():,.0f}</p>
                         <p>ton/tahun</p>
                     </div>
@@ -343,64 +247,32 @@ elif st.session_state.selected_tab == "Visualisasi":
 
             with col3:
                 st.markdown(f"""
-                    <div style='background-color:#FFB433; padding:15px; border-radius:10px; text-align:center;'>
-                        <h4>Penanganan</h4>
+                    <div style='background-color:#D8F2A1; padding:15px; border-radius:10px; text-align:center;'>
+                        <h4>Penanganan Sampah</h4>
                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['penanganan'].sum():,.0f}</p>
                         <p>ton/tahun</p>
                     </div>
                 """, unsafe_allow_html=True)
+        
+        return cluster_dfs
 
-            # Dua kolom bar chart
-            col1, col2 = st.columns(2)
 
-            with col1:
-                st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
-                avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
-            
-                fig1, ax1 = plt.subplots()
-                avg_df1.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])  # opsional: custom warna
-                plt.title(f"Rata-rata Persentase - Klaster {label}")
-                plt.ylabel("Persentase (%)")
-                plt.xticks(rotation=0)
-                st.pyplot(fig1)
-                
-            with col2:
-                st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
-                avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
-            
-                fig2, ax2 = plt.subplots()
-                avg_df2.T.plot(kind='bar', ax=ax2, color=["#fdb462", "#b3de69"])  # warna opsional
-                plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
-                plt.ylabel("Ton")
-                plt.xticks(rotation=0)
-                st.pyplot(fig2)
+    if 'ms_final' in st.session_state:
+        ms = st.session_state.ms_final
+        n_clusters = len(np.unique(ms.labels_))
 
-            # Pie Chart: Distribusi Provinsi
-            jumlah_top = 5
-            hitung_provinsi = cluster_df['Provinsi'].value_counts()
-            provinsi_teratas = hitung_provinsi[:jumlah_top]
-            jumlah_lainnya = hitung_provinsi[jumlah_top:].sum()
-            data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
+        # Tampilkan visualisasi cluster yang terbentuk
+        cluster_dfs = visualisasi_page(df, n_clusters)
 
-            fig3, ax3 = plt.subplots(figsize=(8, 8))
-            colors = sns.color_palette('Set3', len(data_visual))
-            ax3.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
-            ax3.set_title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")
-            ax3.axis('equal')
-            st.pyplot(fig3)
+        # Plot Visualisasi Clustering
+        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+        axes = axes.flatten()
+        for i, column in enumerate(df[scaling_columns]):
+            sns.histplot(df[column], kde=True, ax=axes[i])
+            axes[i].set_title(f'Histogram of {column}')
+        st.pyplot(fig)
 
-            # Tabel Data
-            st.markdown(f"### 📋 Tabel Klaster {label}")
-            tabel_klaster = cluster_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
-            st.dataframe(tabel_klaster, use_container_width=True)
-
-    # Validasi dan pemanggilan
-    if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
-        df = st.session_state.df
-        n_clusters = len(df['cluster_labels'].unique())
-        visualisasi_page(df, n_clusters)
+        st.subheader("Evaluasi Visualisasi")
+        st.write("Lihat juga hasil pemodelan clustering lainnya atau sesuaikan nilai Bandwidth untuk perubahan hasil yang lebih baik!")
     else:
-        st.warning("Silakan jalankan pemodelan terlebih dahulu agar klaster tersedia.")
-
-
-
+        st.warning("Silakan lakukan pemodelan clustering terlebih dahulu.")
