@@ -264,14 +264,14 @@ elif st.session_state.selected_tab == "Visualisasi":
                 plt.ylabel("Persentase (%)")
                 plt.xticks(rotation=0)
                 st.pyplot(fig1)
-
+                
             with col2:
                 st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
                 avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
-
+            
                 fig2, ax2 = plt.subplots()
-                avg_df2.T.plot(kind='bar', ax=ax2, color=["#bebada", "#80b1d3"])  # opsional: custom warna  
-                plt.title(f"Rata-rata Sampah Harian dan Sampah Tahunan - Klaster {label}")
+                avg_df2.T.plot(kind='bar', ax=ax2, color=["#fdb462", "#b3de69"])  # warna opsional
+                plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
                 plt.ylabel("Ton")
                 plt.xticks(rotation=0)
                 st.pyplot(fig2)
