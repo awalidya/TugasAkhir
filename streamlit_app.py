@@ -267,12 +267,12 @@ elif st.session_state.selected_tab == "Visualisasi":
                     for label, cluster_df in cluster_dfs.items()
                 })
     
-    fig, ax = plt.subplots()
-    avg_df.T.plot(kind='bar', ax=ax)
-    plt.title("Rata-rata Sampah Harian dan Sampah Tahunan per Klaster")
-    plt.ylabel("Ton/Tahun")
-    plt.xticks(rotation=0)
-    st.pyplot(fig)
+                fig, ax = plt.subplots()
+                avg_df.T.plot(kind='bar', ax=ax)
+                plt.title("Rata-rata Sampah Harian dan Sampah Tahunan per Klaster")
+                plt.ylabel("Ton/Tahun")
+                plt.xticks(rotation=0)
+                st.pyplot(fig)
 
 
             # Membuat Pie Chart untuk 5 Kabupaten/Kota terbanyak berdasarkan 'sampah_tahunan' per klaster
