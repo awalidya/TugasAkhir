@@ -245,27 +245,37 @@ elif st.session_state.selected_tab == "Visualisasi":
                     </div>
                 """, unsafe_allow_html=True)
 
-        st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan per Klaster")
-        avg_df = pd.DataFrame({
-            f"Klaster {label}": cluster_df[['perc_pengurangan', 'perc_penanganan']].mean()
-            for label, cluster_df in cluster_dfs.items()
-        })
+            # Membuat dua kolom
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan per Klaster")
+                avg_df = pd.DataFrame({
+                    f"Klaster {label}": cluster_df[['perc_pengurangan', 'perc_penanganan']].mean()
+                    for label, cluster_df in cluster_dfs.items()
+                })
+            
+                fig, ax = plt.subplots()
+                avg_df.T.plot(kind='bar', ax=ax)
+                plt.title("Rata-rata Persentase per Klaster")
+                plt.ylabel("Persentase (%)")
+                plt.xticks(rotation=0)
+                st.pyplot(fig)
+            
+            with col2:
+                st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan per Klaster")
+                avg_df = pd.DataFrame({
+                    f"Klaster {label}": cluster_df[['sampah_harian', 'sampah_tahunan']].mean()
+                    for label, cluster_df in cluster_dfs.items()
+                })
+                
+                fig, ax = plt.subplots()
+                avg_df.T.plot(kind='bar', ax=ax)
+                plt.title("Rata-rata Sampah Harian dan Sampah Tahunan per Klaster")
+                plt.ylabel("Ton/Tahun")
+                plt.xticks(rotation=0)
+                st.pyplot(fig)
 
-        fig, ax = plt.subplots()
-        avg_df.T.plot(kind='bar', ax=ax)
-        plt.title("Rata-rata Persentase per Klaster")
-        plt.ylabel("Persentase (%)")
-        plt.xticks(rotation=0)
-        st.pyplot(fig)
-
-        st.markdown("### Scatter Plot Pengurangan vs Penanganan")
-        fig, ax = plt.subplots()
-        sns.scatterplot(data=df, x='perc_pengurangan', y='perc_penanganan',
-                        hue='cluster_labels', palette='Set2', s=100)
-        plt.xlabel("Persentase Pengurangan (%)")
-        plt.ylabel("Persentase Penanganan (%)")
-        plt.title("Klastering Wilayah")
-        st.pyplot(fig)
 
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df
