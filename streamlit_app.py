@@ -270,7 +270,7 @@ elif st.session_state.selected_tab == "Visualisasi":
                 avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
 
                 fig2, ax2 = plt.subplots()
-                avg_df2.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])  # opsional: custom warna  
+                avg_df2.T.plot(kind='bar', ax=ax2, color=["#bebada", "#80b1d3"])  # opsional: custom warna  
                 plt.title(f"Rata-rata Sampah Harian dan Sampah Tahunan - Klaster {label}")
                 plt.ylabel("Ton")
                 plt.xticks(rotation=0)
