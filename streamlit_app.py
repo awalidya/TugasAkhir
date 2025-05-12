@@ -268,27 +268,53 @@ elif st.session_state.selected_tab == "Visualisasi":
 
             # Dua kolom bar chart
             col1, col2 = st.columns(2)
+            # with col1:
+            #     st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
+            #     avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
+            #     avg_df1_T = avg_df1.T  # Transpose agar klaster jadi bar
+            
+            #     fig1, ax1 = plt.subplots()
+            #     bars1 = avg_df1_T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])
+            #     ax1.set_title(f"Rata-rata Persentase - Klaster {label}")
+            #     ax1.set_ylabel("Persentase (%)")
+            #     ax1.set_xticks(range(len(avg_df1_T.index)))
+            #     ax1.set_xticklabels(avg_df1_T.index, rotation=0)
+            
+            #     # Tambahkan label angka di atas batang
+            #     for bar in ax1.patches:
+            #         height = bar.get_height()
+            #         ax1.annotate(f'{height:.1f}%',
+            #                      xy=(bar.get_x() + bar.get_width() / 2, height),
+            #                      xytext=(0, 3), textcoords="offset points",
+            #                      ha='center', va='bottom')
+            
+            #     st.pyplot(fig1)
             with col1:
                 st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
-                avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
-                avg_df1_T = avg_df1.T  # Transpose agar klaster jadi bar
             
-                fig1, ax1 = plt.subplots()
-                bars1 = avg_df1_T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])
-                ax1.set_title(f"Rata-rata Persentase - Klaster {label}")
+                avg_pengurangan = cluster_df['perc_pengurangan'].mean()
+                avg_penanganan = cluster_df['perc_penanganan'].mean()
+            
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+            
+                bar1 = ax1.bar(["Pengurangan"], [avg_pengurangan], color="#bebada")
+                ax1.set_title("Rata-rata Pengurangan")
                 ax1.set_ylabel("Persentase (%)")
-                ax1.set_xticks(range(len(avg_df1_T.index)))
-                ax1.set_xticklabels(avg_df1_T.index, rotation=0)
-            
-                # Tambahkan label angka di atas batang
-                for bar in ax1.patches:
+                for bar in bar1:
                     height = bar.get_height()
-                    ax1.annotate(f'{height:.1f}%',
-                                 xy=(bar.get_x() + bar.get_width() / 2, height),
-                                 xytext=(0, 3), textcoords="offset points",
-                                 ha='center', va='bottom')
+                    ax1.annotate(f'{height:.1f}%', (bar.get_x() + bar.get_width()/2, height), 
+                                 xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
             
-                st.pyplot(fig1)
+                bar2 = ax2.bar(["Penanganan"], [avg_penanganan], color="#80b1d3")
+                ax2.set_title("Rata-rata Penanganan")
+                ax2.set_ylabel("Persentase (%)")
+                for bar in bar2:
+                    height = bar.get_height()
+                    ax2.annotate(f'{height:.1f}%', (bar.get_x() + bar.get_width()/2, height), 
+                                 xytext=(0, 3), textcoords="offset points", ha='center', va='bottom')
+            
+                fig.suptitle(f"Persentase Pengurangan dan Penanganan - Klaster {label}")
+                st.pyplot(fig)
             
             with col2:
                 st.markdown("### Perbandingan Rata-rata Sampah Harian dan Tahunan (dalam Subplot)")
