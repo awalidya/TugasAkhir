@@ -154,65 +154,161 @@ elif st.session_state.selected_tab == "Upload Data":
         ax.set_title("Correlation Heatmap for Selected Features")
         st.pyplot(fig)
 
-#=== Pemodelan ===
-elif st.session_state.selected_tab == "Pemodelan":
-    if 'df' in st.session_state:
-        df = st.session_state.df.copy()
-        X = df[scaling_columns].values
+# #=== Pemodelan ===
+# elif st.session_state.selected_tab == "Pemodelan":
+#     if 'df' in st.session_state:
+#         df = st.session_state.df.copy()
+#         X = df[scaling_columns].values
 
-        st.subheader("Pemodelan Clustering dengan Mean Shift")
-        custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
+#         st.subheader("Pemodelan Clustering dengan Mean Shift")
+#         custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
 
-        if st.button("🚀 Jalankan Clustering"):
-            ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
-            ms.fit(X)
-            labels = ms.labels_
-            cluster_centers = ms.cluster_centers_
-            n_clusters = len(np.unique(labels))
+#         if st.button("🚀 Jalankan Clustering"):
+#             ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
+#             ms.fit(X)
+#             labels = ms.labels_
+#             cluster_centers = ms.cluster_centers_
+#             n_clusters = len(np.unique(labels))
 
-            df['cluster_labels'] = labels
-            st.session_state.df = df
-            st.session_state.ms_final = ms
+#             df['cluster_labels'] = labels
+#             st.session_state.df = df
+#             st.session_state.ms_final = ms
 
-            st.success(f"Jumlah klaster terbentuk: {n_clusters}")
+#             st.success(f"Jumlah klaster terbentuk: {n_clusters}")
 
-            fig = plt.figure(figsize=(6, 4))
-            ax = fig.add_subplot(111, projection='3d')
-            ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, cmap='plasma', marker='o', label='Data Points')
-            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-                       s=150, c='blue', marker='X', label='Cluster Centers')
-            ax.set_xlabel('Sampah Tahunan')
-            ax.set_ylabel('Pengurangan')
-            ax.set_zlabel('Penanganan')
-            ax.set_title('3D Mean Shift Clustering')
-            ax.legend()
-            st.pyplot(fig)
+#             fig = plt.figure(figsize=(6, 4))
+#             ax = fig.add_subplot(111, projection='3d')
+#             ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, cmap='plasma', marker='o', label='Data Points')
+#             ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+#                        s=150, c='blue', marker='X', label='Cluster Centers')
+#             ax.set_xlabel('Sampah Tahunan')
+#             ax.set_ylabel('Pengurangan')
+#             ax.set_zlabel('Penanganan')
+#             ax.set_title('3D Mean Shift Clustering')
+#             ax.legend()
+#             st.pyplot(fig)
 
-            if len(set(labels)) > 1:
-                dbi = davies_bouldin_score(X, labels)
-                sil = silhouette_score(X, labels)
-                st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
-                st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
-            else:
-                st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
+#             if len(set(labels)) > 1:
+#                 dbi = davies_bouldin_score(X, labels)
+#                 sil = silhouette_score(X, labels)
+#                 st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
+#                 st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
+#             else:
+#                 st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
 
-            # ✅ Langsung tampilkan hasil per klaster setelah pemodelan
-            st.markdown("### 📊 Tabel Data per Klaster")
-            for cluster_id in sorted(df['cluster_labels'].unique()):
-                st.markdown(f"#### 🟢 Klaster {cluster_id}")
-                st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
+#             # ✅ Langsung tampilkan hasil per klaster setelah pemodelan
+#             st.markdown("### 📊 Tabel Data per Klaster")
+#             for cluster_id in sorted(df['cluster_labels'].unique()):
+#                 st.markdown(f"#### 🟢 Klaster {cluster_id}")
+#                 st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
                 
-    else:
-        st.warning("Silakan unggah data terlebih dahulu.")
+#     else:
+#         st.warning("Silakan unggah data terlebih dahulu.")
 
+
+# elif st.session_state.selected_tab == "Visualisasi":
+#     def visualisasi_page(df, n_clusters):
+#         st.title("Visualisasi Klaster")
+#         st.markdown(f"### Jumlah Klaster: {n_clusters}")
+
+#         cluster_dfs = {
+#             label: df[df['cluster_labels'] == label]
+#             for label in sorted(df['cluster_labels'].unique())
+#         }
+
+#         for label, cluster_df in cluster_dfs.items():
+#             st.markdown(f"## Klaster {label}")
+
+#             # Tiga kolom indikator utama
+#             col1, col2, col3 = st.columns(3)
+
+#             with col1:
+#                 st.markdown(f"""
+#                     <div style='background-color:#FDAB9E; padding:15px; border-radius:10px; text-align:center;'>
+#                         <h4>Sampah Tahunan</h4>
+#                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['sampah_tahunan'].sum():,.0f}</p>
+#                         <p>ton/tahun</p>
+#                     </div>
+#                 """, unsafe_allow_html=True)
+
+#             with col2:
+#                 st.markdown(f"""
+#                     <div style='background-color:#FBF3B9; padding:15px; border-radius:10px; text-align:center;'>
+#                         <h4>Pengurangan</h4>
+#                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['pengurangan'].sum():,.0f}</p>
+#                         <p>ton/tahun</p>
+#                     </div>
+#                 """, unsafe_allow_html=True)
+
+#             with col3:
+#                 st.markdown(f"""
+#                     <div style='background-color:#FFB433; padding:15px; border-radius:10px; text-align:center;'>
+#                         <h4>Penanganan</h4>
+#                         <p style='font-size:24px; font-weight:bold;'>{cluster_df['penanganan'].sum():,.0f}</p>
+#                         <p>ton/tahun</p>
+#                     </div>
+#                 """, unsafe_allow_html=True)
+
+#             # Dua kolom bar chart
+#             col1, col2 = st.columns(2)
+
+#             with col1:
+#                 st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
+#                 avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
+            
+#                 fig1, ax1 = plt.subplots()
+#                 avg_df1.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])  # opsional: custom warna
+#                 plt.title(f"Rata-rata Persentase - Klaster {label}")
+#                 plt.ylabel("Persentase (%)")
+#                 plt.xticks(rotation=0)
+#                 st.pyplot(fig1)
+                
+#             with col2:
+#                 st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
+#                 avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
+            
+#                 fig2, ax2 = plt.subplots()
+#                 avg_df2.T.plot(kind='bar', ax=ax2, color=["#fdb462", "#b3de69"])  # warna opsional
+#                 plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
+#                 plt.ylabel("Ton")
+#                 plt.xticks(rotation=0)
+#                 st.pyplot(fig2)
+
+#             # Pie Chart: Distribusi Provinsi
+#             jumlah_top = 5
+#             hitung_provinsi = cluster_df['Provinsi'].value_counts()
+#             provinsi_teratas = hitung_provinsi[:jumlah_top]
+#             jumlah_lainnya = hitung_provinsi[jumlah_top:].sum()
+#             data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
+
+#             fig3, ax3 = plt.subplots(figsize=(8, 8))
+#             colors = sns.color_palette('Set3', len(data_visual))
+#             ax3.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
+#             ax3.set_title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")
+#             ax3.axis('equal')
+#             st.pyplot(fig3)
+
+#             # Tabel Data
+#             st.markdown(f"### 📋 Tabel Klaster {label}")
+#             tabel_klaster = cluster_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
+#             st.dataframe(tabel_klaster, use_container_width=True)
+
+#     # Validasi dan pemanggilan
+#     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
+#         df = st.session_state.df
+#         n_clusters = len(df['cluster_labels'].unique())
+#         visualisasi_page(df, n_clusters)
+#     else:
+#         st.warning("Silakan jalankan pemodelan terlebih dahulu agar klaster tersedia.")
 
 elif st.session_state.selected_tab == "Visualisasi":
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import streamlit as st
-
     def visualisasi_page(df, n_clusters):
+        # Kembalikan nilai yang di-scaling ke bentuk semula
+        if 'scaler' in st.session_state:
+            scaler = st.session_state.scaler
+            scaling_columns = ['sampah_tahunan', 'pengurangan', 'penanganan']
+            df[scaling_columns] = scaler.inverse_transform(df[scaling_columns])
+        
         st.title("Visualisasi Klaster")
         st.markdown(f"### Jumlah Klaster: {n_clusters}")
 
@@ -305,5 +401,6 @@ elif st.session_state.selected_tab == "Visualisasi":
         visualisasi_page(df, n_clusters)
     else:
         st.warning("Silakan jalankan pemodelan terlebih dahulu agar klaster tersedia.")
+
 
 
