@@ -307,8 +307,14 @@ elif st.session_state.selected_tab == "Pemodelan":
 #         st.warning("Silakan jalankan pemodelan terlebih dahulu agar klaster tersedia.")
 
 elif st.session_state.selected_tab == "Visualisasi":
+    import pandas as pd
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    import streamlit as st
+    import joblib
+
     def visualisasi_page(df, n_clusters):
-        st.title("Visualisasi Klaster")
+        st.title("📊 Visualisasi Klaster")
         st.markdown(f"### Jumlah Klaster: {n_clusters}")
 
         cluster_dfs = {
@@ -319,9 +325,8 @@ elif st.session_state.selected_tab == "Visualisasi":
         for label, cluster_df in cluster_dfs.items():
             st.markdown(f"## Klaster {label}")
 
-            # Tiga kolom indikator utama
+            # 3 Indikator utama
             col1, col2, col3 = st.columns(3)
-
             with col1:
                 st.markdown(f"""
                     <div style='background-color:#FDAB9E; padding:15px; border-radius:10px; text-align:center;'>
@@ -349,13 +354,12 @@ elif st.session_state.selected_tab == "Visualisasi":
                     </div>
                 """, unsafe_allow_html=True)
 
-            # Dua kolom bar chart
+            # Dua chart bar
             col1, col2 = st.columns(2)
 
             with col1:
-                st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
+                st.markdown("### Persentase Pengurangan & Penanganan (Rata-rata)")
                 avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
-
                 fig1, ax1 = plt.subplots()
                 avg_df1.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])
                 plt.title(f"Rata-rata Persentase - Klaster {label}")
@@ -364,53 +368,56 @@ elif st.session_state.selected_tab == "Visualisasi":
                 st.pyplot(fig1)
 
             with col2:
-                st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
+                st.markdown("### Sampah Harian & Tahunan (Rata-rata)")
                 avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
-
                 fig2, ax2 = plt.subplots()
                 avg_df2.T.plot(kind='bar', ax=ax2, color=["#fdb462", "#b3de69"])
-                plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
+                plt.title(f"Sampah Harian vs Tahunan - Klaster {label}")
                 plt.ylabel("Ton")
                 plt.xticks(rotation=0)
                 st.pyplot(fig2)
 
             # Pie Chart: Distribusi Provinsi
-            jumlah_top = 5
-            hitung_provinsi = cluster_df['Provinsi'].value_counts()
-            provinsi_teratas = hitung_provinsi[:jumlah_top]
-            jumlah_lainnya = hitung_provinsi[jumlah_top:].sum()
-            data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
+            st.markdown("### Distribusi Provinsi Teratas")
+            top_n = 5
+            prov_count = cluster_df['Provinsi'].value_counts()
+            top_prov = prov_count[:top_n]
+            others = prov_count[top_n:].sum()
+            distribusi = pd.concat([top_prov, pd.Series(others, index=['Lainnya'])])
 
-            fig3, ax3 = plt.subplots(figsize=(8, 8))
-            colors = sns.color_palette('Set3', len(data_visual))
-            ax3.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
+            fig3, ax3 = plt.subplots(figsize=(6, 6))
+            colors = sns.color_palette('Set3', len(distribusi))
+            ax3.pie(distribusi, labels=distribusi.index, autopct='%1.1f%%', startangle=90, colors=colors)
             ax3.set_title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")
             ax3.axis('equal')
             st.pyplot(fig3)
 
             # Tabel Data
-            st.markdown(f"### 📋 Tabel Klaster {label}")
-            tabel_klaster = cluster_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
-            st.dataframe(tabel_klaster, use_container_width=True)
+            st.markdown("### 📋 Tabel Detail")
+            st.dataframe(
+                cluster_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']],
+                use_container_width=True
+            )
 
-    # Validasi dan inverse transform sebelum visualisasi
+    # === LOGIKA SCALER & PEMANGGILAN ===
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df.copy()
         columns_to_scale = ['sampah_tahunan', 'pengurangan', 'penanganan']
 
-        # Cek jika nilai masih dalam bentuk skala
-        if df[columns_to_scale].max().max() <= 1.0:
+        # Jika data masih scaled
+        if st.session_state.get('data_scaled', False):
             try:
-                scaler = joblib.load("scaler.pkl")  # Pastikan file scaler.pkl tersedia
+                scaler = joblib.load("scaler.pkl")
                 df[columns_to_scale] = scaler.inverse_transform(df[columns_to_scale])
-                st.session_state.df = df  # Simpan kembali hasil inverse ke state
-                st.info("✅ Data telah dikembalikan ke bentuk aslinya.")
+                st.session_state.df = df
+                st.session_state.data_scaled = False
+                st.success("✅ Data berhasil dikembalikan ke bentuk aslinya.")
+            except FileNotFoundError:
+                st.warning("⚠️ File scaler.pkl tidak ditemukan. Skipping inverse transform.")
             except Exception as e:
-                st.error(f"❌ Gagal inverse transform: {e}")
+                st.error(f"❌ Terjadi kesalahan saat inverse transform: {e}")
 
-        n_clusters = len(df['cluster_labels'].unique())
+        n_clusters = df['cluster_labels'].nunique()
         visualisasi_page(df, n_clusters)
-
     else:
         st.warning("Silakan jalankan pemodelan terlebih dahulu agar klaster tersedia.")
-
