@@ -278,18 +278,18 @@ elif st.session_state.selected_tab == "Visualisasi":
 
             # Menyiapkan data untuk pie chart
             jumlah_top = 10  # Jumlah kabupaten/kota teratas untuk ditampilkan
-            hitung_kabupaten = cluster_df['Kabupaten/Kota'].value_counts()  # Menghitung kemunculan setiap kabupaten/kota
+            hitung_kabupaten = cluster_df['Provinsi'].value_counts()  # Menghitung kemunculan setiap kabupaten/kota
             kabupaten_teratas = hitung_kabupaten[:jumlah_top]  # Mengambil N kabupaten/kota teratas
             jumlah_lainnya = hitung_kabupaten[jumlah_top:].sum()  # Menghitung jumlah untuk 'Lainnya'
 
             # Membuat DataFrame baru untuk visualisasi
-            data_visual = pd.concat([kabupaten_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
+            data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
 
             # Membuat pie chart dengan warna yang sama seperti sebelumnya
             plt.figure(figsize=(8, 8))  # Mengatur ukuran gambar
             colors = sns.color_palette('Set3', len(data_visual))  # Warna dari Set3 yang sesuai dengan jumlah data
             plt.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
-            plt.title(f"Distribusi 5 Kabupaten/Kota Terbanyak - Klaster {label}")  # Menetapkan judul
+            plt.title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")  # Menetapkan judul
             plt.axis('equal')  # Memastikan pie chart bulat
             st.pyplot(plt)
             
