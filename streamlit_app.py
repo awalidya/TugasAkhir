@@ -277,7 +277,7 @@ elif st.session_state.selected_tab == "Visualisasi":
 
 
             # Menyiapkan data untuk pie chart
-            jumlah_top = 5  # Jumlah kabupaten/kota teratas untuk ditampilkan
+            jumlah_top = 10  # Jumlah kabupaten/kota teratas untuk ditampilkan
             hitung_kabupaten = cluster_df['Kabupaten/Kota'].value_counts()  # Menghitung kemunculan setiap kabupaten/kota
             kabupaten_teratas = hitung_kabupaten[:jumlah_top]  # Mengambil N kabupaten/kota teratas
             jumlah_lainnya = hitung_kabupaten[jumlah_top:].sum()  # Menghitung jumlah untuk 'Lainnya'
