@@ -348,21 +348,39 @@ elif st.session_state.selected_tab == "Visualisasi":
             #     plt.xticks(rotation=0)
             #     st.pyplot(fig2)
 
+
             with col2:
                 st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
                 
-                # Hitung rata-rata
+                # Rata-rata
                 avg_sampah_harian = cluster_df['sampah_harian'].mean()
                 avg_sampah_tahunan = cluster_df['sampah_tahunan'].mean()
             
-                # Buat 2 y-axis
+                # Bar width dan posisi
+                labels = ["Klaster " + str(label)]
+                x = [0]  # posisi bar
+                width = 0.4
+            
                 fig2, ax1 = plt.subplots()
             
-                color1 = "#fdb462"
-                ax1.set_xlabel("Klaster")
-                ax1.set_ylabel("Sampah Harian (Ton)", color=color1)
-                ax1.bar(["Klaster " + str(label)], [avg_sampah_harian], color=color1, width=0.4, label='Sampah Harian')
-                ax1.tick_params(axis='y', labelcolor=color1)
+                # Sumbu kiri - sampah harian
+                ax1.bar([i - width/2 for i in x], [avg_sampah_harian], width=width, color="#fdb462", label="Sampah Harian")
+                ax1.set_ylabel("Sampah Harian (Ton)", color="#fdb462")
+                ax1.tick_params(axis='y', labelcolor="#fdb462")
+            
+                # Sumbu kanan - sampah tahunan
+                ax2 = ax1.twinx()
+                ax2.bar([i + width/2 for i in x], [avg_sampah_tahunan], width=width, color="#b3de69", label="Sampah Tahunan", alpha=0.7)
+                ax2.set_ylabel("Sampah Tahunan (Ton)", color="#b3de69")
+                ax2.tick_params(axis='y', labelcolor="#b3de69")
+            
+                ax1.set_xticks(x)
+                ax1.set_xticklabels(labels)
+                plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
+                fig2.tight_layout()
+            
+                st.pyplot(fig2)
+            
             
                 # Sumbu kedua untuk tahunan
                 ax2 = ax1.twinx()
