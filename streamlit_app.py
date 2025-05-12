@@ -268,17 +268,16 @@ elif st.session_state.selected_tab == "Visualisasi":
 
             # Dua kolom bar chart
             col1, col2 = st.columns(2)
-
             with col1:
                 st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
                 avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
             
                 fig1, ax1 = plt.subplots()
-                avg_df1.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])  # opsional: custom warna
+                bars1 = avg_df1.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])
                 plt.title(f"Rata-rata Persentase - Klaster {label}")
                 plt.ylabel("Persentase (%)")
                 plt.xticks(rotation=0)
-                
+            
                 # Tambahkan label angka di atas bar
                 for container in bars1.containers:
                     for bar in container:
@@ -288,11 +287,13 @@ elif st.session_state.selected_tab == "Visualisasi":
                                      xytext=(0, 3),  # Offset vertikal 3 pt
                                      textcoords="offset points",
                                      ha='center', va='bottom')
+            
                 st.pyplot(fig1)
-                
-
+            
+            
             with col2:
                 st.markdown("### Perbandingan Rata-rata Sampah Harian dan Tahunan (dalam Subplot)")
+            
                 # Hitung rata-rata
                 avg_sampah_harian = cluster_df['sampah_harian'].mean()
                 avg_sampah_tahunan = cluster_df['sampah_tahunan'].mean()
@@ -321,7 +322,8 @@ elif st.session_state.selected_tab == "Visualisasi":
                                  ha='center', va='bottom')
             
                 fig.suptitle(f"Perbandingan Sampah Harian vs Tahunan - Klaster {label}")
-                st.pyplot(fig)            
+                st.pyplot(fig)
+
                
             # Pie Chart: Distribusi Provinsi
             jumlah_top = 5
