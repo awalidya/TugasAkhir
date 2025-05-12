@@ -276,27 +276,28 @@ elif st.session_state.selected_tab == "Visualisasi":
                 st.pyplot(fig)
 
 
-            # Menyiapkan data untuk pie chart
-            jumlah_top = 10  # Jumlah kabupaten/kota teratas untuk ditampilkan
-            hitung_kabupaten = cluster_df['Provinsi'].value_counts()  # Menghitung kemunculan setiap kabupaten/kota
-            kabupaten_teratas = hitung_kabupaten[:jumlah_top]  # Mengambil N kabupaten/kota teratas
-            jumlah_lainnya = hitung_kabupaten[jumlah_top:].sum()  # Menghitung jumlah untuk 'Lainnya'
+           # Menyiapkan data untuk visualisasi
+        jumlah_top = 10  # Jumlah provinsi teratas untuk ditampilkan
+        hitung_provinsi = cluster_df['Provinsi'].value_counts()  # Menghitung kemunculan setiap provinsi
+        provinsi_teratas = hitung_provinsi[:jumlah_top]  # Mengambil N provinsi teratas
+        jumlah_lainnya = hitung_provinsi[jumlah_top:].sum()  # Menghitung jumlah untuk 'Lainnya'
+        
+        # Membuat Series baru untuk visualisasi
+        data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
+        
+        # Membuat pie chart dengan warna dari Set3
+        plt.figure(figsize=(8, 8))  # Mengatur ukuran gambar
+        colors = sns.color_palette('Set3', len(data_visual))  # Warna dari Set3
+        plt.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
+        plt.title(f"Distribusi 10 Provinsi Terbanyak - Klaster {label}")  # Judul chart
+        plt.axis('equal')  # Membuat pie chart bulat
+        st.pyplot(plt)
 
-            # Membuat DataFrame baru untuk visualisasi
-            data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
-
-            # Membuat pie chart dengan warna yang sama seperti sebelumnya
-            plt.figure(figsize=(8, 8))  # Mengatur ukuran gambar
-            colors = sns.color_palette('Set3', len(data_visual))  # Warna dari Set3 yang sesuai dengan jumlah data
-            plt.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
-            plt.title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")  # Menetapkan judul
-            plt.axis('equal')  # Memastikan pie chart bulat
-            st.pyplot(plt)
             
-            # Tampilkan DataFrame untuk setiap klaster yang dapat diurutkan
-            st.markdown(f"### 📋 Tabel Klaster {label}")
-            tabel_klaster = cluster_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
-            st.dataframe(tabel_klaster, use_container_width=True)
+        # Tampilkan DataFrame untuk setiap klaster yang dapat diurutkan
+        st.markdown(f"### 📋 Tabel Klaster {label}")
+        tabel_klaster = cluster_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
+        st.dataframe(tabel_klaster, use_container_width=True)
 
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df
