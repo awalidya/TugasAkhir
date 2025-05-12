@@ -276,6 +276,10 @@ elif st.session_state.selected_tab == "Visualisasi":
                 plt.xticks(rotation=0)
                 st.pyplot(fig)
 
+                # Tampilkan DataFrame untuk setiap klaster yang dapat diurutkan
+                st.markdown(f"### 📋 Tabel Klaster {label}")
+                tabel_klaster = cluster_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
+                st.dataframe(tabel_klaster, use_container_width=True)
 
     if 'df' in st.session_state and 'cluster_labels' in st.session_state.df.columns:
         df = st.session_state.df
