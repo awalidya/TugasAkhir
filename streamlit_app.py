@@ -158,63 +158,6 @@ elif st.session_state.selected_tab == "Upload Data":
         ax.set_title("Correlation Heatmap for Selected Features")
         st.pyplot(fig)
 
-# #=== Pemodelan ===
-# elif st.session_state.selected_tab == "Pemodelan":
-#     if 'df' in st.session_state:
-#         df = st.session_state.df.copy()
-#         X = df[scaling_columns].values
-
-#         st.subheader("Pemodelan Clustering dengan Mean Shift")
-#         custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
-
-#         if st.button("🚀 Jalankan Clustering"):
-#             ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
-#             ms.fit(X)
-#             labels = ms.labels_
-#             cluster_centers = ms.cluster_centers_
-#             n_clusters = len(np.unique(labels))
-
-#             df['cluster_labels'] = labels
-#             st.session_state.df = df
-#             st.session_state.ms_final = ms
-
-#             st.success(f"Jumlah klaster terbentuk: {n_clusters}")
-
-#             fig = plt.figure(figsize=(6, 4))
-#             ax = fig.add_subplot(111, projection='3d')
-#             ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, cmap='plasma', marker='o', label='Data Points')
-#             ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-#                        s=150, c='blue', marker='X', label='Cluster Centers')
-#             ax.set_xlabel('Sampah Tahunan')
-#             ax.set_ylabel('Pengurangan')
-#             ax.set_zlabel('Penanganan')
-#             ax.set_title('3D Mean Shift Clustering')
-#             ax.legend()
-#             st.pyplot(fig)
-
-#             if len(set(labels)) > 1:
-#                 dbi = davies_bouldin_score(X, labels)
-#                 sil = silhouette_score(X, labels)
-#                 st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
-#                 st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
-#             else:
-#                 st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
-        
-#             # # 🔁 Inverse transform setelah evaluasi
-#             # df[columns_to_scale] = scaler.inverse_transform(df[columns_to_scale])
-#             # st.session_state.df = df  # Simpan kembali dataframe yang sudah di-inverse
-         
-#             if 'scaler' in st.session_state:
-#                 df[columns_to_scale] = st.session_state.scaler.inverse_transform(df[columns_to_scale])
-
-#             # ✅ Langsung tampilkan hasil per klaster setelah pemodelan
-#             st.markdown("### 📊 Tabel Data per Klaster")
-#             for cluster_id in sorted(df['cluster_labels'].unique()):
-#                 st.markdown(f"#### 🟢 Klaster {cluster_id}")
-#                 st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
-                
-#     else:
-#         st.warning("Silakan unggah data terlebih dahulu.")
 
 # === Pemodelan ===
 elif st.session_state.selected_tab == "Pemodelan":
@@ -335,23 +278,21 @@ elif st.session_state.selected_tab == "Visualisasi":
                 plt.title(f"Rata-rata Persentase - Klaster {label}")
                 plt.ylabel("Persentase (%)")
                 plt.xticks(rotation=0)
+                
+                # Tambahkan label angka di atas bar
+                for container in bars1.containers:
+                    for bar in container:
+                        height = bar.get_height()
+                        ax1.annotate(f'{height:.1f}%',  # Format angka 1 desimal dan pakai persen
+                                     xy=(bar.get_x() + bar.get_width() / 2, height),
+                                     xytext=(0, 3),  # Offset vertikal 3 pt
+                                     textcoords="offset points",
+                                     ha='center', va='bottom')
                 st.pyplot(fig1)
                 
-            # with col2:
-            #     st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
-            #     avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
-            
-            #     fig2, ax2 = plt.subplots()
-            #     avg_df2.T.plot(kind='bar', ax=ax2, color=["#fdb462", "#b3de69"])  # warna opsional
-            #     plt.title(f"Rata-rata Sampah Harian dan Tahunan - Klaster {label}")
-            #     plt.ylabel("Ton")
-            #     plt.xticks(rotation=0)
-            #     st.pyplot(fig2)
-
 
             with col2:
                 st.markdown("### Perbandingan Rata-rata Sampah Harian dan Tahunan (dalam Subplot)")
-            
                 # Hitung rata-rata
                 avg_sampah_harian = cluster_df['sampah_harian'].mean()
                 avg_sampah_tahunan = cluster_df['sampah_tahunan'].mean()
@@ -360,23 +301,28 @@ elif st.session_state.selected_tab == "Visualisasi":
                 fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
             
                 # Bar chart sampah harian
-                ax1.bar(["Klaster " + str(label)], [avg_sampah_harian], color="#fdb462")
+                bar1 = ax1.bar(["Klaster " + str(label)], [avg_sampah_harian], color="#fdb462")
                 ax1.set_title("Rata-rata Sampah Harian")
                 ax1.set_ylabel("Ton")
+                for bar in bar1:
+                    ax1.annotate(f'{bar.get_height():,.0f}',  # Format ribuan tanpa desimal
+                                 xy=(bar.get_x() + bar.get_width() / 2, bar.get_height()),
+                                 xytext=(0, 3), textcoords="offset points",
+                                 ha='center', va='bottom')
             
                 # Bar chart sampah tahunan
-                ax2.bar(["Klaster " + str(label)], [avg_sampah_tahunan], color="#b3de69")
+                bar2 = ax2.bar(["Klaster " + str(label)], [avg_sampah_tahunan], color="#b3de69")
                 ax2.set_title("Rata-rata Sampah Tahunan")
                 ax2.set_ylabel("Ton")
+                for bar in bar2:
+                    ax2.annotate(f'{bar.get_height():,.0f}',
+                                 xy=(bar.get_x() + bar.get_width() / 2, bar.get_height()),
+                                 xytext=(0, 3), textcoords="offset points",
+                                 ha='center', va='bottom')
             
-                # Tambahkan judul utama
                 fig.suptitle(f"Perbandingan Sampah Harian vs Tahunan - Klaster {label}")
-                st.pyplot(fig)
-
-
-
-            
-
+                st.pyplot(fig)            
+               
             # Pie Chart: Distribusi Provinsi
             jumlah_top = 5
             hitung_provinsi = cluster_df['Provinsi'].value_counts()
