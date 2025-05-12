@@ -339,7 +339,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             jumlah_lainnya = hitung_provinsi[jumlah_top:].sum()
             data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
 
-            fig3, ax3 = plt.subplots(figsize=(8, 8))
+            fig3, ax3 = plt.subplots(figsize=(3, 3))
             colors = sns.color_palette('Set3', len(data_visual))
             ax3.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
             ax3.set_title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")
