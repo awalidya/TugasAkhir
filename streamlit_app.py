@@ -204,9 +204,14 @@ elif st.session_state.selected_tab == "Pemodelan":
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
 
-# === Visualisasi ===
+# --- Visualisasi ---
 elif st.session_state.selected_tab == "Visualisasi":
     def visualisasi_page(df, n_clusters):
+        # Cek jika df kosong
+        if df is None or len(df) == 0:
+            st.warning("Data tidak valid untuk visualisasi.")
+            return {}
+
         # Kembalikan nilai yang di-scaling ke bentuk semula
         if 'scaler' in st.session_state:
             scaler = st.session_state.scaler
@@ -259,20 +264,28 @@ elif st.session_state.selected_tab == "Visualisasi":
 
     if 'ms_final' in st.session_state:
         ms = st.session_state.ms_final
-        n_clusters = len(np.unique(ms.labels_))
+        df = st.session_state.df.copy()
 
-        # Tampilkan visualisasi cluster yang terbentuk
-        cluster_dfs = visualisasi_page(df, n_clusters)
+        # Periksa jika df kosong atau tidak valid
+        if df is None or len(df) == 0:
+            st.warning("Data tidak valid untuk pemodelan atau visualisasi.")
+        else:
+            n_clusters = len(np.unique(ms.labels_))
 
-        # Plot Visualisasi Clustering
-        fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-        axes = axes.flatten()
-        for i, column in enumerate(df[scaling_columns]):
-            sns.histplot(df[column], kde=True, ax=axes[i])
-            axes[i].set_title(f'Histogram of {column}')
-        st.pyplot(fig)
+            # Tampilkan visualisasi cluster yang terbentuk
+            cluster_dfs = visualisasi_page(df, n_clusters)
 
-        st.subheader("Evaluasi Visualisasi")
-        st.write("Lihat juga hasil pemodelan clustering lainnya atau sesuaikan nilai Bandwidth untuk perubahan hasil yang lebih baik!")
+            if cluster_dfs:
+                # Plot Visualisasi Clustering
+                fig, axes = plt.subplots(1, 3, figsize=(18, 6))
+                axes = axes.flatten()
+                for i, column in enumerate(df[scaling_columns]):
+                    sns.histplot(df[column], kde=True, ax=axes[i])
+                    axes[i].set_title(f'Histogram of {column}')
+                st.pyplot(fig)
+
+                st.subheader("Evaluasi Visualisasi")
+                st.write("Lihat juga hasil pemodelan clustering lainnya atau sesuaikan nilai Bandwidth untuk perubahan hasil yang lebih baik!")
     else:
         st.warning("Silakan lakukan pemodelan clustering terlebih dahulu.")
+
