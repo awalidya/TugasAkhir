@@ -243,6 +243,7 @@ elif st.session_state.selected_tab == "Visualisasi":
                         <p>ton/tahun</p>
                     </div>
                 """, unsafe_allow_html=True)
+            
             # Membuat dua kolom
             col1, col2 = st.columns(2)
             
@@ -282,7 +283,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             jumlah_lainnya = hitung_kabupaten[jumlah_top:].sum()  # Menghitung jumlah untuk 'Lainnya'
 
             # Membuat DataFrame baru untuk visualisasi
-            data_visual = kabupaten_teratas.append(pd.Series(jumlah_lainnya, index=['Lainnya']))
+            data_visual = pd.concat([kabupaten_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
 
             # Membuat pie chart dengan warna yang sama seperti sebelumnya
             plt.figure(figsize=(8, 8))  # Mengatur ukuran gambar
@@ -292,7 +293,7 @@ elif st.session_state.selected_tab == "Visualisasi":
             plt.axis('equal')  # Memastikan pie chart bulat
             st.pyplot(plt)
             
-    # Tampilkan DataFrame untuk setiap klaster yang dapat diurutkan
+            # Tampilkan DataFrame untuk setiap klaster yang dapat diurutkan
             st.markdown(f"### 📋 Tabel Klaster {label}")
             tabel_klaster = cluster_df[['Kabupaten/Kota', 'sampah_harian', 'sampah_tahunan', 'pengurangan', 'penanganan']]
             st.dataframe(tabel_klaster, use_container_width=True)
@@ -303,3 +304,4 @@ elif st.session_state.selected_tab == "Visualisasi":
         visualisasi_page(df, n_clusters)
     else:
         st.warning("Silakan jalankan pemodelan terlebih dahulu agar klaster tersedia.")
+
