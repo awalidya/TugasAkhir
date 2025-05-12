@@ -243,6 +243,37 @@ elif st.session_state.selected_tab == "Visualisasi":
                         <p>ton/tahun</p>
                     </div>
                 """, unsafe_allow_html=True)
+            # Membuat dua kolom
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan per Klaster")
+                avg_df = pd.DataFrame({
+                    f"Klaster {label}": cluster_df[['perc_pengurangan', 'perc_penanganan']].mean()
+                    for label, cluster_df in cluster_dfs.items()
+                })
+            
+                fig, ax = plt.subplots()
+                avg_df.T.plot(kind='bar', ax=ax)
+                plt.title("Rata-rata Persentase per Klaster")
+                plt.ylabel("Persentase (%)")
+                plt.xticks(rotation=0)
+                st.pyplot(fig)
+            
+            with col2:
+                st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan per Klaster")
+                avg_df = pd.DataFrame({
+                    f"Klaster {label}": cluster_df[['sampah_harian', 'sampah_tahunan']].mean()
+                    for label, cluster_df in cluster_dfs.items()
+                })
+    
+    fig, ax = plt.subplots()
+    avg_df.T.plot(kind='bar', ax=ax)
+    plt.title("Rata-rata Sampah Harian dan Sampah Tahunan per Klaster")
+    plt.ylabel("Ton/Tahun")
+    plt.xticks(rotation=0)
+    st.pyplot(fig)
+
 
             # Membuat Pie Chart untuk 5 Kabupaten/Kota terbanyak berdasarkan 'sampah_tahunan' per klaster
             top_5_kabupaten = cluster_df[['Kabupaten/Kota', 'sampah_tahunan']].nlargest(5, 'sampah_tahunan')
