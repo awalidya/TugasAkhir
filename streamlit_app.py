@@ -255,29 +255,23 @@ elif st.session_state.selected_tab == "Visualisasi":
             col1, col2 = st.columns(2)
 
             with col1:
-                st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan per Klaster")
-                avg_df1 = pd.DataFrame({
-                    f"Klaster {label}": cluster_df[['perc_pengurangan', 'perc_penanganan']].mean()
-                    for label, cluster_df in cluster_dfs.items()
-                })
-
+                st.markdown("### Perbandingan Rata-Rata Persentase Pengurangan dan Penanganan")
+                avg_df1 = cluster_df[['perc_pengurangan', 'perc_penanganan']].mean().to_frame(name=f'Klaster {label}')
+            
                 fig1, ax1 = plt.subplots()
-                avg_df1.T.plot(kind='bar', ax=ax1)
-                plt.title("Rata-rata Persentase per Klaster")
+                avg_df1.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])  # opsional: custom warna
+                plt.title(f"Rata-rata Persentase - Klaster {label}")
                 plt.ylabel("Persentase (%)")
                 plt.xticks(rotation=0)
                 st.pyplot(fig1)
 
             with col2:
-                st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan per Klaster")
-                avg_df2 = pd.DataFrame({
-                    f"Klaster {label}": cluster_df[['sampah_harian', 'sampah_tahunan']].mean()
-                    for label, cluster_df in cluster_dfs.items()
-                })
+                st.markdown("### Perbandingan Rata-Rata Sampah Harian dan Sampah Tahunan")
+                avg_df2 = cluster_df[['sampah_harian', 'sampah_tahunan']].mean().to_frame(name=f'Klaster {label}')
 
                 fig2, ax2 = plt.subplots()
-                avg_df2.T.plot(kind='bar', ax=ax2)
-                plt.title("Rata-rata Sampah Harian dan Sampah Tahunan per Klaster")
+                avg_df2.T.plot(kind='bar', ax=ax1, color=["#bebada", "#80b1d3"])  # opsional: custom warna  
+                plt.title(f"Rata-rata Sampah Harian dan Sampah Tahunan - Klaster {label}")
                 plt.ylabel("Ton")
                 plt.xticks(rotation=0)
                 st.pyplot(fig2)
