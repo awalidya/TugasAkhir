@@ -136,6 +136,7 @@ elif st.session_state.selected_tab == "Upload Data":
         
         # ✅ Simpan scaler ke session_state
         st.session_state.scaler = scaler
+        st.session_state.columns_to_scale = scaling_columns
         X = df[scaling_columns].values
       
 
@@ -157,61 +158,124 @@ elif st.session_state.selected_tab == "Upload Data":
         ax.set_title("Correlation Heatmap for Selected Features")
         st.pyplot(fig)
 
-#=== Pemodelan ===
+# #=== Pemodelan ===
+# elif st.session_state.selected_tab == "Pemodelan":
+#     if 'df' in st.session_state:
+#         df = st.session_state.df.copy()
+#         X = df[scaling_columns].values
+
+#         st.subheader("Pemodelan Clustering dengan Mean Shift")
+#         custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
+
+#         if st.button("🚀 Jalankan Clustering"):
+#             ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
+#             ms.fit(X)
+#             labels = ms.labels_
+#             cluster_centers = ms.cluster_centers_
+#             n_clusters = len(np.unique(labels))
+
+#             df['cluster_labels'] = labels
+#             st.session_state.df = df
+#             st.session_state.ms_final = ms
+
+#             st.success(f"Jumlah klaster terbentuk: {n_clusters}")
+
+#             fig = plt.figure(figsize=(6, 4))
+#             ax = fig.add_subplot(111, projection='3d')
+#             ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, cmap='plasma', marker='o', label='Data Points')
+#             ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+#                        s=150, c='blue', marker='X', label='Cluster Centers')
+#             ax.set_xlabel('Sampah Tahunan')
+#             ax.set_ylabel('Pengurangan')
+#             ax.set_zlabel('Penanganan')
+#             ax.set_title('3D Mean Shift Clustering')
+#             ax.legend()
+#             st.pyplot(fig)
+
+#             if len(set(labels)) > 1:
+#                 dbi = davies_bouldin_score(X, labels)
+#                 sil = silhouette_score(X, labels)
+#                 st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
+#                 st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
+#             else:
+#                 st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
+        
+#             # # 🔁 Inverse transform setelah evaluasi
+#             # df[columns_to_scale] = scaler.inverse_transform(df[columns_to_scale])
+#             # st.session_state.df = df  # Simpan kembali dataframe yang sudah di-inverse
+         
+#             if 'scaler' in st.session_state:
+#                 df[columns_to_scale] = st.session_state.scaler.inverse_transform(df[columns_to_scale])
+
+#             # ✅ Langsung tampilkan hasil per klaster setelah pemodelan
+#             st.markdown("### 📊 Tabel Data per Klaster")
+#             for cluster_id in sorted(df['cluster_labels'].unique()):
+#                 st.markdown(f"#### 🟢 Klaster {cluster_id}")
+#                 st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
+                
+#     else:
+#         st.warning("Silakan unggah data terlebih dahulu.")
+
+# === Pemodelan ===
 elif st.session_state.selected_tab == "Pemodelan":
     if 'df' in st.session_state:
         df = st.session_state.df.copy()
-        X = df[scaling_columns].values
 
-        st.subheader("Pemodelan Clustering dengan Mean Shift")
-        custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
+        # Pastikan scaler dan kolom tersedia dari session_state
+        if 'scaler' not in st.session_state or 'columns_to_scale' not in st.session_state:
+            st.error("Scaler atau kolom scaling tidak ditemukan. Silakan upload data terlebih dahulu.")
+        else:
+            scaler = st.session_state.scaler
+            columns_to_scale = st.session_state.columns_to_scale
+            X = df[columns_to_scale].values
 
-        if st.button("🚀 Jalankan Clustering"):
-            ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
-            ms.fit(X)
-            labels = ms.labels_
-            cluster_centers = ms.cluster_centers_
-            n_clusters = len(np.unique(labels))
+            st.subheader("Pemodelan Clustering dengan Mean Shift")
+            custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
 
-            df['cluster_labels'] = labels
-            st.session_state.df = df
-            st.session_state.ms_final = ms
+            if st.button("🚀 Jalankan Clustering"):
+                ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
+                ms.fit(X)
+                labels = ms.labels_
+                cluster_centers = ms.cluster_centers_
+                n_clusters = len(np.unique(labels))
 
-            st.success(f"Jumlah klaster terbentuk: {n_clusters}")
+                df['cluster_labels'] = labels
+                st.session_state.df = df
+                st.session_state.ms_final = ms
 
-            fig = plt.figure(figsize=(6, 4))
-            ax = fig.add_subplot(111, projection='3d')
-            ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, cmap='plasma', marker='o', label='Data Points')
-            ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-                       s=150, c='blue', marker='X', label='Cluster Centers')
-            ax.set_xlabel('Sampah Tahunan')
-            ax.set_ylabel('Pengurangan')
-            ax.set_zlabel('Penanganan')
-            ax.set_title('3D Mean Shift Clustering')
-            ax.legend()
-            st.pyplot(fig)
+                st.success(f"Jumlah klaster terbentuk: {n_clusters}")
 
-            if len(set(labels)) > 1:
-                dbi = davies_bouldin_score(X, labels)
-                sil = silhouette_score(X, labels)
-                st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
-                st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
-            else:
-                st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
-        
-            # # 🔁 Inverse transform setelah evaluasi
-            # df[columns_to_scale] = scaler.inverse_transform(df[columns_to_scale])
-            # st.session_state.df = df  # Simpan kembali dataframe yang sudah di-inverse
-         
-            if 'scaler' in st.session_state:
-                df[columns_to_scale] = st.session_state.scaler.inverse_transform(df[columns_to_scale])
+                # Plot 3D clustering
+                fig = plt.figure(figsize=(6, 4))
+                ax = fig.add_subplot(111, projection='3d')
+                ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, cmap='plasma', marker='o', label='Data Points')
+                ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+                           s=150, c='blue', marker='X', label='Cluster Centers')
+                ax.set_xlabel('Sampah Tahunan')
+                ax.set_ylabel('Pengurangan')
+                ax.set_zlabel('Penanganan')
+                ax.set_title('3D Mean Shift Clustering')
+                ax.legend()
+                st.pyplot(fig)
 
-            # ✅ Langsung tampilkan hasil per klaster setelah pemodelan
-            st.markdown("### 📊 Tabel Data per Klaster")
-            for cluster_id in sorted(df['cluster_labels'].unique()):
-                st.markdown(f"#### 🟢 Klaster {cluster_id}")
-                st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
-                
+                # Evaluasi Clustering
+                if len(set(labels)) > 1:
+                    dbi = davies_bouldin_score(X, labels)
+                    sil = silhouette_score(X, labels)
+                    st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
+                    st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
+                else:
+                    st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
+
+                # 🔁 Inverse transform setelah evaluasi
+                df[columns_to_scale] = scaler.inverse_transform(df[columns_to_scale])
+                st.session_state.df = df  # Simpan kembali dataframe yang sudah di-inverse
+
+                # ✅ Tampilkan tabel hasil klaster
+                st.markdown("### 📊 Tabel Data per Klaster")
+                for cluster_id in sorted(df['cluster_labels'].unique()):
+                    st.markdown(f"#### 🟢 Klaster {cluster_id}")
+                    st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
 
