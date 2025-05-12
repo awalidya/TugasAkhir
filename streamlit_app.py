@@ -133,6 +133,9 @@ elif st.session_state.selected_tab == "Upload Data":
         # Scaling
         scaler = RobustScaler()
         df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
+        
+        # ✅ Simpan scaler ke session_state
+        st.session_state.scaler = scaler
         X = df[scaling_columns].values
       
 
@@ -196,10 +199,13 @@ elif st.session_state.selected_tab == "Pemodelan":
             else:
                 st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
         
-            # 🔁 Inverse transform setelah evaluasi
-            df[columns_to_scale] = scaler.inverse_transform(df[columns_to_scale])
-            st.session_state.df = df  # Simpan kembali dataframe yang sudah di-inverse
-    
+            # # 🔁 Inverse transform setelah evaluasi
+            # df[columns_to_scale] = scaler.inverse_transform(df[columns_to_scale])
+            # st.session_state.df = df  # Simpan kembali dataframe yang sudah di-inverse
+         
+            if 'scaler' in st.session_state:
+                df[columns_to_scale] = st.session_state.scaler.inverse_transform(df[columns_to_scale])
+
             # ✅ Langsung tampilkan hasil per klaster setelah pemodelan
             st.markdown("### 📊 Tabel Data per Klaster")
             for cluster_id in sorted(df['cluster_labels'].unique()):
@@ -211,11 +217,6 @@ elif st.session_state.selected_tab == "Pemodelan":
 
 
 elif st.session_state.selected_tab == "Visualisasi":
-    import pandas as pd
-    import matplotlib.pyplot as plt
-    import seaborn as sns
-    import streamlit as st
-
     def visualisasi_page(df, n_clusters):
         st.title("Visualisasi Klaster")
         st.markdown(f"### Jumlah Klaster: {n_clusters}")
