@@ -326,7 +326,7 @@ elif st.session_state.selected_tab == "Visualisasi":
                 fig3, ax3 = plt.subplots(figsize=(5, 5))
                 colors = sns.color_palette('Set3', len(data_visual))
                 ax3.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
-                ax3.set_title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")
+                ax3.set_title(f"5 Provinsi Terbanyak - Klaster {label}")
                 ax3.axis('equal')
                 st.pyplot(fig3)
 
