@@ -316,14 +316,14 @@ elif st.session_state.selected_tab == "Visualisasi":
         
             with col2:
                 # Pie Chart: Distribusi Provinsi
-                st.markdown("###Distribusi Provinsi")
+                st.markdown("### Distribusi Provinsi")
                 jumlah_top = 5
                 hitung_provinsi = cluster_df['Provinsi'].value_counts()
                 provinsi_teratas = hitung_provinsi[:jumlah_top]
                 jumlah_lainnya = hitung_provinsi[jumlah_top:].sum()
                 data_visual = pd.concat([provinsi_teratas, pd.Series(jumlah_lainnya, index=['Lainnya'])])
     
-                fig3, ax3 = plt.subplots(figsize=(4, 4))
+                fig3, ax3 = plt.subplots(figsize=(5, 5))
                 colors = sns.color_palette('Set3', len(data_visual))
                 ax3.pie(data_visual, labels=data_visual.index, autopct='%1.1f%%', startangle=90, colors=colors)
                 ax3.set_title(f"Distribusi 5 Provinsi Terbanyak - Klaster {label}")
