@@ -164,25 +164,26 @@ elif st.session_state.selected_tab == "Pemodelan":
     if 'df' in st.session_state:
         df = st.session_state.df.copy()
 
-        # Pastikan scaler dan kolom tersedia
-        if 'scaler' not in st.session_state or 'columns_to_scale' not in st.session_state:
-            st.error("Scaler atau kolom scaling tidak ditemukan. Silakan upload data terlebih dahulu.")
-        else:
-            scaler = st.session_state.scaler
-            all_columns = st.session_state.columns_to_scale
+        # Gunakan semua kolom numerik dalam df
+        numeric_columns = df.select_dtypes(include='number').columns.tolist()
 
+        if not numeric_columns:
+            st.error("Data tidak memiliki kolom numerik untuk clustering.")
+        else:
             st.subheader("Pemodelan Clustering dengan Mean Shift")
 
             selected_columns = st.multiselect(
-                "📌 Pilih variabel untuk clustering (minimal 2, maksimal 3 untuk visualisasi)",
-                options=all_columns,
-                default=all_columns[:3]
+                "📌 Pilih variabel numerik untuk clustering (minimal 2, maksimal 3 untuk visualisasi)",
+                options=numeric_columns,
+                default=numeric_columns[:3]
             )
 
             if len(selected_columns) < 2:
                 st.warning("Pilih minimal 2 variabel untuk melakukan clustering.")
             else:
-                X = df[selected_columns].values
+                # Lakukan scaling ulang hanya pada kolom terpilih
+                scaler = RobustScaler()
+                X = scaler.fit_transform(df[selected_columns])
 
                 custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
 
@@ -199,7 +200,7 @@ elif st.session_state.selected_tab == "Pemodelan":
 
                     st.success(f"Jumlah klaster terbentuk: {n_clusters}")
 
-                    # Plotting: jika 3 kolom, gunakan 3D plot
+                    # Visualisasi
                     if len(selected_columns) == 3:
                         fig = plt.figure(figsize=(6, 4))
                         ax = fig.add_subplot(111, projection='3d')
@@ -234,17 +235,18 @@ elif st.session_state.selected_tab == "Pemodelan":
                     else:
                         st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
 
-                    # 🔁 Inverse transform hanya kolom yang digunakan
-                    df[selected_columns] = scaler.inverse_transform(df[selected_columns])
+                    # Inverse transform hasil scaling
+                    df[selected_columns] = scaler.inverse_transform(X)
                     st.session_state.df = df
 
-                    # ✅ Tampilkan tabel hasil klaster
+                    # Tampilkan hasil per klaster
                     st.markdown("### 📊 Tabel Data per Klaster")
                     for cluster_id in sorted(df['cluster_labels'].unique()):
                         st.markdown(f"#### 🟢 Klaster {cluster_id}")
                         st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
+
 
 
 elif st.session_state.selected_tab == "Visualisasi":
