@@ -164,7 +164,7 @@ elif st.session_state.selected_tab == "Upload Data":
 
 
 # === Pemodelan ===
-elif selected_menu == "Pemodelan":
+elif st.session_state.selected_tab == "Pemodelan":
     st.title("Pemodelan Mean Shift Clustering")
 
     if 'df_scaled' in st.session_state and 'scaler' in st.session_state:
@@ -200,6 +200,7 @@ elif selected_menu == "Pemodelan":
             unscaled_cols = original_df.columns.difference(scaling_columns)
             df_inverse[unscaled_cols] = original_df[unscaled_cols]
 
+            # Simpan hasil akhir
             st.session_state.df_inverse = df_inverse
 
             st.success("Clustering berhasil dilakukan.")
@@ -211,22 +212,15 @@ elif selected_menu == "Pemodelan":
             cluster_counts.columns = ['Cluster', 'Jumlah Anggota']
             st.dataframe(cluster_counts)
 
-            # Pilih kolom untuk ditampilkan
-            st.subheader("Hasil Klastering (Nilai Asli)")
-            display_cols = st.multiselect(
-                "Pilih kolom untuk ditampilkan",
-                df_inverse.columns.tolist(),
-                default=scaling_columns
-            )
+            # Tampilkan seluruh kolom hasil inverse + cluster
+            st.subheader("Hasil Klastering Lengkap (Data Asli + Label Cluster)")
+            st.dataframe(df_inverse, use_container_width=True)
 
-            st.dataframe(
-                df_inverse[display_cols + ['cluster_labels']],
-                use_container_width=True
-            )
         else:
             st.warning("Pilih minimal 2 kolom untuk melakukan clustering.")
     else:
         st.warning("Silakan unggah dan scaling data terlebih dahulu di tab Upload Data.")
+
 
 
 
