@@ -164,88 +164,79 @@ elif st.session_state.selected_tab == "Pemodelan":
     if 'df' in st.session_state:
         df = st.session_state.df.copy()
 
-        # Gunakan semua kolom numerik dalam df
-        numeric_columns = df.select_dtypes(include='number').columns.tolist()
+        st.subheader("Pemodelan Clustering dengan Mean Shift")
 
-        if not numeric_columns:
-            st.error("Data tidak memiliki kolom numerik untuk clustering.")
+        # Pilih variabel untuk clustering
+        st.markdown("### 📌 Pilih Variabel untuk Clustering")
+        numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+        selected_columns = st.multiselect("Pilih variabel numerik", options=numeric_columns)
+
+        if selected_columns:
+            # Scaling hanya kolom yang dipilih
+            scaler = RobustScaler()
+            X = df[selected_columns].values
+            X_scaled = scaler.fit_transform(X)
+
+            custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
+
+            if st.button("🚀 Jalankan Clustering"):
+                ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
+                ms.fit(X_scaled)
+                labels = ms.labels_
+                cluster_centers = ms.cluster_centers_
+                n_clusters = len(np.unique(labels))
+
+                # Inverse transform hasil clustering
+                X_inverse = scaler.inverse_transform(X_scaled)
+                df_result = df.copy()
+                for i, col in enumerate(selected_columns):
+                    df_result[col] = X_inverse[:, i]
+
+                df_result['cluster_labels'] = labels
+
+                # Simpan model dan hasil
+                st.session_state.df = df_result
+                st.session_state.ms_final = ms
+
+                st.success(f"Jumlah klaster terbentuk: {n_clusters}")
+
+                # Plot 3D clustering jika hanya 3 kolom
+                if len(selected_columns) == 3:
+                    fig = plt.figure(figsize=(6, 4))
+                    ax = fig.add_subplot(111, projection='3d')
+                    ax.scatter(X_scaled[:, 0], X_scaled[:, 1], X_scaled[:, 2],
+                               c=labels, cmap='plasma', marker='o', label='Data Points')
+                    ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
+                               s=150, c='blue', marker='X', label='Cluster Centers')
+                    ax.set_xlabel(selected_columns[0])
+                    ax.set_ylabel(selected_columns[1])
+                    ax.set_zlabel(selected_columns[2])
+                    ax.set_title('3D Mean Shift Clustering')
+                    ax.legend()
+                    st.pyplot(fig)
+                else:
+                    st.info("Plot 3D hanya tersedia jika memilih tepat 3 variabel.")
+
+                # Evaluasi Clustering
+                if len(set(labels)) > 1:
+                    dbi = davies_bouldin_score(X_scaled, labels)
+                    sil = silhouette_score(X_scaled, labels)
+                    st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
+                    st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
+                else:
+                    st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
+
+                # Tampilkan tabel hasil clustering
+                st.markdown("### 📊 Tabel Data per Klaster (Nilai Asli)")
+                for cluster_id in sorted(df_result['cluster_labels'].unique()):
+                    st.markdown(f"#### 🟢 Klaster {cluster_id}")
+                    st.dataframe(df_result[df_result['cluster_labels'] == cluster_id], use_container_width=True)
+
         else:
-            st.subheader("Pemodelan Clustering dengan Mean Shift")
-
-            selected_columns = st.multiselect(
-                "📌 Pilih variabel numerik untuk clustering (minimal 2, maksimal 3 untuk visualisasi)",
-                options=numeric_columns,
-                default=numeric_columns[:3]
-            )
-
-            if len(selected_columns) < 2:
-                st.warning("Pilih minimal 2 variabel untuk melakukan clustering.")
-            else:
-                # Lakukan scaling ulang hanya pada kolom terpilih
-                scaler = RobustScaler()
-                X = scaler.fit_transform(df[selected_columns])
-
-                custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
-
-                if st.button("🚀 Jalankan Clustering"):
-                    ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
-                    ms.fit(X)
-                    labels = ms.labels_
-                    cluster_centers = ms.cluster_centers_
-                    n_clusters = len(np.unique(labels))
-
-                    df['cluster_labels'] = labels
-                    st.session_state.df = df
-                    st.session_state.ms_final = ms
-
-                    st.success(f"Jumlah klaster terbentuk: {n_clusters}")
-
-                    # Visualisasi
-                    if len(selected_columns) == 3:
-                        fig = plt.figure(figsize=(6, 4))
-                        ax = fig.add_subplot(111, projection='3d')
-                        ax.scatter(X[:, 0], X[:, 1], X[:, 2], c=labels, cmap='plasma', marker='o', label='Data Points')
-                        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1], cluster_centers[:, 2],
-                                   s=150, c='blue', marker='X', label='Cluster Centers')
-                        ax.set_xlabel(selected_columns[0])
-                        ax.set_ylabel(selected_columns[1])
-                        ax.set_zlabel(selected_columns[2])
-                        ax.set_title('3D Mean Shift Clustering')
-                        ax.legend()
-                        st.pyplot(fig)
-                    elif len(selected_columns) == 2:
-                        fig, ax = plt.subplots(figsize=(6, 4))
-                        ax.scatter(X[:, 0], X[:, 1], c=labels, cmap='plasma', marker='o', label='Data Points')
-                        ax.scatter(cluster_centers[:, 0], cluster_centers[:, 1],
-                                   s=150, c='blue', marker='X', label='Cluster Centers')
-                        ax.set_xlabel(selected_columns[0])
-                        ax.set_ylabel(selected_columns[1])
-                        ax.set_title('2D Mean Shift Clustering')
-                        ax.legend()
-                        st.pyplot(fig)
-                    else:
-                        st.info("Visualisasi hanya tersedia untuk 2 atau 3 variabel.")
-
-                    # Evaluasi Clustering
-                    if len(set(labels)) > 1:
-                        dbi = davies_bouldin_score(X, labels)
-                        sil = silhouette_score(X, labels)
-                        st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
-                        st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
-                    else:
-                        st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
-
-                    # Inverse transform hasil scaling
-                    df[selected_columns] = scaler.inverse_transform(X)
-                    st.session_state.df = df
-
-                    # Tampilkan hasil per klaster
-                    st.markdown("### 📊 Tabel Data per Klaster")
-                    for cluster_id in sorted(df['cluster_labels'].unique()):
-                        st.markdown(f"#### 🟢 Klaster {cluster_id}")
-                        st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
+            st.info("Silakan pilih minimal satu variabel numerik untuk melakukan clustering.")
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
+
 
 
 
