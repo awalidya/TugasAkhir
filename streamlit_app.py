@@ -160,7 +160,6 @@ elif st.session_state.selected_tab == "Upload Data":
 
 
 # === Pemodelan ===
-
 elif st.session_state.selected_tab == "Pemodelan":
     st.header("🔍 Pemodelan Clustering (Mean Shift)")
 
@@ -170,18 +169,23 @@ elif st.session_state.selected_tab == "Pemodelan":
     selected_columns = st.multiselect("Kolom fitur:", df.select_dtypes(include=np.number).columns.tolist(), default=['sampah_tahunan', 'pengurangan', 'penanganan'])
 
     if selected_columns:
+        # Gunakan scaler dari session state (yang dibuat saat upload)
         scaler = st.session_state.scaler
         X = df[selected_columns].values
-        X_scaled = scaler.transform(X)
+        X_scaled = scaler.transform(X)  # Hanya transform, jangan fit_transform
 
+        # Input bandwidth
         custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
 
         if st.button("🚀 Jalankan Clustering"):
+            # Mean Shift clustering
             ms = MeanShift(bandwidth=custom_bw, bin_seeding=True)
             ms.fit(X_scaled)
             labels = ms.labels_
+            cluster_centers = ms.cluster_centers_
             n_clusters = len(np.unique(labels))
 
+            # Kembalikan nilai fitur ke skala asli
             X_inverse = scaler.inverse_transform(X_scaled)
             df_result = df.copy()
             for i, col in enumerate(selected_columns):
@@ -189,37 +193,25 @@ elif st.session_state.selected_tab == "Pemodelan":
 
             df_result['cluster_labels'] = labels
 
+            # Simpan hasil dan model
             st.session_state.df = df_result
             st.session_state.ms_final = ms
 
+            # Tampilkan hasil
             st.success(f"✅ Clustering selesai. Jumlah klaster terbentuk: {n_clusters}")
+            st.dataframe(df_result.head())
 
-            # Tampilkan tabel hasil clustering
-            st.subheader("📋 Tabel Data dengan Label Klaster")
-            st.dataframe(df_result.head(20))  # tampilkan 20 baris pertama
-
-            # Visualisasi klaster
-            st.subheader("📊 Visualisasi Klaster")
-            if len(selected_columns) >= 3:
-                fig = plt.figure()
-                ax = fig.add_subplot(111, projection='3d')
-                scatter = ax.scatter(X_inverse[:, 0], X_inverse[:, 1], X_inverse[:, 2], c=labels, cmap='viridis')
-                ax.set_xlabel(selected_columns[0])
-                ax.set_ylabel(selected_columns[1])
-                ax.set_zlabel(selected_columns[2])
-                ax.set_title("Visualisasi Klaster 3D")
-                plt.colorbar(scatter, ax=ax, label='Cluster Label')
-                st.pyplot(fig)
-            elif len(selected_columns) == 2:
+            # Visualisasi distribusi klaster
+            st.subheader("📊 Visualisasi Klaster (2D)")
+            if len(selected_columns) >= 2:
                 fig, ax = plt.subplots()
                 scatter = ax.scatter(X_inverse[:, 0], X_inverse[:, 1], c=labels, cmap='viridis')
                 ax.set_xlabel(selected_columns[0])
                 ax.set_ylabel(selected_columns[1])
-                ax.set_title("Visualisasi Klaster 2D")
-                plt.colorbar(scatter, ax=ax, label='Cluster Label')
+                ax.set_title("Visualisasi Klaster")
                 st.pyplot(fig)
             else:
-                st.info("Pilih minimal 2 kolom untuk visualisasi klaster.")
+                st.info("Pilih minimal 2 kolom untuk visualisasi.")
 
 
 
