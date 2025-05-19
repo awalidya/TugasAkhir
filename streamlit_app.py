@@ -51,10 +51,12 @@ if 'selected_tab' not in st.session_state:
 # Daftar kolom numerik
 numeric_columns = [
     'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
-    'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola', 'daur_ulang'
+    'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola'
 ]
 feature_outlier = ['sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan', 'penanganan', 'sampah_terkelola']
-scaling_columns = ['sampah_tahunan', 'pengurangan', 'penanganan']
+# scaling_columns = ['sampah_tahunan', 'pengurangan', 'penanganan']
+scaling_columns = [    'sampah_harian', 'sampah_tahunan', 'pengurangan', 'perc_pengurangan',
+    'penanganan', 'perc_penanganan', 'sampah_terkelola', 'perc_sampah_terkelola']
 
 @st.cache_data
 def load_data(uploaded_file):
@@ -141,10 +143,12 @@ elif st.session_state.selected_tab == "Upload Data":
       
 
         st.subheader("Data Setelah Scaling")
-        st.dataframe(df[scaling_columns].head())
+        # st.dataframe(df[scaling_columns].head())
+        st.dataframe(df[['sampah_tahunan', 'penanganan', 'pengurangan']].head())
 
         st.subheader("EDA")
-        st.dataframe(df[scaling_columns].describe().T)
+        # st.dataframe(df[scaling_columns].describe().T
+        st.dataframe(df[['sampah_tahunan', 'penanganan', 'pengurangan']].describe().T)
 
         fig, axes = plt.subplots(1, 3, figsize=(18, 6))
         for i, column in enumerate(df[scaling_columns]):
@@ -152,7 +156,7 @@ elif st.session_state.selected_tab == "Upload Data":
             axes[i].set_title(f'Histogram of {column}')
         st.pyplot(fig)
 
-        correlation_matrix_selected = df[scaling_columns].corr()
+        correlation_matrix_selected = df[['sampah_tahunan', 'penanganan', 'pengurangan']]corr()
         fig, ax = plt.subplots(figsize=(10, 8))
         sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
         ax.set_title("Correlation Heatmap for Selected Features")
