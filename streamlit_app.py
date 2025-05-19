@@ -174,9 +174,9 @@ elif st.session_state.selected_tab == "Pemodelan":
 
         if selected_columns:
             scaler = RobustScaler()
-            X = df[selected_columns].values
+            X = df[selected_columns].values  # Ambil nilai asli saja, tanpa mengubah df
 
-            # Scaling fitur yang dipilih untuk clustering
+            # Scaling fitur yang dipilih untuk clustering (tidak mengubah df asli)
             X_scaled = scaler.fit_transform(X)
 
             custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
@@ -231,10 +231,11 @@ elif st.session_state.selected_tab == "Pemodelan":
                 # Gabungkan kolom yang akan ditampilkan (unik & urut)
                 display_cols = list(dict.fromkeys(selected_columns + mandatory_cols))
 
-                # Tampilkan tabel hasil clustering dengan kolom display_cols + cluster_labels
-                st.markdown("### 📊 Tabel Data per Klaster")
+                # Tampilkan tabel hasil clustering dengan kolom display_cols + cluster_labels, semua dari df asli
+                st.markdown("### 📊 Tabel Data per Klaster (Nilai Asli)")
                 for cluster_id in sorted(df_result['cluster_labels'].unique()):
                     st.markdown(f"#### 🟢 Klaster {cluster_id}")
+                    # Ambil dari df_result (nilai asli, bukan scaled)
                     st.dataframe(df_result[df_result['cluster_labels'] == cluster_id][display_cols + ['cluster_labels']], use_container_width=True)
 
         else:
