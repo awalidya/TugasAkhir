@@ -160,6 +160,7 @@ elif st.session_state.selected_tab == "Upload Data":
 
 
 # === Pemodelan ===
+# === Pemodelan ===
 elif st.session_state.selected_tab == "Pemodelan":
     if 'df' in st.session_state:
         df = st.session_state.df.copy()
@@ -223,16 +224,24 @@ elif st.session_state.selected_tab == "Pemodelan":
                 else:
                     st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
 
-                # Tampilkan tabel hasil clustering dengan nilai asli (bukan hasil scaling)
-                st.markdown("### 📊 Tabel Data per Klaster (Nilai Asli)")
+                # Tentukan kolom wajib jika ada dalam selected_columns
+                mandatory_cols = ['sampah_tahunan', 'pengurangan', 'penanganan']
+                mandatory_cols = [col for col in mandatory_cols if col in df.columns and col in selected_columns]
+
+                # Gabungkan kolom yang akan ditampilkan (unik & urut)
+                display_cols = list(dict.fromkeys(selected_columns + mandatory_cols))
+
+                # Tampilkan tabel hasil clustering dengan kolom display_cols + cluster_labels
+                st.markdown("### 📊 Tabel Data per Klaster")
                 for cluster_id in sorted(df_result['cluster_labels'].unique()):
                     st.markdown(f"#### 🟢 Klaster {cluster_id}")
-                    st.dataframe(df_result[df_result['cluster_labels'] == cluster_id][selected_columns + ['cluster_labels']], use_container_width=True)
+                    st.dataframe(df_result[df_result['cluster_labels'] == cluster_id][display_cols + ['cluster_labels']], use_container_width=True)
 
         else:
             st.info("Silakan pilih minimal satu variabel numerik untuk melakukan clustering.")
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
+
 
 
 
