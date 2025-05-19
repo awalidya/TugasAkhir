@@ -172,9 +172,10 @@ elif st.session_state.selected_tab == "Pemodelan":
         selected_columns = st.multiselect("Pilih variabel numerik", options=numeric_columns)
 
         if selected_columns:
-            # Scaling hanya kolom yang dipilih
             scaler = RobustScaler()
             X = df[selected_columns].values
+
+            # Scaling fitur yang dipilih untuk clustering
             X_scaled = scaler.fit_transform(X)
 
             custom_bw = st.number_input("🎛️ Sesuaikan nilai Bandwidth", min_value=0.1, max_value=10.0, value=1.5, step=0.1)
@@ -186,12 +187,8 @@ elif st.session_state.selected_tab == "Pemodelan":
                 cluster_centers = ms.cluster_centers_
                 n_clusters = len(np.unique(labels))
 
-                # Inverse transform hasil clustering
-                X_inverse = scaler.inverse_transform(X_scaled)
+                # Bikin copy df hasil dan tambahkan label cluster
                 df_result = df.copy()
-                for i, col in enumerate(selected_columns):
-                    df_result[col] = X_inverse[:, i]
-
                 df_result['cluster_labels'] = labels
 
                 # Simpan model dan hasil
@@ -200,7 +197,7 @@ elif st.session_state.selected_tab == "Pemodelan":
 
                 st.success(f"Jumlah klaster terbentuk: {n_clusters}")
 
-                # Plot 3D clustering jika hanya 3 kolom
+                # Plot 3D clustering jika tepat 3 kolom
                 if len(selected_columns) == 3:
                     fig = plt.figure(figsize=(6, 4))
                     ax = fig.add_subplot(111, projection='3d')
@@ -226,16 +223,17 @@ elif st.session_state.selected_tab == "Pemodelan":
                 else:
                     st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
 
-                # Tampilkan tabel hasil clustering
+                # Tampilkan tabel hasil clustering dengan nilai asli (bukan hasil scaling)
                 st.markdown("### 📊 Tabel Data per Klaster (Nilai Asli)")
                 for cluster_id in sorted(df_result['cluster_labels'].unique()):
                     st.markdown(f"#### 🟢 Klaster {cluster_id}")
-                    st.dataframe(df_result[df_result['cluster_labels'] == cluster_id], use_container_width=True)
+                    st.dataframe(df_result[df_result['cluster_labels'] == cluster_id][selected_columns + ['cluster_labels']], use_container_width=True)
 
         else:
             st.info("Silakan pilih minimal satu variabel numerik untuk melakukan clustering.")
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
+
 
 
 elif st.session_state.selected_tab == "Visualisasi":
