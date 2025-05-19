@@ -156,7 +156,7 @@ elif st.session_state.selected_tab == "Upload Data":
             axes[i].set_title(f'Histogram of {column}')
         st.pyplot(fig)
 
-        correlation_matrix_selected = df[['sampah_tahunan', 'penanganan', 'pengurangan']]corr()
+        correlation_matrix_selected = df[['sampah_tahunan', 'penanganan', 'pengurangan']].corr()
         fig, ax = plt.subplots(figsize=(10, 8))
         sns.heatmap(correlation_matrix_selected, annot=True, cmap="coolwarm", fmt=".2f", ax=ax)
         ax.set_title("Correlation Heatmap for Selected Features")
