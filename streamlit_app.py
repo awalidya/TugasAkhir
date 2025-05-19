@@ -151,7 +151,7 @@ elif st.session_state.selected_tab == "Upload Data":
         st.dataframe(df[['sampah_tahunan', 'penanganan', 'pengurangan']].describe().T)
 
         fig, axes = plt.subplots(1, 3, figsize=(18, 6))
-        for i, column in enumerate(df[scaling_columns]):
+        for i, column in enumerate(df[['sampah_tahunan', 'penanganan', 'pengurangan']]):
             sns.histplot(df[column], kde=True, ax=axes[i])
             axes[i].set_title(f'Histogram of {column}')
         st.pyplot(fig)
