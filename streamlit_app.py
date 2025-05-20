@@ -230,7 +230,7 @@ elif st.session_state.selected_tab == "Pemodelan":
                         st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
 
                     # ✅ Tampilkan hasil
-                    st.markdown("### 📊 Tabel Data per Klaster (Nilai Asli)")
+                    st.markdown("### 📊 Tabel Data per Klaster")
                     for cluster_id in sorted(df['cluster_labels'].unique()):
                         st.markdown(f"#### 🟢 Klaster {cluster_id}")
                         st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
