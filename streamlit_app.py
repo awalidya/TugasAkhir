@@ -134,12 +134,13 @@ elif st.session_state.selected_tab == "Upload Data":
 
         # Scaling
         scaler = RobustScaler()
-        df[scaling_columns] = scaler.fit_transform(df[scaling_columns])
-        
-        # ✅ Simpan scaler ke session_state
+        numeric_columns = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
+        df[numeric_columns] = scaler.fit_transform(df[numeric_columns])
+
+        # Simpan state
+        st.session_state.df = df
         st.session_state.scaler = scaler
-        st.session_state.columns_to_scale = scaling_columns
-        X = df[scaling_columns].values
+        st.session_state.all_scaled_columns = numeric_columns
       
 
         st.subheader("Data Setelah Scaling")
