@@ -180,7 +180,7 @@ elif st.session_state.selected_tab == "Pemodelan":
 
             # Pilih subset kolom untuk clustering
             st.markdown("### 📌 Pilih Variabel untuk Clustering")
-            selected_columns = st.multiselect("Pilih variabel numerik", options=all_scaled_columns)
+            selected_columns = st.multiselect("Pilih variabel", options=all_scaled_columns)
 
             if selected_columns:
                 # Ambil nilai scaled untuk kolom yang dipilih (agar clustering dilakukan pada data yang sudah diskalakan)
@@ -235,11 +235,9 @@ elif st.session_state.selected_tab == "Pemodelan":
                         st.markdown(f"#### 🟢 Klaster {cluster_id}")
                         st.dataframe(df[df['cluster_labels'] == cluster_id], use_container_width=True)
             else:
-                st.info("Silakan pilih minimal satu variabel numerik untuk melakukan clustering.")
+                st.info("Silakan pilih minimal tiga variabel untuk melakukan clustering.")
     else:
         st.warning("Silakan unggah data terlebih dahulu.")
-
-
 
 
 elif st.session_state.selected_tab == "Visualisasi":
