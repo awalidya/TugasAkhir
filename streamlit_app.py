@@ -225,7 +225,7 @@ elif st.session_state.selected_tab == "Pemodelan":
                         dbi = davies_bouldin_score(X_scaled, labels)
                         sil = silhouette_score(X_scaled, labels)
                         st.markdown(f"📈 **Davies-Bouldin Index**: `{dbi:.3f}`")
-                        st.markdown(f"📉 **Silhouette Score**: `{sil:.3f}`")
+                        st.markdown(f"📉 **Silhouette Score**: `{sil:.4f}`")
                     else:
                         st.warning("Hanya 1 klaster terbentuk, tidak bisa mengevaluasi.")
 
